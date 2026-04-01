@@ -1,125 +1,165 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { logoutUser } from '@/lib/firebase/auth'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
-import { LogOut, Loader2 } from 'lucide-react'
+import { Loader2, TrendingUp, Package, Wrench, AlertTriangle } from 'lucide-react'
 
 export default function OverviewPage() {
-  const { logisUser, companyId, loading } = useAuth()
-  const router = useRouter()
-
-  async function handleLogout() {
-    await logoutUser()
-    toast.success('Berhasil logout')
-    router.push('/login')
-  }
+  const { logisUser, loading } = useAuth()
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: '#0a0a0a' }}
-      >
-        <Loader2
-          size={32}
-          className="animate-spin"
-          style={{ color: '#F97316' }}
-        />
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
       </div>
     )
   }
 
   return (
-    <div
-      className="min-h-screen p-8"
-      style={{ background: '#0a0a0a', color: '#f5f0eb' }}
-    >
+    <div className="p-8">
       {/* Header */}
-      <div className="flex justify-between items-center mb-12">
-        <div
-          className="text-2xl font-black tracking-[4px]"
-          style={{ fontFamily: 'monospace' }}
-        >
-          LOG<span style={{ color: '#F97316' }}>I</span>S
-        </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-sm px-4 py-2 transition-all"
-          style={{
-            border: '1px solid rgba(245,240,235,0.1)',
-            color: 'rgba(245,240,235,0.5)',
-          }}
-        >
-          <LogOut size={14} />
-          Logout
-        </button>
-      </div>
-
-      {/* Welcome */}
-      <div
-        className="p-8 mb-8"
-        style={{
-          background: '#111111',
-          border: '1px solid rgba(245,240,235,0.08)',
-        }}
-      >
-        <div
-          className="text-xs font-semibold uppercase tracking-widest mb-3"
+      <div className="mb-8">
+        <p
+          className="text-xs font-semibold uppercase tracking-widest mb-1"
           style={{ color: '#F97316' }}
         >
-          ✓ Auth berhasil
-        </div>
-        <h1 className="text-3xl font-bold mb-2">
-          Selamat datang, {logisUser?.name || 'User'}!
+          Command Center
+        </p>
+        <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+          Selamat datang, {logisUser?.name?.split(' ')[0]}
         </h1>
-        <p style={{ color: 'rgba(245,240,235,0.5)' }}>
-          Company ID: {companyId} · Role:{' '}
-          <span
-            className="font-semibold uppercase"
-            style={{ color: '#F97316' }}
-          >
-            {logisUser?.role}
-          </span>
+        <p className="text-sm mt-1" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          Berikut ringkasan kondisi operasional hari ini
         </p>
       </div>
 
-      {/* Coming soon modules */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
         {[
-          { num: '01', name: 'Request Material', status: 'Segera' },
-          { num: '02', name: 'Gudang Digital', status: 'Segera' },
-          { num: '03', name: 'Equipment Tracker', status: 'Segera' },
-          { num: '04', name: 'Dashboard', status: 'Segera' },
-        ].map((mod) => (
-          <div
-            key={mod.num}
-            className="p-6"
-            style={{
-              background: '#111111',
-              border: '1px solid rgba(245,240,235,0.08)',
-            }}
-          >
+          {
+            label: 'Proyek Aktif',
+            value: '—',
+            icon: TrendingUp,
+            color: '#F97316',
+          },
+          {
+            label: 'Request Pending',
+            value: '—',
+            icon: Package,
+            color: '#eab308',
+          },
+          {
+            label: 'Aset Terdaftar',
+            value: '—',
+            icon: Wrench,
+            color: '#22c55e',
+          },
+          {
+            label: 'Perlu Perhatian',
+            value: '—',
+            icon: AlertTriangle,
+            color: '#ef4444',
+          },
+        ].map((stat) => {
+          const Icon = stat.icon
+          return (
             <div
-              className="text-xs font-mono mb-3"
-              style={{ color: 'rgba(245,240,235,0.3)' }}
-            >
-              {mod.num}
-            </div>
-            <div className="text-sm font-semibold mb-2">{mod.name}</div>
-            <div
-              className="text-xs px-2 py-1 inline-block"
+              key={stat.label}
+              className="p-6"
               style={{
-                background: 'rgba(249,115,22,0.1)',
-                color: '#F97316',
-                border: '1px solid rgba(249,115,22,0.2)',
+                background: '#111111',
+                border: '1px solid rgba(245,240,235,0.06)',
               }}
             >
-              {mod.status}
+              <div className="flex items-start justify-between mb-4">
+                <div
+                  className="p-2"
+                  style={{
+                    background: `${stat.color}15`,
+                    border: `1px solid ${stat.color}30`,
+                  }}
+                >
+                  <Icon size={14} style={{ color: stat.color }} />
+                </div>
+              </div>
+              <div
+                className="text-3xl font-black mb-1"
+                style={{
+                  fontFamily: 'monospace',
+                  color: '#f5f0eb',
+                }}
+              >
+                {stat.value}
+              </div>
+              <div
+                className="text-xs uppercase tracking-widest"
+                style={{ color: 'rgba(245,240,235,0.3)' }}
+              >
+                {stat.label}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
+      </div>
+
+      {/* Modules status */}
+      <div
+        className="p-6"
+        style={{
+          background: '#111111',
+          border: '1px solid rgba(245,240,235,0.06)',
+        }}
+      >
+        <div
+          className="text-xs font-semibold uppercase tracking-widest mb-4"
+          style={{ color: 'rgba(245,240,235,0.3)' }}
+        >
+          Status Modul
+        </div>
+        <div className="space-y-3">
+          {[
+            { num: '01', name: 'Request Material', status: 'active', label: 'Aktif' },
+            { num: '02', name: 'Gudang Digital', status: 'soon', label: 'Segera' },
+            { num: '03', name: 'Equipment Tracker', status: 'soon', label: 'Segera' },
+            { num: '04', name: 'Command Dashboard', status: 'soon', label: 'Segera' },
+          ].map((mod) => (
+            <div
+              key={mod.num}
+              className="flex items-center gap-4 py-3"
+              style={{ borderBottom: '1px solid rgba(245,240,235,0.04)' }}
+            >
+              <span
+                className="font-mono text-xs w-6"
+                style={{ color: 'rgba(245,240,235,0.2)' }}
+              >
+                {mod.num}
+              </span>
+              <span
+                className="flex-1 text-sm font-medium"
+                style={{ color: '#f5f0eb' }}
+              >
+                {mod.name}
+              </span>
+              <span
+                className="text-xs px-3 py-1 font-semibold"
+                style={
+                  mod.status === 'active'
+                    ? {
+                        background: 'rgba(34,197,94,0.1)',
+                        color: '#22c55e',
+                        border: '1px solid rgba(34,197,94,0.2)',
+                      }
+                    : {
+                        background: 'rgba(245,240,235,0.05)',
+                        color: 'rgba(245,240,235,0.3)',
+                        border: '1px solid rgba(245,240,235,0.08)',
+                      }
+                }
+              >
+                {mod.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
