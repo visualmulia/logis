@@ -27,7 +27,7 @@ const navItems = [
     href: '/requests',
     icon: PackageSearch,
     module: '01',
-    roles: null,
+    roles: null, // Semua role bisa akses
   },
   {
     label: 'Gudang Digital',
@@ -48,7 +48,7 @@ const navItems = [
     href: '/petty-cash',
     icon: Wallet,
     module: '💰',
-    roles: ['owner', 'admin', 'pm', 'admin_site'],
+    roles: ['owner', 'admin', 'pm', 'admin_site', 'supervisor'],
   },
   {
     label: 'Tim & Akses',

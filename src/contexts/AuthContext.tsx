@@ -68,14 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   async function loadUserData(user: User) {
-    try {
-      const cId = await findCompanyIdForUser(user.uid)
+  try {
+    console.log('Loading user data for:', user.uid, user.email)
 
-      if (!cId) {
-        console.warn('No company found for user:', user.uid)
-        setLoading(false)
-        return
-      }
+    const cId = await findCompanyIdForUser(user.uid)
+    console.log('Found companyId:', cId)
+
+    if (!cId) {
+      console.warn('No company found for user:', user.uid)
+      setLoading(false)
+      return
+    }
 
       // Simpan ke localStorage
       if (typeof window !== 'undefined') {
