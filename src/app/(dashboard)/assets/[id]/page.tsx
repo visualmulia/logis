@@ -1,0 +1,428 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { doc, getDoc, updateDoc, serverTimestamp, collection, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase/config'
+import { Asset, Project } from '@/types'
+import { toast } from 'sonner'
+import {
+  ArrowLeft, Wrench, MapPin, Clock,
+  AlertTriangle, Loader2, CheckCircle,
+  Edit3, Save, X
+} from 'lucide-react'
+import Link from 'next/link'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale'
+
+const statusOptions = [
+  { value: 'active', label: '✅ Aktif Dipakai', color: '#22c55e' },
+  { value: 'idle', label: '⏸ Idle / Standby', color: '#eab308' },
+  { value: 'maintenance', label: '🔧 Dalam Servis', color: '#38bdf8' },
+  { value: 'lost', label: '❌ Hilang', color: '#ef4444' },
+  { value: 'retired', label: '🗄 Pensiun', color: 'rgba(245,240,235,0.3)' },
+]
+
+const conditionOptions = [
+  { value: 'good', label: '✅ Baik', color: '#22c55e' },
+  { value: 'fair', label: '⚠️ Cukup', color: '#eab308' },
+  { value: 'poor', label: '🔴 Buruk', color: '#ef4444' },
+  { value: 'damaged', label: '❌ Rusak', color: '#ef4444' },
+]
+
+export default function AssetDetailPage() {
+  const params = useParams()
+  const router = useRouter()
+  const { companyId, logisUser } = useAuth()
+  const assetId = params.id as string
+
+  const [asset, setAsset] = useState<Asset | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editForm, setEditForm] = useState({
+    status: '',
+    condition: '',
+    currentProjectId: '',
+    operatingHours: 0,
+  })
+
+  useEffect(() => {
+    if (!companyId || !assetId) return
+
+    async function load() {
+      const snap = await getDoc(
+        doc(db, 'logis_companies', companyId!, 'assets', assetId)
+      )
+      if (snap.exists()) {
+        const data = {
+          id: snap.id,
+          ...snap.data(),
+          lastServiceDate: snap.data().lastServiceDate?.toDate(),
+          nextServiceDue: snap.data().nextServiceDue?.toDate(),
+          createdAt: snap.data().createdAt?.toDate(),
+        } as Asset
+        setAsset(data)
+        setEditForm({
+          status: data.status,
+          condition: data.condition,
+          currentProjectId: data.currentProjectId || '',
+          operatingHours: data.operatingHours,
+        })
+      }
+
+      const projSnap = await getDocs(
+        collection(db, 'logis_companies', companyId!, 'projects')
+      )
+      setProjects(projSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Project)))
+      setLoading(false)
+    }
+
+    load()
+  }, [companyId, assetId])
+
+  async function handleSave() {
+    if (!companyId || !assetId || !asset) return
+    setSaving(true)
+    try {
+      await updateDoc(
+        doc(db, 'logis_companies', companyId, 'assets', assetId),
+        {
+          status: editForm.status,
+          condition: editForm.condition,
+          currentProjectId: editForm.currentProjectId || null,
+          operatingHours: Number(editForm.operatingHours),
+          updatedAt: serverTimestamp(),
+        }
+      )
+      setAsset({
+        ...asset,
+        status: editForm.status as Asset['status'],
+        condition: editForm.condition as Asset['condition'],
+        currentProjectId: editForm.currentProjectId || null,
+        operatingHours: Number(editForm.operatingHours),
+      })
+      toast.success('Aset berhasil diupdate')
+      setEditing(false)
+    } catch {
+      toast.error('Gagal menyimpan perubahan')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function markAsLost() {
+    if (!companyId || !assetId) return
+    if (!confirm('Tandai aset ini sebagai HILANG? Tindakan ini akan dicatat.')) return
+
+    try {
+      await updateDoc(
+        doc(db, 'logis_companies', companyId, 'assets', assetId),
+        {
+          status: 'lost',
+          currentProjectId: null,
+          updatedAt: serverTimestamp(),
+        }
+      )
+      toast.error(`${asset?.name} ditandai hilang`)
+      router.push('/assets')
+    } catch {
+      toast.error('Gagal mengupdate status')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
+      </div>
+    )
+  }
+
+  if (!asset) {
+    return (
+      <div className="p-8" style={{ color: 'rgba(245,240,235,0.3)' }}>
+        Aset tidak ditemukan
+      </div>
+    )
+  }
+
+  const currentProject = projects.find((p) => p.id === asset.currentProjectId)
+  const isServiceDue = asset.nextServiceDue && new Date() >= asset.nextServiceDue
+
+  const inputStyle = {
+    width: '100%',
+    padding: '8px 12px',
+    fontSize: '13px',
+    background: '#0a0a0a',
+    border: '1px solid rgba(245,240,235,0.1)',
+    color: '#f5f0eb',
+    outline: 'none',
+  }
+
+  return (
+    <div className="p-8 max-w-3xl">
+      {/* Header */}
+      <div className="mb-8">
+        <Link href="/assets"
+          className="inline-flex items-center gap-2 text-xs mb-4"
+          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          <ArrowLeft size={12} />
+          Semua Aset
+        </Link>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs font-mono mb-1"
+              style={{ color: 'rgba(245,240,235,0.3)' }}>
+              #{asset.id.slice(-6).toUpperCase()}
+              {asset.serialNumber && ` · SN: ${asset.serialNumber}`}
+            </p>
+            <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+              {asset.name}
+            </h1>
+          </div>
+          <div className="flex gap-2">
+            {!editing ? (
+              <button onClick={() => setEditing(true)}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-widest"
+                style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+                <Edit3 size={12} />
+                Edit
+              </button>
+            ) : (
+              <>
+                <button onClick={handleSave} disabled={saving}
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-widest"
+                  style={{ background: '#F97316', color: '#0a0a0a' }}>
+                  {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                  Simpan
+                </button>
+                <button onClick={() => setEditing(false)}
+                  className="px-3 py-2"
+                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+                  <X size={14} />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Service due alert */}
+      {isServiceDue && (
+        <div className="flex items-center gap-3 p-4 mb-6"
+          style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.2)' }}>
+          <AlertTriangle size={16} style={{ color: '#eab308' }} />
+          <p className="text-sm" style={{ color: '#eab308' }}>
+            Jadwal servis sudah terlewat — segera lakukan perawatan
+          </p>
+        </div>
+      )}
+
+      {/* Status & condition */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="p-5"
+          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          <p className="text-xs uppercase tracking-widest mb-3"
+            style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            Status
+          </p>
+          {editing ? (
+            <select value={editForm.status}
+              onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+              style={inputStyle}>
+              {statusOptions.map((s) => (
+                <option key={s.value} value={s.value} style={{ background: '#111' }}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="text-sm font-bold px-3 py-1.5 inline-block"
+              style={{
+                background: statusOptions.find((s) => s.value === asset.status)?.color + '15' || 'transparent',
+                color: statusOptions.find((s) => s.value === asset.status)?.color || '#f5f0eb',
+              }}>
+              {statusOptions.find((s) => s.value === asset.status)?.label}
+            </span>
+          )}
+        </div>
+
+        <div className="p-5"
+          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          <p className="text-xs uppercase tracking-widest mb-3"
+            style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            Kondisi
+          </p>
+          {editing ? (
+            <select value={editForm.condition}
+              onChange={(e) => setEditForm({ ...editForm, condition: e.target.value })}
+              style={inputStyle}>
+              {conditionOptions.map((c) => (
+                <option key={c.value} value={c.value} style={{ background: '#111' }}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="text-sm font-bold"
+              style={{ color: conditionOptions.find((c) => c.value === asset.condition)?.color || '#f5f0eb' }}>
+              {conditionOptions.find((c) => c.value === asset.condition)?.label}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Location */}
+      <div className="p-5 mb-4"
+        style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <MapPin size={13} style={{ color: '#F97316' }} />
+          <p className="text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            Lokasi Sekarang
+          </p>
+        </div>
+        {editing ? (
+          <select value={editForm.currentProjectId}
+            onChange={(e) => setEditForm({ ...editForm, currentProjectId: e.target.value })}
+            style={inputStyle}>
+            <option value="" style={{ background: '#111' }}>— Di Gudang / Tidak di Proyek —</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id} style={{ background: '#111' }}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+            {currentProject
+              ? `📍 ${currentProject.name}`
+              : '🏠 Di Gudang / Tidak di Proyek'}
+          </p>
+        )}
+      </div>
+
+      {/* Service info */}
+      <div className="p-5 mb-4"
+        style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+        <div className="flex items-center gap-2 mb-4">
+          <Wrench size={13} style={{ color: '#F97316' }} />
+          <p className="text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            Info Servis
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+              JAM OPERASI
+            </p>
+            {editing ? (
+              <input type="number" value={editForm.operatingHours}
+                onChange={(e) => setEditForm({ ...editForm, operatingHours: Number(e.target.value) })}
+                style={{ ...inputStyle, padding: '6px 10px' }} />
+            ) : (
+              <p className="text-xl font-black font-mono" style={{ color: '#F97316' }}>
+                {asset.operatingHours}
+                <span className="text-xs font-normal ml-1" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                  jam
+                </span>
+              </p>
+            )}
+          </div>
+          <div>
+            <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+              INTERVAL SERVIS
+            </p>
+            <p className="text-xl font-black font-mono" style={{ color: '#f5f0eb' }}>
+              {asset.serviceIntervalHours}
+              <span className="text-xs font-normal ml-1" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                jam
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+              SERVIS TERAKHIR
+            </p>
+            <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+              {asset.lastServiceDate
+                ? format(asset.lastServiceDate, 'd MMM yyyy', { locale: id })
+                : 'Belum pernah'}
+            </p>
+          </div>
+        </div>
+
+        {/* Service progress bar */}
+        <div className="mt-4">
+          <div className="flex justify-between text-xs mb-1"
+            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            <span>Progress ke servis berikutnya</span>
+            <span style={{ color: isServiceDue ? '#ef4444' : '#F97316' }}>
+              {Math.min(Math.round((asset.operatingHours / asset.serviceIntervalHours) * 100), 100)}%
+            </span>
+          </div>
+          <div className="h-2 w-full" style={{ background: 'rgba(245,240,235,0.08)' }}>
+            <div
+              className="h-full transition-all"
+              style={{
+                width: `${Math.min((asset.operatingHours / asset.serviceIntervalHours) * 100, 100)}%`,
+                background: isServiceDue ? '#ef4444' : '#F97316',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Danger zone */}
+      {asset.status !== 'lost' && (
+        <div className="p-5"
+          style={{ background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.15)' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3"
+            style={{ color: 'rgba(239,68,68,0.6)' }}>
+            Zona Bahaya
+          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold mb-1" style={{ color: '#f5f0eb' }}>
+                Tandai Sebagai Hilang
+              </p>
+              <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                Tindakan ini akan dicatat dan tidak bisa di-undo secara otomatis
+              </p>
+            </div>
+            <button onClick={markAsLost}
+              className="px-4 py-2 text-xs font-bold uppercase tracking-widest flex-shrink-0"
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                color: '#ef4444',
+                border: '1px solid rgba(239,68,68,0.3)',
+              }}>
+              Tandai Hilang
+            </button>
+          </div>
+        </div>
+      )}
+
+      {asset.status === 'lost' && (
+        <div className="p-5"
+          style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <div className="flex items-center gap-3">
+            <X size={20} style={{ color: '#ef4444' }} />
+            <div>
+              <p className="text-sm font-bold" style={{ color: '#ef4444' }}>
+                Aset ini ditandai HILANG
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'rgba(239,68,68,0.6)' }}>
+                Hubungi tim lapangan untuk investigasi lebih lanjut
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
