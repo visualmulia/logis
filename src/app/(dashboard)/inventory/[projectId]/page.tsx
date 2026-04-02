@@ -268,7 +268,7 @@ export default function InventoryPage() {
 
                     return (
                       <div key={item.id}
-                        className="flex items-center gap-4 px-5 py-4"
+  className="flex items-center gap-3 px-4 py-3 lg:px-5 lg:py-4"
                         style={{
                           background: '#111111',
                           border: isCritical
@@ -297,8 +297,8 @@ export default function InventoryPage() {
                         </div>
 
                         {/* Quantity */}
-                        <div className="text-right mr-4">
-                          <span className="text-lg font-black font-mono"
+                        <div className="text-right mr-2 lg:mr-4">
+  <span className="text-base lg:text-lg font-black font-mono"
                             style={{
                               color: isCritical ? '#ef4444' : isLow ? '#eab308' : '#f5f0eb',
                             }}>

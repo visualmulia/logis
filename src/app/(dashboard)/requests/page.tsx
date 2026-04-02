@@ -119,9 +119,9 @@ export default function RequestsPage() {
   ).length
 
   return (
-    <div className="p-8">
+    <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
           <p
             className="text-xs font-semibold uppercase tracking-widest mb-1"
@@ -139,7 +139,7 @@ export default function RequestsPage() {
         {canCreateRequest && (
           <Link
             href="/requests/new"
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest transition-all"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest w-full sm:w-auto"
             style={{ background: '#F97316', color: '#0a0a0a' }}
           >
             <Plus size={15} />

@@ -16,8 +16,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Logis — Kendali Penuh Proyek Anda',
-  description:
-    'Sistem administrasi dan logistik proyek konstruksi Indonesia',
+  description: 'Sistem administrasi dan logistik proyek konstruksi Indonesia',
+  // Tambahkan ini:
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
 }
 
 export default function RootLayout({

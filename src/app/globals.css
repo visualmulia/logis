@@ -128,3 +128,15 @@
     @apply font-sans;
   }
 }
+
+/* Prevent accidental tap highlight & selection */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Allow selection hanya di input fields */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}

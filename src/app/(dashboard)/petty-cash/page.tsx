@@ -121,9 +121,9 @@ export default function PettyCashPage() {
     .reduce((sum, t) => sum + t.amount, 0)
 
   return (
-    <div className="p-8">
+    <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1"
             style={{ color: '#F97316' }}>
@@ -138,7 +138,7 @@ export default function PettyCashPage() {
         </div>
         {canCreate && (
           <Link href="/petty-cash/new"
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest w-full sm:w-auto"
             style={{ background: '#F97316', color: '#0a0a0a' }}>
             <Plus size={15} />
             Request Kas
@@ -147,7 +147,7 @@ export default function PettyCashPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 mb-6">
         <div className="p-5"
           style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
           <p className="text-xs uppercase tracking-widest mb-2"

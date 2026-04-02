@@ -84,9 +84,9 @@ export default function AssetsPage() {
   const idleAssets = assets.filter((a) => a.status === 'idle')
 
   return (
-    <div className="p-8">
+    <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest mb-1"
             style={{ color: '#F97316' }}>
@@ -101,7 +101,7 @@ export default function AssetsPage() {
         </div>
         <Link
           href="/assets/new"
-          className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest w-full sm:w-auto"
           style={{ background: '#F97316', color: '#0a0a0a' }}>
           <Plus size={15} />
           Daftarkan Aset
@@ -110,7 +110,7 @@ export default function AssetsPage() {
 
       {/* Alert summary */}
       {(lostAssets.length > 0 || maintenanceDue.length > 0 || idleAssets.length > 0) && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           {lostAssets.length > 0 && (
             <div className="flex items-center gap-3 p-4"
               style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
