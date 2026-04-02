@@ -167,8 +167,13 @@ export default function RequestsPage() {
 
       {/* Filter tabs */}
       <div
-        className="flex gap-0 mb-6 overflow-x-auto"
-        style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}
+        className="flex gap-0 mb-6 -mx-4 lg:mx-0 px-4 lg:px-0"
+style={{
+  borderBottom: '1px solid rgba(245,240,235,0.06)',
+  overflowX: 'auto',
+  WebkitOverflowScrolling: 'touch',
+  scrollbarWidth: 'none',
+}}
       >
         {[
           { key: 'all', label: 'Semua' },
@@ -239,7 +244,7 @@ export default function RequestsPage() {
               <Link
                 key={req.id}
                 href={`/requests/${req.id}`}
-                className="flex items-center gap-4 p-5 transition-all group"
+                className="flex items-center gap-3 p-4 lg:p-5 transition-all group w-full overflow-hidden"
                 style={{
                   background: '#111111',
                   border: '1px solid rgba(245,240,235,0.06)',
@@ -265,7 +270,7 @@ export default function RequestsPage() {
 
                 {/* Main info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
+                  <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                     <span
                       className="text-xs font-mono"
                       style={{ color: 'rgba(245,240,235,0.3)' }}

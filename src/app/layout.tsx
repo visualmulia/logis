@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { Toaster } from 'sonner'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,7 +18,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Logis — Kendali Penuh Proyek Anda',
   description: 'Sistem administrasi dan logistik proyek konstruksi Indonesia',
-  // Tambahkan ini:
   formatDetection: {
     telephone: false,
     date: false,
@@ -36,10 +36,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {children}
-          <Toaster position="top-right" richColors />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+            <Toaster position="top-right" richColors />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
