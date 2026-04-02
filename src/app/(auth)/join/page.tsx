@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -33,7 +34,8 @@ interface InviteData {
   status: string
 }
 
-export default function JoinPage() {
+// ─── Komponen utama yang pakai useSearchParams ───
+function JoinContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const inviteId = searchParams.get('invite')
@@ -77,9 +79,7 @@ export default function JoinPage() {
     if (!invite || !inviteId || !companyId) return
     setIsLoading(true)
     try {
-      // Simpan companyId dulu sebelum register
       localStorage.setItem('logis_company_id', companyId)
-
       await registerViaInvite({
         inviteId,
         companyId,
@@ -145,10 +145,12 @@ export default function JoinPage() {
         </div>
 
         {inviteError ? (
-          /* Error state */
           <div className="text-center">
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.3)',
+              }}>
               <XCircle size={32} style={{ color: '#ef4444' }} />
             </div>
             <h1 className="text-xl font-bold mb-2" style={{ color: '#f5f0eb' }}>
@@ -157,34 +159,36 @@ export default function JoinPage() {
             <p className="text-sm mb-6" style={{ color: 'rgba(245,240,235,0.4)' }}>
               {inviteError}
             </p>
-            <Link href="/login"
-              className="text-sm font-semibold"
+            <Link href="/login" className="text-sm font-semibold"
               style={{ color: '#F97316' }}>
               Kembali ke Login
             </Link>
           </div>
         ) : invite ? (
-          /* Valid invite */
           <>
-            {/* Invite info */}
-            <div className="p-5 mb-6"
+            {/* Invite banner */}
+            <div className="p-4 mb-6"
               style={{
                 background: 'rgba(249,115,22,0.06)',
                 border: '1px solid rgba(249,115,22,0.2)',
               }}>
               <div className="flex items-start gap-3">
-                <CheckCircle size={18} style={{ color: '#F97316', flexShrink: 0, marginTop: 2 }} />
+                <CheckCircle size={18}
+                  style={{ color: '#F97316', flexShrink: 0, marginTop: 2 }} />
                 <div>
                   <p className="text-sm font-bold mb-1" style={{ color: '#f5f0eb' }}>
                     Undangan dari {invite.companyName}
                   </p>
                   <p className="text-xs" style={{ color: 'rgba(245,240,235,0.5)' }}>
-                    Diundang oleh <strong>{invite.invitedByName}</strong> sebagai{' '}
-                    <span className="uppercase font-bold" style={{ color: '#F97316' }}>
+                    Diundang oleh{' '}
+                    <strong>{invite.invitedByName}</strong> sebagai{' '}
+                    <span className="uppercase font-bold"
+                      style={{ color: '#F97316' }}>
                       {invite.role}
                     </span>
                   </p>
-                  <p className="text-xs mt-1" style={{ color: 'rgba(245,240,235,0.4)' }}>
+                  <p className="text-xs mt-1"
+                    style={{ color: 'rgba(245,240,235,0.4)' }}>
                     Email: {invite.email}
                   </p>
                 </div>
@@ -204,18 +208,32 @@ export default function JoinPage() {
               <div>
                 <label style={labelStyle}>Nama Lengkap</label>
                 <input {...register('name')} placeholder="Nama kamu"
-                  style={{ ...inputStyle, border: errors.name ? '1px solid #ef4444' : inputStyle.border }} />
+                  style={{
+                    ...inputStyle,
+                    border: errors.name
+                      ? '1px solid #ef4444'
+                      : inputStyle.border,
+                  }} />
                 {errors.name && (
-                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.name.message}</p>
+                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
               <div>
                 <label style={labelStyle}>Nomor HP</label>
                 <input {...register('phone')} placeholder="08123456789"
-                  style={{ ...inputStyle, border: errors.phone ? '1px solid #ef4444' : inputStyle.border }} />
+                  style={{
+                    ...inputStyle,
+                    border: errors.phone
+                      ? '1px solid #ef4444'
+                      : inputStyle.border,
+                  }} />
                 {errors.phone && (
-                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.phone.message}</p>
+                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>
+                    {errors.phone.message}
+                  </p>
                 )}
               </div>
 
@@ -225,15 +243,26 @@ export default function JoinPage() {
                   <input {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Min. 8 karakter"
-                    style={{ ...inputStyle, border: errors.password ? '1px solid #ef4444' : inputStyle.border, paddingRight: '44px' }} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      ...inputStyle,
+                      paddingRight: '44px',
+                      border: errors.password
+                        ? '1px solid #ef4444'
+                        : inputStyle.border,
+                    }} />
+                  <button type="button"
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
                     style={{ color: 'rgba(245,240,235,0.3)' }}>
-                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                    {showPassword
+                      ? <EyeOff size={15} />
+                      : <Eye size={15} />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.password.message}</p>
+                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -242,9 +271,16 @@ export default function JoinPage() {
                 <input {...register('confirmPassword')}
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Ulangi password"
-                  style={{ ...inputStyle, border: errors.confirmPassword ? '1px solid #ef4444' : inputStyle.border }} />
+                  style={{
+                    ...inputStyle,
+                    border: errors.confirmPassword
+                      ? '1px solid #ef4444'
+                      : inputStyle.border,
+                  }} />
                 {errors.confirmPassword && (
-                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.confirmPassword.message}</p>
+                  <p className="text-xs mt-1" style={{ color: '#ef4444' }}>
+                    {errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
 
@@ -256,13 +292,38 @@ export default function JoinPage() {
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                 }}>
                 {isLoading ? (
-                  <><Loader2 size={15} className="animate-spin" />Membuat akun...</>
-                ) : 'Bergabung ke ' + invite.companyName}
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    Membuat akun...
+                  </>
+                ) : (
+                  `Bergabung ke ${invite.companyName}`
+                )}
               </button>
             </form>
           </>
         ) : null}
       </div>
     </div>
+  )
+}
+
+// ─── Page wrapper dengan Suspense ───
+export default function JoinPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center"
+          style={{ background: '#0a0a0a' }}>
+          <Loader2
+            size={32}
+            className="animate-spin"
+            style={{ color: '#F97316' }}
+          />
+        </div>
+      }
+    >
+      <JoinContent />
+    </Suspense>
   )
 }
