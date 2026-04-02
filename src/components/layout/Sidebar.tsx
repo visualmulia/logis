@@ -20,14 +20,14 @@ const navItems = [
     href: '/overview',
     icon: LayoutDashboard,
     module: null,
-    roles: null, // null = semua bisa lihat
+    roles: null,
   },
   {
     label: 'Request Material',
     href: '/requests',
     icon: PackageSearch,
     module: '01',
-    roles: null, // semua bisa lihat
+    roles: null,
   },
   {
     label: 'Gudang Digital',
@@ -127,7 +127,7 @@ export default function Sidebar() {
           style={{ color: 'rgba(245,240,235,0.2)', fontSize: '9px', fontWeight: 600 }}>
           Menu Utama
         </div>
-        // Di dalam SidebarContent, ganti bagian ul:
+        
 <ul className="space-y-0.5">
   {navItems
     .filter((item) =>
@@ -152,25 +152,20 @@ export default function Sidebar() {
                 ? '2px solid #F97316'
                 : '2px solid transparent',
               fontWeight: isActive ? 600 : 400,
-              borderRadius: '2px',
             }}
           >
             <Icon size={15} className="flex-shrink-0" />
             <span className="flex-1 text-sm">{item.label}</span>
             {item.module && (
-              <span
-                className="font-mono opacity-30 flex-shrink-0"
-                style={{ fontSize: '9px' }}
-              >
+              <span className="font-mono opacity-30 flex-shrink-0"
+                style={{ fontSize: '9px' }}>
                 {item.module}
               </span>
             )}
             {isActive && (
-              <ChevronRight
-                size={11}
+              <ChevronRight size={11}
                 style={{ color: '#F97316' }}
-                className="flex-shrink-0"
-              />
+                className="flex-shrink-0" />
             )}
           </Link>
         </li>
