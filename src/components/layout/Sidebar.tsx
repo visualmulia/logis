@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import {
   LayoutDashboard, PackageSearch, Warehouse,
   Wrench, Wallet, LogOut, ChevronRight,
-  Building2, Menu, X, Sun, Moon,
+  Building2, Menu, X, Sun, Moon, Users
 } from 'lucide-react'
 
 const navItems = [
@@ -20,6 +20,7 @@ const navItems = [
   { label: 'Gudang Digital', href: '/projects', icon: Warehouse, module: '02' },
   { label: 'Equipment Tracker', href: '/assets', icon: Wrench, module: '03' },
   { label: 'Petty Cash', href: '/petty-cash', icon: Wallet, module: '💰' },
+  { label: 'Tim & Akses', href: '/team', icon: Users, module: null },
 ]
 
 export default function Sidebar() {

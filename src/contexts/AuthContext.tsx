@@ -35,17 +35,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   async function loadUserData(user: User) {
-    try {
-      const cId = await getCompanyIdByUid(user.uid)
-      if (cId) {
-        setCompanyId(cId)
-        const userData = await getUserData(user.uid, cId)
-        setLogisUser(userData)
+  try {
+    // Import getCompanyIdByUidFull
+    const { getCompanyIdByUidFull } = await import('@/lib/firebase/auth')
+    const cId = await getCompanyIdByUidFull(user.uid)
+    if (cId) {
+      setCompanyId(cId)
+      // Simpan ke localStorage untuk session berikutnya
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('logis_company_id', cId)
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error)
+      const userData = await getUserData(user.uid, cId)
+      setLogisUser(userData)
     }
+  } catch (error) {
+    console.error('Error fetching user data:', error)
   }
+}
 
   async function refreshUser() {
     if (firebaseUser) {
