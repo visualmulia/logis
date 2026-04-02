@@ -1,3 +1,5 @@
+'use client'
+
 export default function OfflinePage() {
   return (
     <div
@@ -12,15 +14,21 @@ export default function OfflinePage() {
       </div>
       <div
         className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
-        style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)' }}
+        style={{
+          background: 'rgba(249,115,22,0.1)',
+          border: '1px solid rgba(249,115,22,0.3)',
+        }}
       >
         <span className="text-3xl">📡</span>
       </div>
       <h1 className="text-xl font-bold mb-3" style={{ color: '#f5f0eb' }}>
         Tidak ada koneksi
       </h1>
-      <p className="text-sm max-w-xs leading-relaxed" style={{ color: 'rgba(245,240,235,0.4)' }}>
-        Periksa koneksi internet kamu dan coba lagi. Data yang sudah dimuat sebelumnya masih bisa diakses.
+      <p
+        className="text-sm max-w-xs leading-relaxed"
+        style={{ color: 'rgba(245,240,235,0.4)' }}
+      >
+        Periksa koneksi internet kamu dan coba lagi.
       </p>
       <button
         onClick={() => window.location.reload()}
