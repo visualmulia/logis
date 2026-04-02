@@ -1,21 +1,16 @@
-const CACHE_NAME = 'logis-v1'
-const STATIC_ASSETS = [
-  '/',
-  '/overview',
-  '/offline',
-]
+const CACHE_NAME = 'logis-v2'
 
-// Install
+// Install — minimal cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS)
+      return cache.addAll(['/offline'])
     })
   )
   self.skipWaiting()
 })
 
-// Activate
+// Activate — hapus cache lama
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -29,35 +24,32 @@ self.addEventListener('activate', (event) => {
   self.clients.claim()
 })
 
-// Fetch — Network first, fallback to cache
+// Fetch — HANYA intercept untuk offline fallback
+// Jangan cache halaman auth/join
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET dan Firebase requests
+  const url = new URL(event.request.url)
+
+  // Skip semua request ini — biarkan browser handle normal
   if (
     event.request.method !== 'GET' ||
-    event.request.url.includes('firestore') ||
-    event.request.url.includes('firebase') ||
-    event.request.url.includes('googleapis')
+    url.pathname.startsWith('/join') ||
+    url.pathname.startsWith('/login') ||
+    url.pathname.startsWith('/register') ||
+    url.pathname.startsWith('/_next') ||
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('googleapis') ||
+    url.hostname.includes('firestore') ||
+    url.hostname.includes('identitytoolkit') ||
+    url.hostname.includes('securetoken')
   ) {
-    return
+    return // Biarkan request jalan normal
   }
 
+  // Untuk halaman lain — network first, fallback offline
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        // Cache response baru
-        if (response.ok) {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone)
-          })
-        }
-        return response
-      })
       .catch(() => {
-        // Fallback ke cache
-        return caches.match(event.request).then((cached) => {
-          return cached || caches.match('/offline')
-        })
+        return caches.match('/offline') || new Response('Offline')
       })
   )
 })
