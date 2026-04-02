@@ -31,7 +31,7 @@ const navItems = [
   },
   {
     label: 'Gudang Digital',
-    href: '/inventory',
+    href: '/projects',
     icon: Warehouse,
     module: '02',
   },
