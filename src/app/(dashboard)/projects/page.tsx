@@ -84,81 +84,81 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {projects.map((project) => (
-            <Link
-              key={project.id}
-              href={`/inventory/${project.id}`}
-              className="flex items-center gap-6 p-6 transition-all group"
-              style={{
-                background: '#111111',
-                border: '1px solid rgba(245,240,235,0.06)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
-                e.currentTarget.style.background = '#151515'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(245,240,235,0.06)'
-                e.currentTarget.style.background = '#111111'
-              }}
-            >
-              {/* Status dot */}
-              <div
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{
-                  background: project.status === 'active' ? '#22c55e' : '#eab308',
-                  boxShadow: project.status === 'active' ? '0 0 6px #22c55e' : 'none',
-                }}
-              />
+  <Link
+    key={project.id}
+    href={`/inventory/${project.id}`}
+    className="block p-4 lg:p-5 transition-all"
+    style={{
+      background: '#111111',
+      border: '1px solid rgba(245,240,235,0.06)',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
+      e.currentTarget.style.background = '#151515'
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = 'rgba(245,240,235,0.06)'
+      e.currentTarget.style.background = '#111111'
+    }}
+  >
+    {/* Row 1: Status dot + Nama proyek */}
+    <div className="flex items-start gap-3 mb-3">
+      <div
+        className="w-2 h-2 rounded-full mt-1.5 shrink-0"
+        style={{
+          background: project.status === 'active' ? '#22c55e' : '#eab308',
+          boxShadow: project.status === 'active' ? '0 0 6px #22c55e' : 'none',
+        }}
+      />
+      <h3 className="text-sm font-semibold leading-tight flex-1"
+        style={{ color: '#f5f0eb' }}>
+        {project.name}
+      </h3>
+    </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold mb-1" style={{ color: '#f5f0eb' }}>
-                  {project.name}
-                </h3>
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1.5 text-xs"
-                    style={{ color: 'rgba(245,240,235,0.3)' }}>
-                    <Building2 size={11} />
-                    {project.location || 'Lokasi tidak diset'}
-                  </span>
-                  {project.startDate && (
-                    <span className="flex items-center gap-1.5 text-xs"
-                      style={{ color: 'rgba(245,240,235,0.3)' }}>
-                      <Calendar size={11} />
-                      {format(project.startDate, 'd MMM yyyy', { locale: id })}
-                    </span>
-                  )}
-                </div>
-              </div>
+    {/* Row 2: Lokasi */}
+    {project.location && (
+      <div className="flex items-start gap-3 mb-2 pl-5">
+        <span className="flex items-center gap-1.5 text-xs"
+          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          <Building2 size={11} className="shrink-0" />
+          <span className="line-clamp-1">{project.location}</span>
+        </span>
+      </div>
+    )}
 
-              {/* Budget */}
-              <div className="text-right">
-                <div className="text-xs mb-1"
-                  style={{ color: 'rgba(245,240,235,0.3)' }}>
-                  Progress
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-1.5"
-                    style={{ background: 'rgba(245,240,235,0.08)' }}>
-                    <div
-                      className="h-full"
-                      style={{
-                        width: `${project.progressPercent || 0}%`,
-                        background: '#F97316',
-                      }}
-                    />
-                  </div>
-                  <span className="text-xs font-mono"
-                    style={{ color: '#F97316' }}>
-                    {project.progressPercent || 0}%
-                  </span>
-                </div>
-              </div>
+    {/* Row 3: Tanggal + Progress */}
+    <div className="flex items-center justify-between gap-4 pl-5">
+      {project.startDate ? (
+        <span className="flex items-center gap-1.5 text-xs shrink-0"
+          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          <Calendar size={11} />
+          {format(project.startDate, 'd MMM yyyy', { locale: id })}
+        </span>
+      ) : (
+        <span />
+      )}
 
-              {/* Arrow */}
-              <TrendingUp size={16} style={{ color: 'rgba(245,240,235,0.15)' }} />
-            </Link>
-          ))}
+      {/* Progress */}
+      <div className="flex items-center gap-2">
+        <div className="w-20 lg:w-24 h-1.5"
+          style={{ background: 'rgba(245,240,235,0.08)' }}>
+          <div
+            className="h-full"
+            style={{
+              width: `${project.progressPercent || 0}%`,
+              background: '#F97316',
+            }}
+          />
+        </div>
+        <span className="text-xs font-mono shrink-0"
+          style={{ color: '#F97316' }}>
+          {project.progressPercent || 0}%
+        </span>
+      </div>
+    </div>
+  </Link>
+))}
         </div>
       )}
     </div>

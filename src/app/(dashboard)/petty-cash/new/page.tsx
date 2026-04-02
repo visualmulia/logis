@@ -187,50 +187,52 @@ export default function NewPettyCashPage() {
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* Purchase type */}
-        <div className="p-6"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
-          <label style={labelStyle}>Jenis Pembelian</label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              {
-                key: 'cash',
-                label: 'Pakai Kas',
-                desc: 'Dari dana kas proyek',
-                icon: <ShoppingBag size={16} />,
-              },
-              {
-                key: 'reimbursement',
-                label: 'Reimbursement',
-                desc: `Bayar dulu, klaim balik (maks ${(MAX_REIMBURSEMENT/1000000).toFixed(1)}jt)`,
-                icon: <Wallet size={16} />,
-              },
-              {
-                key: 'online',
-                label: 'Beli Online',
-                desc: 'Shopee, Tokopedia, dll',
-                icon: <ShoppingCart size={16} />,
-              },
-            ].map((opt) => (
-              <button key={opt.key} type="button"
-                onClick={() => setPurchaseType(opt.key as typeof purchaseType)}
-                className="p-3 text-left transition-all"
-                style={{
-                  background: purchaseType === opt.key
-                    ? 'rgba(249,115,22,0.1)'
-                    : 'transparent',
-                  border: purchaseType === opt.key
-                    ? '1px solid rgba(249,115,22,0.3)'
-                    : '1px solid rgba(245,240,235,0.08)',
-                  color: purchaseType === opt.key
-                    ? '#F97316'
-                    : 'rgba(245,240,235,0.4)',
-                }}>
-                <div className="mb-2">{opt.icon}</div>
-                <div className="text-sm font-semibold">{opt.label}</div>
-                <div className="text-xs mt-0.5 opacity-60">{opt.desc}</div>
-              </button>
-            ))}
-          </div>
+<div className="p-6"
+  style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+  <label style={labelStyle}>Jenis Pembelian</label>
+  <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2">
+    {[
+      {
+        key: 'cash',
+        label: 'Pakai Kas',
+        desc: 'Dari dana kas proyek',
+        icon: <ShoppingBag size={16} />,
+      },
+      {
+        key: 'reimbursement',
+        label: 'Reimburse',
+        desc: `Bayar dulu, klaim balik (maks ${(MAX_REIMBURSEMENT/1000000).toFixed(1)}jt)`,
+        icon: <Wallet size={16} />,
+      },
+      {
+        key: 'online',
+        label: 'Beli Online',
+        desc: 'Shopee, Tokopedia, dll',
+        icon: <ShoppingCart size={16} />,
+      },
+    ].map((opt) => (
+      <button key={opt.key} type="button"
+        onClick={() => setPurchaseType(opt.key as typeof purchaseType)}
+        className="flex items-center sm:flex-col sm:items-start gap-3 sm:gap-1 p-3 text-left transition-all"
+        style={{
+          background: purchaseType === opt.key
+            ? 'rgba(249,115,22,0.1)'
+            : 'transparent',
+          border: purchaseType === opt.key
+            ? '1px solid rgba(249,115,22,0.3)'
+            : '1px solid rgba(245,240,235,0.08)',
+          color: purchaseType === opt.key
+            ? '#F97316'
+            : 'rgba(245,240,235,0.4)',
+        }}>
+        <div className="flex-shrink-0">{opt.icon}</div>
+        <div>
+          <div className="text-sm font-semibold">{opt.label}</div>
+          <div className="text-xs mt-0.5 opacity-60 leading-tight">{opt.desc}</div>
+        </div>
+      </button>
+    ))}
+  </div>
 
           {/* Online URL input */}
           {purchaseType === 'online' && (
