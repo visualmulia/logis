@@ -1,5 +1,7 @@
 'use client'
 
+import { db } from '@/lib/firebase/config'
+import { doc, getDoc } from 'firebase/firestore'
 import {
   createContext,
   useContext,
@@ -36,18 +38,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadUserData(user: User) {
   try {
-    // Import getCompanyIdByUidFull
-    const { getCompanyIdByUidFull } = await import('@/lib/firebase/auth')
-    const cId = await getCompanyIdByUidFull(user.uid)
-    if (cId) {
+    // Step 1: Cek apakah owner
+    const ownerDoc = await getDoc(doc(db, 'logis_companies', user.uid))
+    if (ownerDoc.exists()) {
+      const cId = user.uid
       setCompanyId(cId)
-      // Simpan ke localStorage untuk session berikutnya
       if (typeof window !== 'undefined') {
         localStorage.setItem('logis_company_id', cId)
       }
       const userData = await getUserData(user.uid, cId)
       setLogisUser(userData)
+      return
     }
+
+    // Step 2: Cek localStorage
+    const storedCId =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('logis_company_id')
+        : null
+
+    if (storedCId) {
+      const userDoc = await getDoc(
+        doc(db, 'logis_companies', storedCId, 'users', user.uid)
+      )
+      if (userDoc.exists()) {
+        setCompanyId(storedCId)
+        setLogisUser(userDoc.data() as LogisUser)
+        return
+      }
+    }
+
+    console.warn('Company not found for user:', user.uid)
   } catch (error) {
     console.error('Error fetching user data:', error)
   }

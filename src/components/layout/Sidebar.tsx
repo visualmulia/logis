@@ -15,12 +15,48 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { label: 'Overview', href: '/overview', icon: LayoutDashboard, module: null },
-  { label: 'Request Material', href: '/requests', icon: PackageSearch, module: '01' },
-  { label: 'Gudang Digital', href: '/projects', icon: Warehouse, module: '02' },
-  { label: 'Equipment Tracker', href: '/assets', icon: Wrench, module: '03' },
-  { label: 'Petty Cash', href: '/petty-cash', icon: Wallet, module: '💰' },
-  { label: 'Tim & Akses', href: '/team', icon: Users, module: null },
+  {
+    label: 'Overview',
+    href: '/overview',
+    icon: LayoutDashboard,
+    module: null,
+    roles: null, // null = semua bisa lihat
+  },
+  {
+    label: 'Request Material',
+    href: '/requests',
+    icon: PackageSearch,
+    module: '01',
+    roles: null, // semua bisa lihat
+  },
+  {
+    label: 'Gudang Digital',
+    href: '/projects',
+    icon: Warehouse,
+    module: '02',
+    roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site'],
+  },
+  {
+    label: 'Equipment Tracker',
+    href: '/assets',
+    icon: Wrench,
+    module: '03',
+    roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik'],
+  },
+  {
+    label: 'Petty Cash',
+    href: '/petty-cash',
+    icon: Wallet,
+    module: '💰',
+    roles: ['owner', 'admin', 'pm', 'admin_site'],
+  },
+  {
+    label: 'Tim & Akses',
+    href: '/team',
+    icon: Users,
+    module: null,
+    roles: ['owner', 'admin'],
+  },
 ]
 
 export default function Sidebar() {
@@ -91,40 +127,56 @@ export default function Sidebar() {
           style={{ color: 'rgba(245,240,235,0.2)', fontSize: '9px', fontWeight: 600 }}>
           Menu Utama
         </div>
-        <ul className="space-y-0.5">
-          {navItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== '/overview' && pathname.startsWith(item.href))
-            const Icon = item.icon
-            return (
-              <li key={item.href}>
-                <Link href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3 text-sm transition-all"
-                  style={{
-                    background: isActive ? 'rgba(249,115,22,0.12)' : 'transparent',
-                    color: isActive ? '#F97316' : sidebarMuted,
-                    borderLeft: isActive ? '2px solid #F97316' : '2px solid transparent',
-                    fontWeight: isActive ? 600 : 400,
-                    borderRadius: '2px',
-                  }}>
-                  <Icon size={15} className="flex-shrink-0" />
-                  <span className="flex-1 text-sm">{item.label}</span>
-                  {item.module && (
-                    <span className="font-mono opacity-30 flex-shrink-0"
-                      style={{ fontSize: '9px' }}>
-                      {item.module}
-                    </span>
-                  )}
-                  {isActive && (
-                    <ChevronRight size={11} style={{ color: '#F97316' }} className="flex-shrink-0" />
-                  )}
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+        // Di dalam SidebarContent, ganti bagian ul:
+<ul className="space-y-0.5">
+  {navItems
+    .filter((item) =>
+      item.roles === null ||
+      (logisUser?.role && item.roles.includes(logisUser.role))
+    )
+    .map((item) => {
+      const isActive =
+        pathname === item.href ||
+        (item.href !== '/overview' && pathname.startsWith(item.href))
+      const Icon = item.icon
+      return (
+        <li key={item.href}>
+          <Link
+            href={item.href}
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-3 px-3 py-3 text-sm transition-all"
+            style={{
+              background: isActive ? 'rgba(249,115,22,0.12)' : 'transparent',
+              color: isActive ? '#F97316' : sidebarMuted,
+              borderLeft: isActive
+                ? '2px solid #F97316'
+                : '2px solid transparent',
+              fontWeight: isActive ? 600 : 400,
+              borderRadius: '2px',
+            }}
+          >
+            <Icon size={15} className="flex-shrink-0" />
+            <span className="flex-1 text-sm">{item.label}</span>
+            {item.module && (
+              <span
+                className="font-mono opacity-30 flex-shrink-0"
+                style={{ fontSize: '9px' }}
+              >
+                {item.module}
+              </span>
+            )}
+            {isActive && (
+              <ChevronRight
+                size={11}
+                style={{ color: '#F97316' }}
+                className="flex-shrink-0"
+              />
+            )}
+          </Link>
+        </li>
+      )
+    })}
+</ul>
       </nav>
 
       {/* Bottom: Theme toggle + Logout */}

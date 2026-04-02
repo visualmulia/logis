@@ -160,18 +160,26 @@ export async function registerViaInvite(data: {
   phone: string
   role: UserRole
 }): Promise<void> {
-  const {
-    doc, setDoc, updateDoc, serverTimestamp: st
-  } = await import('firebase/firestore')
+  const { doc, setDoc, updateDoc, serverTimestamp: st } =
+    await import('firebase/firestore')
 
+  // 1. Buat user di Firebase Auth
   const credential = await createUserWithEmailAndPassword(
-    auth, data.email, data.password
+    auth,
+    data.email,
+    data.password
   )
   const uid = credential.user.uid
 
+  // 2. Update display name
   await updateProfile(credential.user, { displayName: data.name })
 
-  // Buat user doc di subcollection company
+  // 3. Simpan companyId di localStorage SEBELUM Firestore write
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('logis_company_id', data.companyId)
+  }
+
+  // 4. Buat user doc
   await setDoc(
     doc(db, 'logis_companies', data.companyId, 'users', uid),
     {
@@ -187,11 +195,16 @@ export async function registerViaInvite(data: {
     }
   )
 
-  // Mark invite as used
-  await updateDoc(
-    doc(db, 'logis_companies', data.companyId, 'invites', data.inviteId),
-    { status: 'used', usedAt: st(), usedBy: uid }
-  )
+  // 5. Mark invite as used
+  try {
+    await updateDoc(
+      doc(db, 'logis_companies', data.companyId, 'invites', data.inviteId),
+      { status: 'used', usedAt: st(), usedBy: uid }
+    )
+  } catch {
+    // Non-critical — lanjutkan meski gagal
+    console.warn('Could not mark invite as used')
+  }
 }
 
 // ============================================
