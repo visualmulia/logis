@@ -11,6 +11,7 @@ import {
   PackageSearch,
   Warehouse,
   Wrench,
+  Wallet,
   LogOut,
   ChevronRight,
   Building2,
@@ -40,6 +41,12 @@ const navItems = [
     href: '/assets',
     icon: Wrench,
     module: '03',
+  },
+  {
+    label: 'Petty Cash',
+    href: '/petty-cash',
+    icon: Wallet,
+    module: '💰',
   },
 ]
 

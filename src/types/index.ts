@@ -155,16 +155,24 @@ export interface PettyCashTransaction {
   projectId: string
   companyId: string
   requestedBy: string
+  requestedById: string
   amount: number
   category: string
   subcategory: string
   description: string
+  purchaseType: 'cash' | 'reimbursement' | 'online'
   receipts: string[]
   status: PettyCashStatus
   approvedBy?: string
+  approvedByName?: string
+  rejectedReason?: string
   anomalyFlag: boolean
   anomalyReason?: string
   isEmergency: boolean
+  emergencyApprovedBy?: string
+  onlineUrl?: string
+  onlinePlatform?: string
+  notes?: string
   createdAt: Date
   completedAt?: Date
 }
