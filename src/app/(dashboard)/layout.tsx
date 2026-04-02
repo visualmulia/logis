@@ -10,7 +10,8 @@ export default function DashboardLayout({
     <RouteGuard>
       <div className="flex min-h-screen" style={{ background: '#0a0a0a' }}>
         <Sidebar />
-        <main className="flex-1 ml-60 min-h-screen">
+        {/* Desktop: margin left untuk sidebar. Mobile: padding top untuk top bar */}
+        <main className="flex-1 min-h-screen lg:ml-60 pt-14 lg:pt-0">
           {children}
         </main>
       </div>
