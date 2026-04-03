@@ -25,6 +25,7 @@ import {
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import Image from 'next/image'
 import { createNotification } from '@/lib/firebase/notifications'
 
 export default function RequestDetailPage() {
@@ -79,18 +80,16 @@ export default function RequestDetailPage() {
           updatedAt: serverTimestamp(),
         }
       )
-
-      // Di handleApprove, setelah updateDoc:
-await createNotification({
-  companyId,
-  type: 'request_approved',
-  title: 'Request Disetujui ✅',
-  message: `Request #${requestId.slice(-6).toUpperCase()} telah disetujui oleh ${logisUser?.name}`,
-  href: `/requests/${requestId}`,
-  createdBy: logisUser?.id || '',
-  createdByName: logisUser?.name || '',
-  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'mandor'],
-})
+      await createNotification({
+        companyId,
+        type: 'request_approved',
+        title: 'Request Disetujui ✅',
+        message: `Request #${requestId.slice(-6).toUpperCase()} telah disetujui oleh ${logisUser?.name}`,
+        href: `/requests/${requestId}`,
+        createdBy: logisUser?.id || '',
+        createdByName: logisUser?.name || '',
+        targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'mandor'],
+      })
       toast.success('Request disetujui!')
       router.push('/requests')
     } catch {
@@ -116,18 +115,16 @@ await createNotification({
           updatedAt: serverTimestamp(),
         }
       )
-
-      // Di handleReject, setelah updateDoc:
-await createNotification({
-  companyId,
-  type: 'request_rejected',
-  title: 'Request Ditolak ❌',
-  message: `Request #${requestId.slice(-6).toUpperCase()} ditolak. Alasan: ${rejectReason}`,
-  href: `/requests/${requestId}`,
-  createdBy: logisUser?.id || '',
-  createdByName: logisUser?.name || '',
-  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'mandor'],
-})
+      await createNotification({
+        companyId,
+        type: 'request_rejected',
+        title: 'Request Ditolak ❌',
+        message: `Request #${requestId.slice(-6).toUpperCase()} ditolak. Alasan: ${rejectReason}`,
+        href: `/requests/${requestId}`,
+        createdBy: logisUser?.id || '',
+        createdByName: logisUser?.name || '',
+        targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'mandor'],
+      })
       toast.success('Request ditolak')
       router.push('/requests')
     } catch {
@@ -218,7 +215,10 @@ await createNotification({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <User size={12} style={{ color: 'rgba(245,240,235,0.3)' }} />
-            <span className="text-xs uppercase tracking-widest" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            <span
+              className="text-xs uppercase tracking-widest"
+              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}
+            >
               Diminta oleh
             </span>
           </div>
@@ -229,7 +229,10 @@ await createNotification({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Clock size={12} style={{ color: 'rgba(245,240,235,0.3)' }} />
-            <span className="text-xs uppercase tracking-widest" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            <span
+              className="text-xs uppercase tracking-widest"
+              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}
+            >
               Tanggal
             </span>
           </div>
@@ -242,7 +245,10 @@ await createNotification({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle size={12} style={{ color: 'rgba(245,240,235,0.3)' }} />
-            <span className="text-xs uppercase tracking-widest" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            <span
+              className="text-xs uppercase tracking-widest"
+              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}
+            >
               Urgensi
             </span>
           </div>
@@ -284,7 +290,10 @@ await createNotification({
             </span>
           </div>
         </div>
-        <div className="divide-y" style={{ borderColor: 'rgba(245,240,235,0.04)' }}>
+        <div
+          className="divide-y"
+          style={{ borderColor: 'rgba(245,240,235,0.04)' }}
+        >
           {request.items?.map((item, index) => (
             <div key={index} className="px-5 py-4 flex items-center gap-4">
               <span
@@ -298,7 +307,10 @@ await createNotification({
                   {item.name}
                 </p>
                 {item.notes && (
-                  <p className="text-xs mt-0.5" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                  <p
+                    className="text-xs mt-0.5"
+                    style={{ color: 'rgba(245,240,235,0.3)' }}
+                  >
                     {item.notes}
                   </p>
                 )}
@@ -322,6 +334,44 @@ await createNotification({
         </div>
       </div>
 
+      {/* Foto referensi */}
+      {request.photos && request.photos.length > 0 && (
+        <div
+          className="mb-6 p-5"
+          style={{
+            background: '#111111',
+            border: '1px solid rgba(245,240,235,0.06)',
+          }}
+        >
+          <p
+            className="text-xs font-semibold uppercase tracking-widest mb-3"
+            style={{ color: 'rgba(245,240,235,0.3)' }}
+          >
+            📷 Foto Referensi ({request.photos.length})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {request.photos.map((photo, index) => (
+              <a
+                key={index}
+                href={photo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative block"
+                style={{ width: 80, height: 80 }}
+              >
+                <Image
+                  src={photo.url}
+                  alt={`Foto ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  style={{ border: '1px solid rgba(245,240,235,0.1)' }}
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Reason */}
       <div
         className="mb-6 p-5"
@@ -336,7 +386,10 @@ await createNotification({
         >
           Alasan Permintaan
         </p>
-        <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,240,235,0.7)' }}>
+        <p
+          className="text-sm leading-relaxed"
+          style={{ color: 'rgba(245,240,235,0.7)' }}
+        >
           {request.reason}
         </p>
       </div>
@@ -350,7 +403,10 @@ await createNotification({
             border: '1px solid rgba(239,68,68,0.2)',
           }}
         >
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#ef4444' }}>
+          <p
+            className="text-xs font-semibold uppercase tracking-widest mb-2"
+            style={{ color: '#ef4444' }}
+          >
             Alasan Penolakan
           </p>
           <p className="text-sm" style={{ color: 'rgba(245,240,235,0.7)' }}>
@@ -427,10 +483,7 @@ await createNotification({
                   onClick={handleReject}
                   disabled={actionLoading}
                   className="flex-1 py-2.5 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-                  style={{
-                    background: '#ef4444',
-                    color: '#fff',
-                  }}
+                  style={{ background: '#ef4444', color: '#fff' }}
                 >
                   {actionLoading ? (
                     <Loader2 size={14} className="animate-spin" />

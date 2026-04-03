@@ -117,6 +117,7 @@ export interface MaterialRequest {
   rejectedReason?: string
   createdAt: Date
   updatedAt: Date
+  photos?: { url: string; path: string }[]
 }
 
 export interface DeliveryConfirmation {
@@ -162,6 +163,7 @@ export interface PettyCashTransaction {
   description: string
   purchaseType: 'cash' | 'reimbursement' | 'online'
   receipts: string[]
+  photos?: { url: string; path: string }[]  // ← tambahkan ini
   status: PettyCashStatus
   approvedBy?: string
   approvedByName?: string

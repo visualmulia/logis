@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { Plus, Trash2, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { createNotification } from '@/lib/firebase/notifications'
+import PhotoUpload from '@/components/shared/PhotoUpload'
 
 
 interface RequestItem {
@@ -29,6 +30,7 @@ export default function NewRequestPage() {
   const [items, setItems] = useState<RequestItem[]>([
     { name: '', quantity: 1, unit: 'pcs', notes: '' },
   ])
+  const [photos, setPhotos] = useState<{ url: string; path: string; name: string }[]>([])
 
   function addItem() {
     setItems([...items, { name: '', quantity: 1, unit: 'pcs', notes: '' }])
@@ -78,6 +80,7 @@ export default function NewRequestPage() {
           urgency,
           reason: reason.trim(),
           status: 'submitted',
+          photos: photos.map((p) => ({ url: p.url, path: p.path })),
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         }
@@ -329,6 +332,23 @@ await createNotification({
           </div>
         </div>
 
+        {/* Foto referensi */}
+<div
+  className="p-6"
+  style={{
+    background: '#111111',
+    border: '1px solid rgba(245,240,235,0.06)',
+  }}
+>
+  <PhotoUpload
+    companyId={companyId || ''}
+    folder="requests"
+    documentId={`draft-${Date.now()}`}
+    onPhotosChange={setPhotos}
+    maxPhotos={5}
+    label="Foto Referensi Material (opsional)"
+  />
+</div>
         {/* Reason */}
         <div
           className="p-6"

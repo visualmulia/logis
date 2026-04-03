@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { createNotification } from '@/lib/firebase/notifications'
+import PhotoUpload from '@/components/shared/PhotoUpload'
 
 const CATEGORIES = [
   { value: 'material_kecil', label: 'Material Kecil', sub: ['Baut & mur', 'Kawat', 'Klem', 'Lainnya'] },
@@ -25,6 +26,8 @@ const CATEGORIES = [
   { value: 'lainnya', label: 'Lainnya', sub: ['Lainnya'] },
 ]
 
+
+
 const MAX_REIMBURSEMENT = 2000000
 
 export default function NewPettyCashPage() {
@@ -33,6 +36,7 @@ export default function NewPettyCashPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [projects, setProjects] = useState<Project[]>([])
   const [purchaseType, setPurchaseType] = useState<'cash' | 'reimbursement' | 'online'>('cash')
+  const [photos, setPhotos] = useState<{ url: string; path: string; name: string }[]>([])
   const [form, setForm] = useState({
     projectId: '',
     category: 'material_kecil',
@@ -122,6 +126,7 @@ export default function NewPettyCashPage() {
           anomalyFlag: anomaly.flag,
           anomalyReason: anomaly.reason || null,
           notes: form.notes.trim() || null,
+          photos: photos.map((p) => ({ url: p.url, path: p.path })),
           createdAt: serverTimestamp(),
         }
       )
@@ -371,6 +376,18 @@ await createNotification({
           </div>
         </div>
 
+        {/* Foto bukti */}
+<div className="p-6"
+  style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+  <PhotoUpload
+    companyId={companyId || ''}
+    folder="petty-cash"
+    documentId={`draft-${Date.now()}`}
+    onPhotosChange={setPhotos}
+    maxPhotos={3}
+    label="Foto Struk / Bukti Pembelian"
+  />
+</div>
         {/* Emergency toggle */}
         <div className="p-6"
           style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>

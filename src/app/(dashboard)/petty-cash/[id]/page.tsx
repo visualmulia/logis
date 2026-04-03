@@ -15,6 +15,7 @@ import {
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import Image from 'next/image'
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat('id-ID', {
@@ -276,6 +277,37 @@ export default function PettyCashDetailPage() {
         )}
       </div>
 
+      {/* Foto bukti */}
+      {tx.photos && tx.photos.length > 0 && (
+        <div className="p-5 mb-4"
+          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3"
+            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            📷 Foto Bukti ({tx.photos.length})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {tx.photos.map((photo, index) => (
+              <a
+                key={index}
+                href={photo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative block"
+                style={{ width: 80, height: 80 }}
+              >
+                <Image
+                  src={photo.url}
+                  alt={`Bukti ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  style={{ border: '1px solid rgba(245,240,235,0.1)' }}
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Online URL */}
       {tx.purchaseType === 'online' && tx.onlineUrl && (
         <div className="p-5 mb-4"
@@ -381,7 +413,7 @@ export default function PettyCashDetailPage() {
         </div>
       )}
 
-      {/* Mark complete — untuk yang sudah approved */}
+      {/* Mark complete */}
       {tx.status === 'approved' && (
         <div className="p-5"
           style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
