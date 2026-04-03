@@ -8,6 +8,8 @@ import { db } from '@/lib/firebase/config'
 import { toast } from 'sonner'
 import { Plus, Trash2, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import { createNotification } from '@/lib/firebase/notifications'
+
 
 interface RequestItem {
   name: string
@@ -80,6 +82,18 @@ export default function NewRequestPage() {
           updatedAt: serverTimestamp(),
         }
       )
+
+      // Trigger notifikasi ke admin/pm/owner
+await createNotification({
+  companyId,
+  type: 'request_new',
+  title: 'Request Material Baru',
+  message: `${logisUser.name} mengajukan ${items.length} item — ${items.map(i => i.name).join(', ')}`,
+  href: '/requests',
+  createdBy: logisUser.id,
+  createdByName: logisUser.name,
+  targetRoles: ['owner', 'admin', 'pm'],
+})
 
       toast.success('Request berhasil dikirim!')
       router.push('/requests')

@@ -271,3 +271,31 @@ export interface ProjectHealthData {
   healthStatus: HealthScore
   calculatedAt: Date
 }
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+export type NotificationType =
+  | 'request_new'
+  | 'request_approved'
+  | 'request_rejected'
+  | 'petty_cash_new'
+  | 'petty_cash_approved'
+  | 'petty_cash_rejected'
+  | 'asset_service_due'
+  | 'asset_lost'
+  | 'stock_critical'
+
+export interface LogisNotification {
+  id: string
+  companyId: string
+  type: NotificationType
+  title: string
+  message: string
+  href: string
+  isRead: boolean
+  createdAt: Date
+  createdBy: string
+  createdByName: string
+  targetRoles: string[]
+}

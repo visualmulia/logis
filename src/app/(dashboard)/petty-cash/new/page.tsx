@@ -14,6 +14,7 @@ import {
   Zap, ShoppingBag, ShoppingCart, Wallet
 } from 'lucide-react'
 import Link from 'next/link'
+import { createNotification } from '@/lib/firebase/notifications'
 
 const CATEGORIES = [
   { value: 'material_kecil', label: 'Material Kecil', sub: ['Baut & mur', 'Kawat', 'Klem', 'Lainnya'] },
@@ -125,6 +126,22 @@ export default function NewPettyCashPage() {
         }
       )
 
+      // Setelah addDoc berhasil:
+await createNotification({
+  companyId,
+  type: 'petty_cash_new',
+  title: 'Request Petty Cash Baru 💰',
+  message: `${logisUser.name} mengajukan ${new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(amount)} untuk ${form.description}`,
+  href: '/petty-cash',
+  createdBy: logisUser.id,
+  createdByName: logisUser.name,
+  targetRoles: ['owner', 'admin', 'pm'],
+})
+
       if (anomaly.flag) {
         toast.warning('Request berhasil dikirim — tapi terdeteksi anomali. Kantor akan review lebih ketat.')
       } else {
@@ -225,7 +242,7 @@ export default function NewPettyCashPage() {
             ? '#F97316'
             : 'rgba(245,240,235,0.4)',
         }}>
-        <div className="flex-shrink-0">{opt.icon}</div>
+        <div className="shrink-0">{opt.icon}</div>
         <div>
           <div className="text-sm font-semibold">{opt.label}</div>
           <div className="text-xs mt-0.5 opacity-60 leading-tight">{opt.desc}</div>

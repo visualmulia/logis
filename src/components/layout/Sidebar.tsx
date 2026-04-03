@@ -13,6 +13,7 @@ import {
   Wrench, Wallet, LogOut, ChevronRight,
   Building2, Menu, X, Sun, Moon, Users
 } from 'lucide-react'
+import NotificationBell from '@/components/shared/NotificationBell'
 
 const navItems = [
   {
@@ -178,6 +179,13 @@ export default function Sidebar() {
       <div className="px-3 py-3 flex-shrink-0"
         style={{ borderTop: `1px solid ${sidebarBorder}` }}>
 
+        {/* Notification bell — desktop */}
+  <div className="px-1 py-1 mb-1 flex items-center gap-3"
+    style={{ color: sidebarMuted }}>
+    <NotificationBell />
+    <span className="text-sm font-medium">Notifikasi</span>
+  </div>
+        
         {/* Theme toggle */}
         <button onClick={toggleTheme}
           className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all mb-1"
@@ -257,6 +265,9 @@ export default function Sidebar() {
             style={{ color: sidebarMuted }}>
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+          {/* Notification bell */}
+    <NotificationBell />
+          
           {/* Hamburger */}
           <button onClick={() => setMobileOpen(true)}
             className="p-2"

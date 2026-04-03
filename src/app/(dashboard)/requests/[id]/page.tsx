@@ -25,6 +25,7 @@ import {
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { createNotification } from '@/lib/firebase/notifications'
 
 export default function RequestDetailPage() {
   const params = useParams()
@@ -78,6 +79,18 @@ export default function RequestDetailPage() {
           updatedAt: serverTimestamp(),
         }
       )
+
+      // Di handleApprove, setelah updateDoc:
+await createNotification({
+  companyId,
+  type: 'request_approved',
+  title: 'Request Disetujui ✅',
+  message: `Request #${requestId.slice(-6).toUpperCase()} telah disetujui oleh ${logisUser?.name}`,
+  href: `/requests/${requestId}`,
+  createdBy: logisUser?.id || '',
+  createdByName: logisUser?.name || '',
+  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'mandor'],
+})
       toast.success('Request disetujui!')
       router.push('/requests')
     } catch {
@@ -103,6 +116,18 @@ export default function RequestDetailPage() {
           updatedAt: serverTimestamp(),
         }
       )
+
+      // Di handleReject, setelah updateDoc:
+await createNotification({
+  companyId,
+  type: 'request_rejected',
+  title: 'Request Ditolak ❌',
+  message: `Request #${requestId.slice(-6).toUpperCase()} ditolak. Alasan: ${rejectReason}`,
+  href: `/requests/${requestId}`,
+  createdBy: logisUser?.id || '',
+  createdByName: logisUser?.name || '',
+  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'mandor'],
+})
       toast.success('Request ditolak')
       router.push('/requests')
     } catch {
