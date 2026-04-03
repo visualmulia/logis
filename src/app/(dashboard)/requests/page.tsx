@@ -377,13 +377,34 @@ async function handleExport() {
       : <Download size={14} />}
     PDF
   </button>
+  <div className="flex gap-2 w-full sm:w-auto">
+  <button
+    onClick={handleExport}
+    disabled={exporting || requests.length === 0}
+    className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold uppercase tracking-widest"
+    style={{
+      border: '1px solid rgba(245,240,235,0.1)',
+      color: exporting || requests.length === 0
+        ? 'rgba(245,240,235,0.2)'
+        : 'rgba(245,240,235,0.5)',
+      cursor: requests.length === 0 ? 'not-allowed' : 'pointer',
+      background: 'transparent',
+    }}
+  >
+    {exporting
+      ? <Loader2 size={14} className="animate-spin" />
+      : <Download size={14} />}
+    PDF
+  </button>
   {canCreateRequest && (
-    <Link href="/requests/new"
-      className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest flex-1 sm:flex-none"
+    <Link
+      href="/requests/new"
+      className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest"
       style={{ background: '#F97316', color: '#0a0a0a' }}>
       <Plus size={15} />
       Request Baru
     </Link>
   )}
+</div>
 </div>
 }
