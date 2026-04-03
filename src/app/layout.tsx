@@ -5,6 +5,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import PWARegister from '@/components/shared/PWARegister'
+import NotificationPrompt from '@/components/shared/NotificationPrompt'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -66,6 +67,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <PWARegister />
+            <NotificationPrompt />
             {children}
             <Toaster position="top-right" richColors />
           </AuthProvider>
