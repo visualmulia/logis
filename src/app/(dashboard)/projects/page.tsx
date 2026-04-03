@@ -84,21 +84,12 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {projects.map((project) => (
-  <Link
+  <div
     key={project.id}
-    href={`/inventory/${project.id}`}
     className="block p-4 lg:p-5 transition-all"
     style={{
       background: '#111111',
       border: '1px solid rgba(245,240,235,0.06)',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
-      e.currentTarget.style.background = '#151515'
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.borderColor = 'rgba(245,240,235,0.06)'
-      e.currentTarget.style.background = '#111111'
     }}
   >
     {/* Row 1: Status dot + Nama proyek */}
@@ -128,7 +119,7 @@ export default function ProjectsPage() {
     )}
 
     {/* Row 3: Tanggal + Progress */}
-    <div className="flex items-center justify-between gap-4 pl-5">
+    <div className="flex items-center justify-between gap-4 pl-5 mb-3">
       {project.startDate ? (
         <span className="flex items-center gap-1.5 text-xs shrink-0"
           style={{ color: 'rgba(245,240,235,0.3)' }}>
@@ -138,8 +129,6 @@ export default function ProjectsPage() {
       ) : (
         <span />
       )}
-
-      {/* Progress */}
       <div className="flex items-center gap-2">
         <div className="w-20 lg:w-24 h-1.5"
           style={{ background: 'rgba(245,240,235,0.08)' }}>
@@ -157,7 +146,33 @@ export default function ProjectsPage() {
         </span>
       </div>
     </div>
-  </Link>
+
+    {/* Row 4: Action buttons */}
+    <div className="flex gap-2">
+      <Link
+        href={`/projects/${project.id}`}
+        className="flex-1 py-2 text-xs font-semibold text-center transition-all"
+        style={{
+          background: 'rgba(249,115,22,0.08)',
+          color: '#F97316',
+          border: '1px solid rgba(249,115,22,0.2)',
+        }}
+      >
+        📊 Progress
+      </Link>
+      <Link
+        href={`/inventory/${project.id}`}
+        className="flex-1 py-2 text-xs font-semibold text-center transition-all"
+        style={{
+          background: 'rgba(245,240,235,0.04)',
+          color: 'rgba(245,240,235,0.4)',
+          border: '1px solid rgba(245,240,235,0.06)',
+        }}
+      >
+        📦 Gudang
+      </Link>
+    </div>
+  </div>
 ))}
         </div>
       )}

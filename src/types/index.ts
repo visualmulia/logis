@@ -76,15 +76,19 @@ export interface Project {
   id: string
   companyId: string
   name: string
-  location: string
-  status: ProjectStatus
-  healthScore: HealthScore
+  location?: string
+  status: 'active' | 'completed' | 'on_hold' | 'cancelled'
   progressPercent: number
-  budgetTotal: number
-  budgetUsed: number
-  startDate: Date
-  endDate: Date
-  pmId: string
+  progressHistory?: {
+    percent: number
+    note: string
+    updatedBy: string
+    updatedByName: string
+    updatedAt: Date
+  }[]
+  startDate?: Date
+  endDate?: Date
+  budget?: number
   createdAt: Date
 }
 
