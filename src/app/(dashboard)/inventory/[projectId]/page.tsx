@@ -26,8 +26,10 @@ import {
   X,
   ArrowUp,
   ArrowDown,
+  Download,
 } from 'lucide-react'
 import Link from 'next/link'
+import { exportInventoryPDF } from '@/lib/pdf/exportPDF'
 
 type InventoryCategory = 'material' | 'apd' | 'consumable' | 'tool'
 
@@ -46,6 +48,7 @@ export default function InventoryPage() {
   const [project, setProject] = useState<Project | null>(null)
   const [items, setItems] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showMutationModal, setShowMutationModal] = useState<{
     item: InventoryItem
@@ -63,7 +66,6 @@ export default function InventoryPage() {
 
   const UNITS = ['pcs', 'kg', 'ton', 'sak', 'liter', 'm', 'm²', 'm³', 'batang', 'lembar', 'roll', 'set', 'unit', 'dus', 'lusin']
 
-  // Fetch project info
   useEffect(() => {
     if (!companyId || !projectId) return
     getDoc(doc(db, 'logis_companies', companyId, 'projects', projectId)).then((snap) => {
@@ -73,7 +75,6 @@ export default function InventoryPage() {
     })
   }, [companyId, projectId])
 
-  // Realtime inventory
   useEffect(() => {
     if (!companyId || !projectId) return
 
@@ -151,6 +152,28 @@ export default function InventoryPage() {
     }
   }
 
+  async function handleExport() {
+    setExporting(true)
+    try {
+      exportInventoryPDF(
+        items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          category: categoryConfig[item.category as InventoryCategory]?.label || item.category,
+          quantity: item.quantity,
+          unit: item.unit,
+          minStock: item.minimumStock,
+        })),
+        project?.name || 'Proyek'
+      )
+      toast.success('PDF berhasil didownload!')
+    } catch {
+      toast.error('Gagal export PDF')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const criticalItems = items.filter((i) => i.quantity <= i.minimumStock)
 
   const inputStyle = {
@@ -174,9 +197,9 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
           <Link href="/projects"
             className="inline-flex items-center gap-2 text-xs mb-3"
@@ -195,13 +218,35 @@ export default function InventoryPage() {
             {items.length} item terdaftar di gudang proyek ini
           </p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest"
-          style={{ background: '#F97316', color: '#0a0a0a' }}>
-          <Plus size={15} />
-          Tambah Item
-        </button>
+
+        {/* Action buttons */}
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleExport}
+            disabled={exporting || items.length === 0}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold uppercase tracking-widest"
+            style={{
+              border: '1px solid rgba(245,240,235,0.1)',
+              color: exporting || items.length === 0
+                ? 'rgba(245,240,235,0.2)'
+                : 'rgba(245,240,235,0.5)',
+              cursor: items.length === 0 ? 'not-allowed' : 'pointer',
+              background: 'transparent',
+            }}
+          >
+            {exporting
+              ? <Loader2 size={14} className="animate-spin" />
+              : <Download size={14} />}
+            PDF
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest flex-1 sm:flex-none"
+            style={{ background: '#F97316', color: '#0a0a0a' }}>
+            <Plus size={15} />
+            Tambah Item
+          </button>
+        </div>
       </div>
 
       {/* Critical alert */}
@@ -242,7 +287,6 @@ export default function InventoryPage() {
         </div>
       ) : (
         <>
-          {/* Category groups */}
           {(Object.keys(categoryConfig) as InventoryCategory[]).map((cat) => {
             const catItems = items.filter((i) => i.category === cat)
             if (catItems.length === 0) return null
@@ -268,21 +312,19 @@ export default function InventoryPage() {
 
                     return (
                       <div key={item.id}
-  className="flex items-center gap-3 px-4 py-3 lg:px-5 lg:py-4"
+                        className="flex items-center gap-3 px-4 py-3 lg:px-5 lg:py-4"
                         style={{
                           background: '#111111',
                           border: isCritical
                             ? '1px solid rgba(239,68,68,0.25)'
                             : '1px solid rgba(245,240,235,0.06)',
                         }}>
-                        {/* Status dot */}
                         <div className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{
                             background: isCritical ? '#ef4444' : isLow ? '#eab308' : '#22c55e',
                             boxShadow: isCritical ? '0 0 6px #ef4444' : 'none',
                           }} />
 
-                        {/* Name */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium" style={{ color: '#f5f0eb' }}>
                             {item.name}
@@ -296,9 +338,8 @@ export default function InventoryPage() {
                           )}
                         </div>
 
-                        {/* Quantity */}
                         <div className="text-right mr-2 lg:mr-4">
-  <span className="text-base lg:text-lg font-black font-mono"
+                          <span className="text-base lg:text-lg font-black font-mono"
                             style={{
                               color: isCritical ? '#ef4444' : isLow ? '#eab308' : '#f5f0eb',
                             }}>
@@ -310,7 +351,6 @@ export default function InventoryPage() {
                           </span>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex gap-1">
                           <button
                             onClick={() => setShowMutationModal({ item, type: 'in' })}
@@ -468,26 +508,19 @@ export default function InventoryPage() {
                 <label style={labelStyle}>
                   Jumlah {showMutationModal.type === 'in' ? 'Masuk' : 'Keluar'}
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={mutationQty}
+                <input type="number" min="1" value={mutationQty}
                   onChange={(e) => setMutationQty(Number(e.target.value))}
-                  style={inputStyle}
-                />
+                  style={inputStyle} />
               </div>
 
               <div>
                 <label style={labelStyle}>Catatan (opsional)</label>
-                <input
-                  value={mutationNotes}
+                <input value={mutationNotes}
                   onChange={(e) => setMutationNotes(e.target.value)}
                   placeholder="Dari PO #001, untuk zona A, dll"
-                  style={inputStyle}
-                />
+                  style={inputStyle} />
               </div>
 
-              {/* Preview */}
               <div className="flex items-center justify-between p-3"
                 style={{
                   background: showMutationModal.type === 'in'
