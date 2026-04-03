@@ -58,6 +58,31 @@ async function findCompanyIdForUser(uid: string): Promise<string | null> {
     }
   }
 
+  // Step 3 — BARU: Cari di collectionGroup users
+  // Ini yang solve masalah incognito & fresh login
+  try {
+    const { collectionGroup, query, where, getDocs } = await import('firebase/firestore')
+    const usersQuery = query(
+      collectionGroup(db, 'users'),
+      where('id', '==', uid)
+    )
+    const snap = await getDocs(usersQuery)
+    if (!snap.empty) {
+      const userDoc = snap.docs[0]
+      const data = userDoc.data()
+      const cId = data.companyId as string
+      if (cId) {
+        // Simpan ke localStorage untuk session berikutnya
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('logis_company_id', cId)
+        }
+        return cId
+      }
+    }
+  } catch (err) {
+    console.error('CollectionGroup query failed:', err)
+  }
+
   return null
 }
 
