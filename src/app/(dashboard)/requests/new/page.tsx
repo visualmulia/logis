@@ -109,24 +109,24 @@ await createNotification({
   }
 
   const labelStyle = {
-    display: 'block' as const,
-    fontSize: '11px',
-    fontWeight: 600,
-    letterSpacing: '2px',
-    textTransform: 'uppercase' as const,
-    color: 'var(--text-secondary)',
-    marginBottom: '8px',
-  }
+  display: 'block' as const,
+  fontSize: '11px',
+  fontWeight: 600,
+  letterSpacing: '2px',
+  textTransform: 'uppercase' as const,
+  color: 'var(--text-muted)',
+  marginBottom: '8px',
+}
 
   const inputStyle = {
-    width: '100%',
-    padding: '10px 14px',
-    fontSize: '14px',
-    background: 'var(--bg-primary)',
-    border: '1px solid rgba(245,240,235,0.08)',
-    color: 'var(--text-primary)',
-    outline: 'none',
-  }
+  width: '100%',
+  padding: '10px 14px',
+  fontSize: '14px',
+  background: 'var(--bg-input)',
+  border: '1px solid var(--border-color)',
+  color: 'var(--text-primary)',
+  outline: 'none',
+}
 
   return (
     <div className="p-8 max-w-3xl">
@@ -173,25 +173,25 @@ await createNotification({
                 onClick={() => setUrgency(opt.key as typeof urgency)}
                 className="p-3 text-left transition-all"
                 style={{
-                  background:
-                    urgency === opt.key
-                      ? opt.key === 'urgent'
-                        ? 'rgba(239,68,68,0.1)'
-                        : 'rgba(249,115,22,0.1)'
-                      : 'transparent',
-                  border:
-                    urgency === opt.key
-                      ? opt.key === 'urgent'
-                        ? '1px solid rgba(239,68,68,0.4)'
-                        : '1px solid rgba(249,115,22,0.3)'
-                      : '1px solid rgba(245,240,235,0.08)',
-                  color:
-                    urgency === opt.key
-                      ? opt.key === 'urgent'
-                        ? '#ef4444'
-                        : '#F97316'
-                      : 'rgba(245,240,235,0.4)',
-                }}
+  background:
+    urgency === opt.key
+      ? opt.key === 'urgent'
+        ? 'rgba(239,68,68,0.1)'
+        : 'rgba(249,115,22,0.1)'
+      : 'var(--bg-secondary)',
+  border:
+    urgency === opt.key
+      ? opt.key === 'urgent'
+        ? '1px solid rgba(239,68,68,0.4)'
+        : '1px solid rgba(249,115,22,0.3)'
+      : '1px solid var(--border-strong)',
+  color:
+    urgency === opt.key
+      ? opt.key === 'urgent'
+        ? '#ef4444'
+        : '#F97316'
+      : 'var(--text-secondary)',
+}}
               >
                 <div className="text-sm font-semibold">{opt.label}</div>
                 <div className="text-xs mt-0.5 opacity-60">{opt.desc}</div>
@@ -203,9 +203,9 @@ await createNotification({
             <div
               className="flex items-start gap-2 mt-3 p-3"
               style={{
-                background: 'rgba(239,68,68,0.05)',
-                border: '1px solid rgba(239,68,68,0.15)',
-              }}
+  background: 'var(--bg-secondary)',
+  border: '1px solid var(--border-color)',
+}}
             >
               <AlertTriangle size={13} style={{ color: '#ef4444', marginTop: 1, flexShrink: 0 }} />
               <p className="text-xs" style={{ color: 'rgba(239,68,68,0.8)' }}>
