@@ -239,15 +239,15 @@ export default function OverviewPage() {
                   style={{ background: 'rgba(245,240,235,0.06)' }} />
               ) : (
                 <div className="text-2xl lg:text-3xl font-black mb-1"
-                  style={{
-                    fontFamily: 'monospace',
-                    color: stat.alert && stat.value > 0 ? stat.color : '#f5f0eb',
-                  }}>
+  style={{
+    fontFamily: 'monospace',
+    color: stat.alert && stat.value > 0 ? stat.color : 'var(--text-primary)',
+  }}>
                   {stat.value}
                 </div>
               )}
               <div className="text-xs uppercase tracking-wide leading-tight"
-                style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+  style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
                 {stat.label}
               </div>
             </Link>
