@@ -9,7 +9,6 @@ export type UserRole =
   | 'supervisor'
   | 'logistik'
   | 'admin_site'
-  | 'mandor'
   | 'readonly'
 
 export type ProjectStatus = 'active' | 'completed' | 'on_hold' | 'cancelled'
@@ -61,11 +60,13 @@ export interface LogisUser {
   companyId: string
   name: string
   email: string
-  phone?: string
+  phone: string
   role: UserRole
   projectIds: string[]
-  createdAt: Date
+  assignedProjectId?: string  // ← tambahkan ini
   isActive: boolean
+  fcmToken?: string
+  createdAt: Date
 }
 
 // ============================================

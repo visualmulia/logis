@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { loginUser } from '@/lib/firebase/auth'
+import { db } from '@/lib/firebase/config'
 
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
@@ -31,26 +32,55 @@ export default function LoginPage() {
   })
 
   async function onSubmit(data: LoginForm) {
-    setIsLoading(true)
-    try {
-      await loginUser(data.email, data.password)
-      toast.success('Selamat datang kembali!')
-      router.push('/overview')
-    } catch (error: unknown) {
-      const code = (error as { code?: string })?.code
-      if (
-        code === 'auth/user-not-found' ||
-        code === 'auth/wrong-password' ||
-        code === 'auth/invalid-credential'
-      ) {
-        toast.error('Email atau password salah')
-      } else {
-        toast.error('Terjadi kesalahan. Coba lagi.')
+  setIsLoading(true)
+  try {
+    await loginUser(data.email, data.password)
+    toast.success('Selamat datang kembali!')
+
+    // Cek assigned project dari localStorage atau Firestore
+    // AuthContext akan load user data, kita tunggu sebentar
+    await new Promise((r) => setTimeout(r, 800))
+
+    const companyId = localStorage.getItem('logis_company_id')
+    if (companyId) {
+      const { getDoc, doc } = await import('firebase/firestore')
+      const { auth } = await import('@/lib/firebase/config')
+      const uid = auth.currentUser?.uid
+      if (uid) {
+        const userDoc = await getDoc(
+          doc(db, 'logis_companies', companyId, 'users', uid)
+        )
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          const assignedProjectId = userData.assignedProjectId
+          const role = userData.role
+
+          // Role yang perlu auto-redirect ke proyek
+          const projectRoles = ['pm', 'supervisor', 'logistik', 'admin_site', 'readonly']
+          if (assignedProjectId && projectRoles.includes(role)) {
+            router.push(`/inventory/${assignedProjectId}`)
+            return
+          }
+        }
       }
-    } finally {
-      setIsLoading(false)
     }
+
+    router.push('/overview')
+  } catch (error: unknown) {
+    const code = (error as { code?: string })?.code
+    if (
+      code === 'auth/user-not-found' ||
+      code === 'auth/wrong-password' ||
+      code === 'auth/invalid-credential'
+    ) {
+      toast.error('Email atau password salah')
+    } else {
+      toast.error('Terjadi kesalahan. Coba lagi.')
+    }
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex">

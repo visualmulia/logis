@@ -16,46 +16,22 @@ import {
 import NotificationBell from '@/components/shared/NotificationBell'
 
 const navItems = [
+  { label: 'Overview', href: '/overview', icon: LayoutDashboard, module: null, roles: null },
+  { label: 'Request Material', href: '/requests', icon: PackageSearch, module: '01', roles: null },
   {
-    label: 'Overview',
-    href: '/overview',
-    icon: LayoutDashboard,
-    module: null,
-    roles: null,
-  },
-  {
-    label: 'Request Material',
-    href: '/requests',
-    icon: PackageSearch,
-    module: '01',
-    roles: null, // Semua role bisa akses
-  },
-  {
-    label: 'Gudang Digital',
-    href: '/projects',
-    icon: Warehouse,
-    module: '02',
+    label: 'Gudang Digital', href: '/projects', icon: Warehouse, module: '02',
     roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site'],
   },
   {
-    label: 'Equipment Tracker',
-    href: '/assets',
-    icon: Wrench,
-    module: '03',
+    label: 'Equipment Tracker', href: '/assets', icon: Wrench, module: '03',
     roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik'],
   },
   {
-    label: 'Petty Cash',
-    href: '/petty-cash',
-    icon: Wallet,
-    module: '💰',
+    label: 'Petty Cash', href: '/petty-cash', icon: Wallet, module: '💰',
     roles: ['owner', 'admin', 'pm', 'admin_site', 'supervisor'],
   },
   {
-    label: 'Tim & Akses',
-    href: '/team',
-    icon: Users,
-    module: null,
+    label: 'Tim & Akses', href: '/team', icon: Users, module: null,
     roles: ['owner', 'admin'],
   },
 ]

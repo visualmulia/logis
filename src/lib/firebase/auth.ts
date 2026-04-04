@@ -138,12 +138,14 @@ export async function resetPassword(email: string): Promise<void> {
 // ============================================
 // INVITE USER
 // ============================================
+// Ganti seluruh fungsi createInvite:
 export async function createInvite(data: {
   companyId: string
   companyName: string
   email: string
   role: UserRole
   invitedByName: string
+  projectId?: string | null  // ← tambahkan ini
 }): Promise<string> {
   const { addDoc, collection, serverTimestamp } = await import('firebase/firestore')
   const inviteRef = await addDoc(
@@ -153,6 +155,7 @@ export async function createInvite(data: {
       companyName: data.companyName,
       email: data.email.toLowerCase(),
       role: data.role,
+      projectId: data.projectId || null,  // ← tambahkan ini
       invitedByName: data.invitedByName,
       status: 'pending',
       createdAt: serverTimestamp(),
@@ -173,6 +176,7 @@ export async function registerViaInvite(data: {
   password: string
   phone: string
   role: UserRole
+  projectId?: string | null  // ← tambahkan
 }): Promise<void> {
   const { doc, setDoc, updateDoc, serverTimestamp: st } =
     await import('firebase/firestore')
@@ -195,19 +199,20 @@ export async function registerViaInvite(data: {
 
   // 4. Buat user doc
   await setDoc(
-    doc(db, 'logis_companies', data.companyId, 'users', uid),
-    {
-      id: uid,
-      companyId: data.companyId,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      role: data.role,
-      projectIds: [],
-      isActive: true,
-      createdAt: st(),
-    }
-  )
+  doc(db, 'logis_companies', data.companyId, 'users', uid),
+  {
+    id: uid,
+    companyId: data.companyId,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    role: data.role,
+    projectIds: data.projectId ? [data.projectId] : [],
+    assignedProjectId: data.projectId || null,  // ← tambahkan
+    isActive: true,
+    createdAt: st(),
+  }
+)
 
   // 5. Mark invite as used
   try {

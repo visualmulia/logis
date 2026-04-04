@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
@@ -10,6 +10,8 @@ import { Plus, Trash2, ArrowLeft, Loader2, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { createNotification } from '@/lib/firebase/notifications'
 import PhotoUpload from '@/components/shared/PhotoUpload'
+import { getDocs } from 'firebase/firestore'
+import { Project } from '@/types'
 
 
 interface RequestItem {
@@ -31,6 +33,21 @@ export default function NewRequestPage() {
     { name: '', quantity: 1, unit: 'pcs', notes: '' },
   ])
   const [photos, setPhotos] = useState<{ url: string; path: string; name: string }[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+const [selectedProjectId, setSelectedProjectId] = useState('')
+
+// Fetch projects
+useEffect(() => {
+  if (!companyId) return
+  getDocs(collection(db, 'logis_companies', companyId, 'projects')).then((snap) => {
+    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Project))
+    setProjects(data)
+    // Auto-select kalau user punya assigned project
+    if (logisUser?.assignedProjectId) {
+      setSelectedProjectId(logisUser.assignedProjectId)
+    }
+  })
+}, [companyId, logisUser])
 
   function addItem() {
     setItems([...items, { name: '', quantity: 1, unit: 'pcs', notes: '' }])
@@ -69,6 +86,7 @@ export default function NewRequestPage() {
         collection(db, 'logis_companies', companyId, 'requests'),
         {
           companyId,
+          projectId: selectedProjectId,
           requestedBy: logisUser.id,
           requestedByName: logisUser.name,
           items: items.map((i) => ({
@@ -160,6 +178,24 @@ await createNotification({
             border: '1px solid var(--border-color)',
           }}
         >
+          {/* Proyek */}
+<div className="p-6"
+  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+  <label style={labelStyle}>Proyek *</label>
+  <select
+    value={selectedProjectId}
+    onChange={(e) => setSelectedProjectId(e.target.value)}
+    style={{ ...inputStyle, cursor: 'pointer' }}
+    required
+  >
+    <option value="" style={{ background: 'var(--bg-card)' }}>— Pilih Proyek —</option>
+    {projects.map((p) => (
+      <option key={p.id} value={p.id} style={{ background: 'var(--bg-card)' }}>
+        {p.name}
+      </option>
+    ))}
+  </select>
+</div>
           <label style={labelStyle}>Tingkat Urgensi</label>
           <div className="grid grid-cols-3 gap-2">
             {[

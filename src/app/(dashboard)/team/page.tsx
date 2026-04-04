@@ -4,19 +4,17 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import {
   collection, onSnapshot, query, orderBy,
-  deleteDoc, doc
+  deleteDoc, doc, getDocs, updateDoc
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-import { LogisUser } from '@/types'
+import { LogisUser, UserRole, Project } from '@/types'
 import { createInvite } from '@/lib/firebase/auth'
 import { toast } from 'sonner'
 import {
   Plus, Users, Mail, Trash2,
   Loader2, Copy, CheckCircle, X,
-  Shield, Clock
+  Shield, Clock, FolderOpen
 } from 'lucide-react'
-
-type UserRole = 'owner' | 'admin' | 'pm' | 'supervisor' | 'logistik' | 'admin_site' | 'mandor' | 'readonly'
 
 const roleConfig: Record<UserRole, { label: string; color: string; desc: string }> = {
   owner: { label: 'Owner', color: '#F97316', desc: 'Akses penuh semua fitur' },
@@ -25,8 +23,7 @@ const roleConfig: Record<UserRole, { label: string; color: string; desc: string 
   supervisor: { label: 'Supervisor', color: '#22c55e', desc: 'Monitor lapangan & laporan' },
   logistik: { label: 'Logistik', color: '#eab308', desc: 'Kelola gudang & penerimaan' },
   admin_site: { label: 'Admin Proyek', color: '#f472b6', desc: 'Pegang petty cash lapangan' },
-  mandor: { label: 'Mandor', color: 'rgba(245,240,235,0.6)', desc: 'Submit request material' },
-  readonly: { label: 'Read Only', color: 'var(--text-muted)', desc: 'Hanya bisa lihat data' },
+  readonly: { label: 'Read Only', color: '#94a3b8', desc: 'Hanya bisa lihat data' },
 }
 
 interface Invite {
@@ -34,6 +31,7 @@ interface Invite {
   email: string
   role: UserRole
   status: string
+  projectId?: string | null
   createdAt: Date
 }
 
@@ -41,12 +39,22 @@ export default function TeamPage() {
   const { companyId, logisUser } = useAuth()
   const [users, setUsers] = useState<LogisUser[]>([])
   const [invites, setInvites] = useState<Invite[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [showInviteModal, setShowInviteModal] = useState(false)
-  const [inviteForm, setInviteForm] = useState({ email: '', role: 'logistik' as UserRole })
+  const [inviteForm, setInviteForm] = useState({
+    email: '',
+    role: 'logistik' as UserRole,
+    projectId: '',
+  })
   const [inviting, setInviting] = useState(false)
   const [generatedLink, setGeneratedLink] = useState('')
   const [copied, setCopied] = useState(false)
+
+  // Edit project assignment
+  const [editingUser, setEditingUser] = useState<LogisUser | null>(null)
+  const [editProjectId, setEditProjectId] = useState('')
+  const [savingProject, setSavingProject] = useState(false)
 
   const canManage = ['owner', 'admin'].includes(logisUser?.role || '')
 
@@ -72,6 +80,10 @@ export default function TeamPage() {
       }
     )
 
+    getDocs(collection(db, 'logis_companies', companyId, 'projects')).then((snap) => {
+      setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Project)))
+    })
+
     return () => {
       userUnsub()
       inviteUnsub()
@@ -90,10 +102,13 @@ export default function TeamPage() {
         email: inviteForm.email.toLowerCase().trim(),
         role: inviteForm.role,
         invitedByName: logisUser.name,
+        projectId: inviteForm.projectId || null,
       })
 
       const baseUrl = window.location.origin
       const link = `${baseUrl}/join?invite=${inviteId}&company=${companyId}`
+      const [editingUser, setEditingUser] = useState<LogisUser | null>(null)
+const [editProjectId, setEditProjectId] = useState('')
       setGeneratedLink(link)
       toast.success('Link undangan berhasil dibuat!')
     } catch {
@@ -102,6 +117,25 @@ export default function TeamPage() {
       setInviting(false)
     }
   }
+
+  // Fungsi update project assignment
+async function handleUpdateProject() {
+  if (!companyId || !editingUser) return
+  try {
+    const { doc, updateDoc } = await import('firebase/firestore')
+    await updateDoc(
+      doc(db, 'logis_companies', companyId, 'users', editingUser.id),
+      {
+        assignedProjectId: editProjectId || null,
+        projectIds: editProjectId ? [editProjectId] : [],
+      }
+    )
+    toast.success('Proyek assignment diupdate!')
+    setEditingUser(null)
+  } catch {
+    toast.error('Gagal update proyek')
+  }
+}
 
   function copyLink() {
     navigator.clipboard.writeText(generatedLink)
@@ -122,10 +156,10 @@ export default function TeamPage() {
 
   const pendingInvites = invites.filter((i) => i.status === 'pending')
 
-  const inputClass = "w-full px-4 py-3 text-sm outline-none"
+  const inputClass = 'w-full px-4 py-3 text-sm outline-none'
   const inputStyle = {
-    background: 'var(--bg-primary)',
-    border: '1px solid rgba(245,240,235,0.08)',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-color)',
     color: 'var(--text-primary)',
   }
 
@@ -134,10 +168,8 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <p
-            className="text-xs font-semibold uppercase tracking-widest mb-1"
-            style={{ color: '#F97316' }}
-          >
+          <p className="text-xs font-semibold uppercase tracking-widest mb-1"
+            style={{ color: '#F97316' }}>
             Manajemen Tim
           </p>
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
@@ -149,13 +181,9 @@ export default function TeamPage() {
         </div>
         {canManage && (
           <button
-            onClick={() => {
-              setShowInviteModal(true)
-              setGeneratedLink('')
-            }}
+            onClick={() => { setShowInviteModal(true); setGeneratedLink('') }}
             className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest w-full sm:w-auto"
-            style={{ background: '#F97316', color: '#0a0a0a' }}
-          >
+            style={{ background: '#F97316', color: '#fff' }}>
             <Plus size={15} />
             Undang Anggota
           </button>
@@ -164,88 +192,90 @@ export default function TeamPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2
-            size={24}
-            className="animate-spin"
-            style={{ color: '#F97316' }}
-          />
+          <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
         </div>
       ) : (
         <>
           {/* Users list */}
           <div className="mb-8">
-            <p
-              className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2"
-              style={{ color: 'var(--text-muted)' }}
-            >
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2"
+              style={{ color: 'var(--text-muted)' }}>
               <Users size={12} />
               Anggota Aktif ({users.length})
             </p>
             <div className="space-y-2">
               {users.map((user) => {
                 const role = roleConfig[user.role as UserRole] || roleConfig.readonly
+                const assignedProject = projects.find((p) => p.id === user.assignedProjectId)
                 return (
-                  <div
-                    key={user.id}
+                  <div key={user.id}
                     className="flex items-center gap-4 p-4"
-                    style={{
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-color)',
-                    }}
-                  >
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+
                     {/* Avatar */}
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
                       style={{
                         background: `${role.color}20`,
                         border: `1px solid ${role.color}40`,
                         color: role.color,
-                      }}
-                    >
+                      }}>
                       {user.name?.charAt(0).toUpperCase()}
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p
-                          className="text-sm font-semibold"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
+                        <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                           {user.name}
                           {user.id === logisUser?.id && (
-                            <span
-                              className="ml-2 text-xs"
-                              style={{ color: 'var(--text-muted)' }}
-                            >
+                            <span className="ml-2 text-xs" style={{ color: 'var(--text-muted)' }}>
                               (Anda)
                             </span>
                           )}
                         </p>
-                        <span
-                          className="text-xs px-2 py-0.5 font-semibold"
-                          style={{
-                            background: `${role.color}15`,
-                            color: role.color,
-                          }}
-                        >
+                        <span className="text-xs px-2 py-0.5 font-semibold"
+                          style={{ background: `${role.color}15`, color: role.color }}>
                           {role.label}
                         </span>
                       </div>
-                      <p
-                        className="text-xs mt-0.5 truncate"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
+                      <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
                         {user.email}
                       </p>
+                      {/* Assigned project info */}
+                      {assignedProject && (
+                        <p className="text-xs mt-1 flex items-center gap-1"
+                          style={{ color: '#F97316' }}>
+                          <FolderOpen size={10} />
+                          {assignedProject.name}
+                        </p>
+                      )}
                     </div>
 
-                    {user.role === 'owner' && (
-                      <Shield
-                        size={14}
-                        style={{ color: '#F97316', flexShrink: 0 }}
-                      />
-                    )}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* Hanya owner/admin yang bisa edit */}
+{canManage && user.role !== 'owner' && (
+  <button
+    onClick={() => {
+      setEditingUser(user)
+      setEditProjectId(user.assignedProjectId || '')
+    }}
+    className="text-xs px-2 py-1 flex-shrink-0"
+    style={{
+      border: '1px solid rgba(249,115,22,0.3)',
+      color: '#F97316',
+    }}
+  >
+    {user.assignedProjectId
+      ? `Proyek: ${projects.find(p => p.id === user.assignedProjectId)?.name || '...'}`
+      : '+ Assign Proyek'
+    }
+  </button>
+)}
+
+                      {user.role === 'owner' && (
+                        <Shield size={14} style={{ color: '#F97316' }} />
+                      )}
+                    </div>
                   </div>
                 )
               })}
@@ -255,61 +285,48 @@ export default function TeamPage() {
           {/* Pending invites */}
           {canManage && pendingInvites.length > 0 && (
             <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2"
-                style={{ color: 'var(--text-muted)' }}
-              >
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2"
+                style={{ color: 'var(--text-muted)' }}>
                 <Clock size={12} />
                 Undangan Pending ({pendingInvites.length})
               </p>
               <div className="space-y-2">
                 {pendingInvites.map((invite) => {
-                  const role =
-                    roleConfig[invite.role as UserRole] || roleConfig.readonly
+                  const role = roleConfig[invite.role as UserRole] || roleConfig.readonly
+                  const inviteProject = projects.find((p) => p.id === invite.projectId)
                   return (
-                    <div
-                      key={invite.id}
+                    <div key={invite.id}
                       className="flex items-center gap-4 p-4"
                       style={{
                         background: 'var(--bg-card)',
                         border: '1px solid rgba(234,179,8,0.15)',
-                      }}
-                    >
-                      <Mail
-                        size={16}
-                        style={{ color: '#eab308', flexShrink: 0 }}
-                      />
+                      }}>
+                      <Mail size={16} style={{ color: '#eab308', flexShrink: 0 }} />
                       <div className="flex-1 min-w-0">
-                        <p
-                          className="text-sm font-medium truncate"
-                          style={{ color: 'var(--text-primary)' }}
-                        >
+                        <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                           {invite.email}
                         </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span
-                            className="text-xs px-2 py-0.5 font-semibold"
-                            style={{
-                              background: `${role.color}15`,
-                              color: role.color,
-                            }}
-                          >
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span className="text-xs px-2 py-0.5 font-semibold"
+                            style={{ background: `${role.color}15`, color: role.color }}>
                             {role.label}
                           </span>
-                          <span
-                            className="text-xs"
-                            style={{ color: '#eab308' }}
-                          >
+                          {inviteProject && (
+                            <span className="text-xs flex items-center gap-1"
+                              style={{ color: '#F97316' }}>
+                              <FolderOpen size={10} />
+                              {inviteProject.name}
+                            </span>
+                          )}
+                          <span className="text-xs" style={{ color: '#eab308' }}>
                             Menunggu
                           </span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => deleteInvite(invite.id)}
+                      <button onClick={() => deleteInvite(invite.id)}
                         className="p-1.5 flex-shrink-0"
                         style={{ color: 'rgba(239,68,68,0.5)' }}
-                        title="Hapus undangan"
-                      >
+                        title="Hapus undangan">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -323,36 +340,22 @@ export default function TeamPage() {
 
       {/* Invite Modal */}
       {showInviteModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.8)' }}
-        >
-          <div
-            className="w-full sm:max-w-md"
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.8)' }}>
+          <div className="w-full sm:max-w-md"
             style={{
               background: 'var(--bg-card)',
-              border: '1px solid rgba(245,240,235,0.1)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px 12px 0 0',
-            }}
-          >
-            {/* Modal header */}
-            <div
-              className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: '1px solid var(--border-color)' }}
-            >
-              <h3
-                className="text-sm font-bold uppercase tracking-widest"
-                style={{ color: 'var(--text-primary)' }}
-              >
+            }}>
+            <div className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--border-color)' }}>
+              <h3 className="text-sm font-bold uppercase tracking-widest"
+                style={{ color: 'var(--text-primary)' }}>
                 Undang Anggota Tim
               </h3>
-              <button
-                onClick={() => {
-                  setShowInviteModal(false)
-                  setGeneratedLink('')
-                }}
-                style={{ color: 'var(--text-muted)' }}
-              >
+              <button onClick={() => { setShowInviteModal(false); setGeneratedLink('') }}
+                style={{ color: 'var(--text-muted)' }}>
                 <X size={16} />
               </button>
             </div>
@@ -361,91 +364,85 @@ export default function TeamPage() {
               {!generatedLink ? (
                 <form onSubmit={handleInvite} className="space-y-4">
                   <div>
-                    <label
-                      className="block text-xs font-semibold uppercase tracking-widest mb-2"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
+                    <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
+                      style={{ color: 'var(--text-secondary)' }}>
                       Email Anggota
                     </label>
-                    <input
-                      type="email"
+                    <input type="email"
                       value={inviteForm.email}
-                      onChange={(e) =>
-                        setInviteForm({ ...inviteForm, email: e.target.value })
-                      }
+                      onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
                       placeholder="email@anggota.com"
                       className={inputClass}
                       style={inputStyle}
-                      required
-                    />
+                      required />
                   </div>
 
                   <div>
-                    <label
-                      className="block text-xs font-semibold uppercase tracking-widest mb-2"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
+                    <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
+                      style={{ color: 'var(--text-secondary)' }}>
                       Role / Jabatan
                     </label>
                     <select
                       value={inviteForm.role}
-                      onChange={(e) =>
-                        setInviteForm({
-                          ...inviteForm,
-                          role: e.target.value as UserRole,
-                        })
-                      }
+                      onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value as UserRole })}
                       className={inputClass}
-                      style={{ ...inputStyle, cursor: 'pointer' }}
-                    >
+                      style={{ ...inputStyle, cursor: 'pointer' }}>
                       {(Object.keys(roleConfig) as UserRole[])
                         .filter((r) => r !== 'owner')
-                        .map((role) => (
-                          <option
-                            key={role}
-                            value={role}
-                            style={{ background: 'var(--bg-card)' }}
-                          >
-                            {roleConfig[role].label} — {roleConfig[role].desc}
+                        .map((r) => (
+                          <option key={r} value={r} style={{ background: 'var(--bg-card)' }}>
+                            {roleConfig[r].label} — {roleConfig[r].desc}
                           </option>
                         ))}
                     </select>
                   </div>
 
+                  {/* Assign Proyek */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
+                      style={{ color: 'var(--text-secondary)' }}>
+                      Assign ke Proyek
+                    </label>
+                    <select
+                      value={inviteForm.projectId}
+                      onChange={(e) => setInviteForm({ ...inviteForm, projectId: e.target.value })}
+                      className={inputClass}
+                      style={{ ...inputStyle, cursor: 'pointer' }}>
+                      <option value="" style={{ background: 'var(--bg-card)' }}>
+                        — Pilih Proyek (opsional) —
+                      </option>
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id} style={{ background: 'var(--bg-card)' }}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      User akan otomatis diarahkan ke proyek ini setelah login
+                    </p>
+                  </div>
+
                   {/* Role description */}
-                  <div
-                    className="p-3"
+                  <div className="p-3"
                     style={{
                       background: 'rgba(249,115,22,0.05)',
                       border: '1px solid rgba(249,115,22,0.15)',
-                    }}
-                  >
-                    <p className="text-xs" style={{ color: 'rgba(245,240,235,0.5)' }}>
-                      <span
-                        style={{ color: '#F97316', fontWeight: 600 }}
-                      >
+                    }}>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      <span style={{ color: '#F97316', fontWeight: 600 }}>
                         {roleConfig[inviteForm.role].label}:
                       </span>{' '}
                       {roleConfig[inviteForm.role].desc}
                     </p>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={inviting}
+                  <button type="submit" disabled={inviting}
                     className="w-full py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-                    style={{ background: '#F97316', color: '#0a0a0a' }}
-                  >
+                    style={{ background: '#F97316', color: '#fff' }}>
                     {inviting ? (
-                      <>
-                        <Loader2 size={15} className="animate-spin" />
-                        Membuat link...
-                      </>
+                      <><Loader2 size={15} className="animate-spin" />Membuat link...</>
                     ) : (
-                      <>
-                        <Mail size={15} />
-                        Buat Link Undangan
-                      </>
+                      <><Mail size={15} />Buat Link Undangan</>
                     )}
                   </button>
                 </form>
@@ -453,10 +450,7 @@ export default function TeamPage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <CheckCircle size={20} style={{ color: '#22c55e' }} />
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: '#22c55e' }}
-                    >
+                    <p className="text-sm font-semibold" style={{ color: '#22c55e' }}>
                       Link undangan berhasil dibuat!
                     </p>
                   </div>
@@ -469,57 +463,34 @@ export default function TeamPage() {
                     via WhatsApp atau email. Link berlaku 7 hari.
                   </p>
 
-                  {/* Link box */}
-                  <div
-                    className="p-3 flex items-center gap-3"
+                  <div className="p-3 flex items-center gap-3"
                     style={{
-                      background: 'var(--bg-primary)',
-                      border: '1px solid rgba(245,240,235,0.1)',
-                    }}
-                  >
-                    <p
-                      className="text-xs flex-1 truncate font-mono"
-                      style={{ color: 'rgba(245,240,235,0.5)' }}
-                    >
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-color)',
+                    }}>
+                    <p className="text-xs flex-1 truncate font-mono"
+                      style={{ color: 'var(--text-secondary)' }}>
                       {generatedLink}
                     </p>
-                    <button
-                      onClick={copyLink}
-                      className="flex-shrink-0"
-                      style={{ color: copied ? '#22c55e' : '#F97316' }}
-                    >
-                      {copied ? (
-                        <CheckCircle size={16} />
-                      ) : (
-                        <Copy size={16} />
-                      )}
+                    <button onClick={copyLink} className="flex-shrink-0"
+                      style={{ color: copied ? '#22c55e' : '#F97316' }}>
+                      {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
                     </button>
                   </div>
 
-                  {/* WhatsApp share */}
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(
-                      `Halo! Kamu diundang bergabung ke tim Logis. Klik link ini untuk membuat akun: ${generatedLink}`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <a href={`https://wa.me/?text=${encodeURIComponent(
+                    `Halo! Kamu diundang bergabung ke tim Logis. Klik link ini untuk membuat akun: ${generatedLink}`
+                  )}`}
+                    target="_blank" rel="noopener noreferrer"
                     className="w-full py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-                    style={{ background: '#22c55e', color: '#fff' }}
-                  >
-                    📱 Kirim via WhatsApp
+                    style={{ background: '#22c55e', color: '#fff' }}>
+                    Kirim via WhatsApp
                   </a>
 
                   <button
-                    onClick={() => {
-                      setGeneratedLink('')
-                      setInviteForm({ email: '', role: 'logistik' })
-                    }}
+                    onClick={() => { setGeneratedLink(''); setInviteForm({ email: '', role: 'logistik', projectId: '' }) }}
                     className="w-full py-2.5 text-sm"
-                    style={{
-                      border: '1px solid rgba(245,240,235,0.1)',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
+                    style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
                     Undang Anggota Lain
                   </button>
                 </div>
@@ -528,6 +499,62 @@ export default function TeamPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Project Modal */}
+{editingUser && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style={{ background: 'rgba(0,0,0,0.8)' }}>
+    <div className="w-full max-w-sm"
+      style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.1)' }}>
+      <div className="flex items-center justify-between px-6 py-4"
+        style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}>
+        <h3 className="text-sm font-bold uppercase tracking-widest"
+          style={{ color: '#f5f0eb' }}>
+          Assign Proyek — {editingUser.name}
+        </h3>
+        <button onClick={() => setEditingUser(null)}
+          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          <X size={16} />
+        </button>
+      </div>
+      <div className="p-6 space-y-4">
+        <select
+          value={editProjectId}
+          onChange={(e) => setEditProjectId(e.target.value)}
+          className="w-full px-4 py-3 text-sm outline-none"
+          style={{
+            background: '#0a0a0a',
+            border: '1px solid rgba(245,240,235,0.08)',
+            color: '#f5f0eb',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="" style={{ background: '#111' }}>— Tidak di-assign ke proyek —</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id} style={{ background: '#111' }}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+          User akan diarahkan ke proyek ini otomatis saat login berikutnya.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={handleUpdateProject}
+            className="flex-1 py-3 text-sm font-bold uppercase tracking-widest"
+            style={{ background: '#F97316', color: '#0a0a0a' }}>
+            Simpan
+          </button>
+          <button onClick={() => setEditingUser(null)}
+            className="px-4 py-3 text-sm"
+            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   )
 }

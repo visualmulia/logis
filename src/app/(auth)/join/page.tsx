@@ -32,6 +32,7 @@ interface InviteData {
   role: string
   invitedByName: string
   status: string
+  projectId?: string | null
 }
 
 // ─── Komponen utama yang pakai useSearchParams ───
@@ -80,17 +81,27 @@ function JoinContent() {
     setIsLoading(true)
     try {
       localStorage.setItem('logis_company_id', companyId)
-      await registerViaInvite({
-        inviteId,
-        companyId,
-        name: data.name,
-        email: invite.email,
-        password: data.password,
-        phone: data.phone,
-        role: invite.role as never,
-      })
+      // Ambil projectId dari invite data
+const projectId = invite.projectId || null
+
+await registerViaInvite({
+  inviteId,
+  companyId,
+  name: data.name,
+  email: invite.email,
+  password: data.password,
+  phone: data.phone,
+  role: invite.role as never,
+  projectId,  // ← tambahkan
+})
       toast.success('Akun berhasil dibuat! Selamat bergabung.')
       await new Promise((r) => setTimeout(r, 500))
+      // Redirect ke proyek kalau ada, kalau tidak ke overview
+if (projectId) {
+  router.push(`/inventory/${projectId}`)
+} else {
+  router.push('/overview')
+}
       router.push('/overview')
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code
