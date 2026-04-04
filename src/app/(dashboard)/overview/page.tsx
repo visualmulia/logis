@@ -206,13 +206,13 @@ export default function OverviewPage() {
           const Icon = stat.icon
           return (
             <Link key={stat.label} href={stat.href}
-              className="p-4 lg:p-6 block transition-all"
-              style={{
-                background: stat.alert ? `${stat.color}08` : '#111111',
-                border: stat.alert
-                  ? `1px solid ${stat.color}30`
-                  : '1px solid var(--border-color)',
-              }}
+  className="p-4 lg:p-6 block transition-all"
+  style={{
+    background: stat.alert ? `${stat.color}08` : 'var(--bg-card)',
+    border: stat.alert
+      ? `1px solid ${stat.color}30`
+      : '1px solid var(--border-color)',
+  }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = `${stat.color}40`
               }}
@@ -302,7 +302,7 @@ export default function OverviewPage() {
                       border: '1px solid rgba(245,240,235,0.04)',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(245,240,235,0.06)'
+                      e.currentTarget.style.background = 'var(--bg-secondary)'
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = 'rgba(245,240,235,0.03)'
