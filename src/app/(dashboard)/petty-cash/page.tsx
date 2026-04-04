@@ -47,7 +47,7 @@ const statusConfig: { [key: string]: {
   },
   completed: {
     label: 'Selesai',
-    color: 'rgba(245,240,235,0.4)',
+    color: 'var(--text-secondary)',
     bg: 'rgba(245,240,235,0.05)',
     icon: CheckCircle,
   },
@@ -155,10 +155,10 @@ export default function PettyCashPage() {
             style={{ color: '#F97316' }}>
             Petty Cash
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#f5f0eb' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             Kas Lapangan
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Setiap rupiah ada jejak dan justifikasinya
           </p>
         </div>
@@ -197,9 +197,9 @@ export default function PettyCashPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 mb-6">
         <div className="p-5"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <p className="text-xs uppercase tracking-widest mb-2"
-            style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
             Total Bulan Ini
           </p>
           <p className="text-2xl font-black font-mono" style={{ color: '#F97316' }}>
@@ -229,9 +229,9 @@ export default function PettyCashPage() {
           </div>
         ) : (
           <div className="p-5"
-            style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <p className="text-xs uppercase tracking-widest mb-2"
-              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+              style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
               Menunggu Approval
             </p>
             <p className="text-2xl font-black font-mono flex items-center gap-2"
@@ -264,9 +264,9 @@ export default function PettyCashPage() {
           </div>
         ) : (
           <div className="p-5"
-            style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <p className="text-xs uppercase tracking-widest mb-2"
-              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+              style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
               Anomali
             </p>
             <p className="text-2xl font-black font-mono flex items-center gap-2"
@@ -283,7 +283,7 @@ export default function PettyCashPage() {
 
       {/* Filter tabs */}
       <div className="flex gap-0 mb-6 overflow-x-auto"
-        style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}>
+        style={{ borderBottom: '1px solid var(--border-color)' }}>
         {[
           { key: 'all', label: 'Semua' },
           { key: 'pending_approval', label: 'Pending' },
@@ -321,7 +321,7 @@ export default function PettyCashPage() {
         <div className="text-center py-24"
           style={{ color: 'rgba(245,240,235,0.2)' }}>
           <Wallet size={40} className="mx-auto mb-4 opacity-30"
-            style={{ color: '#f5f0eb' }} />
+            style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm">Belum ada transaksi petty cash</p>
           {canCreate && (
             <Link href="/petty-cash/new"
@@ -343,10 +343,10 @@ export default function PettyCashPage() {
                 href={`/petty-cash/${tx.id}`}
                 className="flex items-center gap-4 p-5 transition-all group"
                 style={{
-                  background: '#111111',
+                  background: 'var(--bg-card)',
                   border: tx.anomalyFlag
                     ? '1px solid rgba(239,68,68,0.25)'
-                    : '1px solid rgba(245,240,235,0.06)',
+                    : '1px solid var(--border-color)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#151515'
@@ -367,7 +367,7 @@ export default function PettyCashPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono"
-                      style={{ color: 'rgba(245,240,235,0.3)' }}>
+                      style={{ color: 'var(--text-muted)' }}>
                       #{tx.id.slice(-6).toUpperCase()}
                     </span>
                     <span className="text-xs px-2 py-0.5 font-semibold"
@@ -388,10 +388,10 @@ export default function PettyCashPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: '#f5f0eb' }}>
+                  <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>
                     {tx.description}
                   </p>
-                  <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     {tx.category} · {tx.requestedBy} ·{' '}
                     {tx.createdAt
                       ? formatDistanceToNow(tx.createdAt, { addSuffix: true, locale: id })
@@ -415,3 +415,4 @@ export default function PettyCashPage() {
     </div>
   )
 }
+

@@ -26,7 +26,7 @@ const roleConfig: Record<UserRole, { label: string; color: string; desc: string 
   logistik: { label: 'Logistik', color: '#eab308', desc: 'Kelola gudang & penerimaan' },
   admin_site: { label: 'Admin Proyek', color: '#f472b6', desc: 'Pegang petty cash lapangan' },
   mandor: { label: 'Mandor', color: 'rgba(245,240,235,0.6)', desc: 'Submit request material' },
-  readonly: { label: 'Read Only', color: 'rgba(245,240,235,0.3)', desc: 'Hanya bisa lihat data' },
+  readonly: { label: 'Read Only', color: 'var(--text-muted)', desc: 'Hanya bisa lihat data' },
 }
 
 interface Invite {
@@ -124,9 +124,9 @@ export default function TeamPage() {
 
   const inputClass = "w-full px-4 py-3 text-sm outline-none"
   const inputStyle = {
-    background: '#0a0a0a',
+    background: 'var(--bg-primary)',
     border: '1px solid rgba(245,240,235,0.08)',
-    color: '#f5f0eb',
+    color: 'var(--text-primary)',
   }
 
   return (
@@ -140,10 +140,10 @@ export default function TeamPage() {
           >
             Manajemen Tim
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#f5f0eb' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             Anggota Tim
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {users.length} anggota aktif
           </p>
         </div>
@@ -176,7 +176,7 @@ export default function TeamPage() {
           <div className="mb-8">
             <p
               className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2"
-              style={{ color: 'rgba(245,240,235,0.3)' }}
+              style={{ color: 'var(--text-muted)' }}
             >
               <Users size={12} />
               Anggota Aktif ({users.length})
@@ -189,8 +189,8 @@ export default function TeamPage() {
                     key={user.id}
                     className="flex items-center gap-4 p-4"
                     style={{
-                      background: '#111111',
-                      border: '1px solid rgba(245,240,235,0.06)',
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-color)',
                     }}
                   >
                     {/* Avatar */}
@@ -210,13 +210,13 @@ export default function TeamPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <p
                           className="text-sm font-semibold"
-                          style={{ color: '#f5f0eb' }}
+                          style={{ color: 'var(--text-primary)' }}
                         >
                           {user.name}
                           {user.id === logisUser?.id && (
                             <span
                               className="ml-2 text-xs"
-                              style={{ color: 'rgba(245,240,235,0.3)' }}
+                              style={{ color: 'var(--text-muted)' }}
                             >
                               (Anda)
                             </span>
@@ -234,7 +234,7 @@ export default function TeamPage() {
                       </div>
                       <p
                         className="text-xs mt-0.5 truncate"
-                        style={{ color: 'rgba(245,240,235,0.3)' }}
+                        style={{ color: 'var(--text-muted)' }}
                       >
                         {user.email}
                       </p>
@@ -257,7 +257,7 @@ export default function TeamPage() {
             <div>
               <p
                 className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2"
-                style={{ color: 'rgba(245,240,235,0.3)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 <Clock size={12} />
                 Undangan Pending ({pendingInvites.length})
@@ -271,7 +271,7 @@ export default function TeamPage() {
                       key={invite.id}
                       className="flex items-center gap-4 p-4"
                       style={{
-                        background: '#111111',
+                        background: 'var(--bg-card)',
                         border: '1px solid rgba(234,179,8,0.15)',
                       }}
                     >
@@ -282,7 +282,7 @@ export default function TeamPage() {
                       <div className="flex-1 min-w-0">
                         <p
                           className="text-sm font-medium truncate"
-                          style={{ color: '#f5f0eb' }}
+                          style={{ color: 'var(--text-primary)' }}
                         >
                           {invite.email}
                         </p>
@@ -330,7 +330,7 @@ export default function TeamPage() {
           <div
             className="w-full sm:max-w-md"
             style={{
-              background: '#111111',
+              background: 'var(--bg-card)',
               border: '1px solid rgba(245,240,235,0.1)',
               borderRadius: '12px 12px 0 0',
             }}
@@ -338,11 +338,11 @@ export default function TeamPage() {
             {/* Modal header */}
             <div
               className="flex items-center justify-between px-6 py-4"
-              style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}
+              style={{ borderBottom: '1px solid var(--border-color)' }}
             >
               <h3
                 className="text-sm font-bold uppercase tracking-widest"
-                style={{ color: '#f5f0eb' }}
+                style={{ color: 'var(--text-primary)' }}
               >
                 Undang Anggota Tim
               </h3>
@@ -351,7 +351,7 @@ export default function TeamPage() {
                   setShowInviteModal(false)
                   setGeneratedLink('')
                 }}
-                style={{ color: 'rgba(245,240,235,0.3)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 <X size={16} />
               </button>
@@ -363,7 +363,7 @@ export default function TeamPage() {
                   <div>
                     <label
                       className="block text-xs font-semibold uppercase tracking-widest mb-2"
-                      style={{ color: 'rgba(245,240,235,0.4)' }}
+                      style={{ color: 'var(--text-secondary)' }}
                     >
                       Email Anggota
                     </label>
@@ -383,7 +383,7 @@ export default function TeamPage() {
                   <div>
                     <label
                       className="block text-xs font-semibold uppercase tracking-widest mb-2"
-                      style={{ color: 'rgba(245,240,235,0.4)' }}
+                      style={{ color: 'var(--text-secondary)' }}
                     >
                       Role / Jabatan
                     </label>
@@ -461,9 +461,9 @@ export default function TeamPage() {
                     </p>
                   </div>
 
-                  <p className="text-xs" style={{ color: 'rgba(245,240,235,0.4)' }}>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     Kirim link ini ke{' '}
-                    <strong style={{ color: '#f5f0eb' }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>
                       {inviteForm.email}
                     </strong>{' '}
                     via WhatsApp atau email. Link berlaku 7 hari.
@@ -473,7 +473,7 @@ export default function TeamPage() {
                   <div
                     className="p-3 flex items-center gap-3"
                     style={{
-                      background: '#0a0a0a',
+                      background: 'var(--bg-primary)',
                       border: '1px solid rgba(245,240,235,0.1)',
                     }}
                   >
@@ -517,7 +517,7 @@ export default function TeamPage() {
                     className="w-full py-2.5 text-sm"
                     style={{
                       border: '1px solid rgba(245,240,235,0.1)',
-                      color: 'rgba(245,240,235,0.4)',
+                      color: 'var(--text-secondary)',
                     }}
                   >
                     Undang Anggota Lain

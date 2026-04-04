@@ -144,7 +144,7 @@ export default function RequestDetailPage() {
 
   if (!request) {
     return (
-      <div className="p-8 text-center" style={{ color: 'rgba(245,240,235,0.3)' }}>
+      <div className="p-8 text-center" style={{ color: 'var(--text-muted)' }}>
         Request tidak ditemukan
       </div>
     )
@@ -159,7 +159,7 @@ export default function RequestDetailPage() {
         <Link
           href="/requests"
           className="inline-flex items-center gap-2 text-xs mb-4 transition-colors"
-          style={{ color: 'rgba(245,240,235,0.3)' }}
+          style={{ color: 'var(--text-muted)' }}
         >
           <ArrowLeft size={12} />
           Kembali
@@ -168,11 +168,11 @@ export default function RequestDetailPage() {
           <div>
             <p
               className="text-xs font-mono mb-1"
-              style={{ color: 'rgba(245,240,235,0.3)' }}
+              style={{ color: 'var(--text-muted)' }}
             >
               #{request.id.slice(-6).toUpperCase()}
             </p>
-            <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
               Detail Request
             </h1>
           </div>
@@ -208,35 +208,35 @@ export default function RequestDetailPage() {
       <div
         className="grid grid-cols-3 gap-4 mb-6 p-5"
         style={{
-          background: '#111111',
-          border: '1px solid rgba(245,240,235,0.06)',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
         }}
       >
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <User size={12} style={{ color: 'rgba(245,240,235,0.3)' }} />
+            <User size={12} style={{ color: 'var(--text-muted)' }} />
             <span
               className="text-xs uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}
+              style={{ color: 'var(--text-muted)', fontSize: '9px' }}
             >
               Diminta oleh
             </span>
           </div>
-          <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
             {request.requestedByName}
           </p>
         </div>
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Clock size={12} style={{ color: 'rgba(245,240,235,0.3)' }} />
+            <Clock size={12} style={{ color: 'var(--text-muted)' }} />
             <span
               className="text-xs uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}
+              style={{ color: 'var(--text-muted)', fontSize: '9px' }}
             >
               Tanggal
             </span>
           </div>
-          <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
             {request.createdAt
               ? format(request.createdAt, 'd MMM yyyy, HH:mm', { locale: id })
               : '—'}
@@ -244,10 +244,10 @@ export default function RequestDetailPage() {
         </div>
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle size={12} style={{ color: 'rgba(245,240,235,0.3)' }} />
+            <AlertTriangle size={12} style={{ color: 'var(--text-muted)' }} />
             <span
               className="text-xs uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}
+              style={{ color: 'var(--text-muted)', fontSize: '9px' }}
             >
               Urgensi
             </span>
@@ -272,8 +272,8 @@ export default function RequestDetailPage() {
       <div
         className="mb-6"
         style={{
-          background: '#111111',
-          border: '1px solid rgba(245,240,235,0.06)',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
         }}
       >
         <div
@@ -284,7 +284,7 @@ export default function RequestDetailPage() {
             <Package size={14} style={{ color: '#F97316' }} />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.4)' }}
+              style={{ color: 'var(--text-secondary)' }}
             >
               Daftar Barang ({request.items?.length} item)
             </span>
@@ -303,13 +303,13 @@ export default function RequestDetailPage() {
                 {String(index + 1).padStart(2, '0')}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-medium" style={{ color: '#f5f0eb' }}>
+                <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                   {item.name}
                 </p>
                 {item.notes && (
                   <p
                     className="text-xs mt-0.5"
-                    style={{ color: 'rgba(245,240,235,0.3)' }}
+                    style={{ color: 'var(--text-muted)' }}
                   >
                     {item.notes}
                   </p>
@@ -324,7 +324,7 @@ export default function RequestDetailPage() {
                 </span>
                 <span
                   className="text-xs ml-1"
-                  style={{ color: 'rgba(245,240,235,0.4)' }}
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   {item.unit}
                 </span>
@@ -339,13 +339,13 @@ export default function RequestDetailPage() {
         <div
           className="mb-6 p-5"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
         >
           <p
             className="text-xs font-semibold uppercase tracking-widest mb-3"
-            style={{ color: 'rgba(245,240,235,0.3)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             📷 Foto Referensi ({request.photos.length})
           </p>
@@ -376,13 +376,13 @@ export default function RequestDetailPage() {
       <div
         className="mb-6 p-5"
         style={{
-          background: '#111111',
-          border: '1px solid rgba(245,240,235,0.06)',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
         }}
       >
         <p
           className="text-xs font-semibold uppercase tracking-widest mb-3"
-          style={{ color: 'rgba(245,240,235,0.3)' }}
+          style={{ color: 'var(--text-muted)' }}
         >
           Alasan Permintaan
         </p>
@@ -420,13 +420,13 @@ export default function RequestDetailPage() {
         <div
           className="p-5"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
         >
           <p
             className="text-xs font-semibold uppercase tracking-widest mb-4"
-            style={{ color: 'rgba(245,240,235,0.3)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             Tindakan
           </p>
@@ -473,9 +473,9 @@ export default function RequestDetailPage() {
                 rows={3}
                 className="w-full p-3 text-sm outline-none resize-none"
                 style={{
-                  background: '#0a0a0a',
+                  background: 'var(--bg-primary)',
                   border: '1px solid rgba(239,68,68,0.3)',
-                  color: '#f5f0eb',
+                  color: 'var(--text-primary)',
                 }}
               />
               <div className="flex gap-3">
@@ -496,7 +496,7 @@ export default function RequestDetailPage() {
                   className="px-4 py-2.5 text-sm"
                   style={{
                     border: '1px solid rgba(245,240,235,0.1)',
-                    color: 'rgba(245,240,235,0.4)',
+                    color: 'var(--text-secondary)',
                   }}
                 >
                   Batal

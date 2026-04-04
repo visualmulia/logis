@@ -170,7 +170,7 @@ await createNotification({
     fontWeight: 600,
     letterSpacing: '2px',
     textTransform: 'uppercase' as const,
-    color: 'rgba(245,240,235,0.4)',
+    color: 'var(--text-secondary)',
     marginBottom: '6px',
   }
 
@@ -178,9 +178,9 @@ await createNotification({
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    background: '#0a0a0a',
+    background: 'var(--bg-primary)',
     border: '1px solid rgba(245,240,235,0.08)',
-    color: '#f5f0eb',
+    color: 'var(--text-primary)',
     outline: 'none',
   }
 
@@ -193,7 +193,7 @@ await createNotification({
       <div className="mb-8">
         <Link href="/petty-cash"
           className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft size={12} />
           Kembali
         </Link>
@@ -201,7 +201,7 @@ await createNotification({
           style={{ color: '#F97316' }}>
           Petty Cash — Request Baru
         </p>
-        <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Request Kas Lapangan
         </h1>
       </div>
@@ -210,7 +210,7 @@ await createNotification({
 
         {/* Purchase type */}
 <div className="p-6"
-  style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
   <label style={labelStyle}>Jenis Pembelian</label>
   <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2">
     {[
@@ -287,7 +287,7 @@ await createNotification({
 
         {/* Project & Category */}
         <div className="p-6 space-y-4"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
 
           <div>
             <label style={labelStyle}>Proyek *</label>
@@ -378,7 +378,7 @@ await createNotification({
 
         {/* Foto bukti */}
 <div className="p-6"
-  style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
   <PhotoUpload
     companyId={companyId || ''}
     folder="petty-cash"
@@ -390,7 +390,7 @@ await createNotification({
 </div>
         {/* Emergency toggle */}
         <div className="p-6"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div className="flex items-center gap-3 mb-3">
             <input type="checkbox" id="isEmergency" name="isEmergency"
               checked={form.isEmergency}
@@ -436,7 +436,7 @@ await createNotification({
           </button>
           <Link href="/petty-cash"
             className="px-6 py-3 text-sm font-semibold flex items-center"
-            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
             Batal
           </Link>
         </div>

@@ -21,7 +21,7 @@ const statusOptions = [
   { value: 'idle', label: '⏸ Idle / Standby', color: '#eab308' },
   { value: 'maintenance', label: '🔧 Dalam Servis', color: '#38bdf8' },
   { value: 'lost', label: '❌ Hilang', color: '#ef4444' },
-  { value: 'retired', label: '🗄 Pensiun', color: 'rgba(245,240,235,0.3)' },
+  { value: 'retired', label: '🗄 Pensiun', color: 'var(--text-muted)' },
 ]
 
 const conditionOptions = [
@@ -143,7 +143,7 @@ export default function AssetDetailPage() {
 
   if (!asset) {
     return (
-      <div className="p-8" style={{ color: 'rgba(245,240,235,0.3)' }}>
+      <div className="p-8" style={{ color: 'var(--text-muted)' }}>
         Aset tidak ditemukan
       </div>
     )
@@ -156,9 +156,9 @@ export default function AssetDetailPage() {
     width: '100%',
     padding: '8px 12px',
     fontSize: '13px',
-    background: '#0a0a0a',
+    background: 'var(--bg-primary)',
     border: '1px solid rgba(245,240,235,0.1)',
-    color: '#f5f0eb',
+    color: 'var(--text-primary)',
     outline: 'none',
   }
 
@@ -168,18 +168,18 @@ export default function AssetDetailPage() {
       <div className="mb-8">
         <Link href="/assets"
           className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft size={12} />
           Semua Aset
         </Link>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs font-mono mb-1"
-              style={{ color: 'rgba(245,240,235,0.3)' }}>
+              style={{ color: 'var(--text-muted)' }}>
               #{asset.id.slice(-6).toUpperCase()}
               {asset.serialNumber && ` · SN: ${asset.serialNumber}`}
             </p>
-            <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
               {asset.name}
             </h1>
           </div>
@@ -187,7 +187,7 @@ export default function AssetDetailPage() {
             {!editing ? (
               <button onClick={() => setEditing(true)}
                 className="flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-widest"
-                style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+                style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
                 <Edit3 size={12} />
                 Edit
               </button>
@@ -201,7 +201,7 @@ export default function AssetDetailPage() {
                 </button>
                 <button onClick={() => setEditing(false)}
                   className="px-3 py-2"
-                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
                   <X size={14} />
                 </button>
               </>
@@ -224,9 +224,9 @@ export default function AssetDetailPage() {
       {/* Status & condition */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="p-5"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <p className="text-xs uppercase tracking-widest mb-3"
-            style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
             Status
           </p>
           {editing ? (
@@ -251,9 +251,9 @@ export default function AssetDetailPage() {
         </div>
 
         <div className="p-5"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <p className="text-xs uppercase tracking-widest mb-3"
-            style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
             Kondisi
           </p>
           {editing ? (
@@ -277,11 +277,11 @@ export default function AssetDetailPage() {
 
       {/* Location */}
       <div className="p-5 mb-4"
-        style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <div className="flex items-center gap-2 mb-3">
           <MapPin size={13} style={{ color: '#F97316' }} />
           <p className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             Lokasi Sekarang
           </p>
         </div>
@@ -297,7 +297,7 @@ export default function AssetDetailPage() {
             ))}
           </select>
         ) : (
-          <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
             {currentProject
               ? `📍 ${currentProject.name}`
               : '🏠 Di Gudang / Tidak di Proyek'}
@@ -307,17 +307,17 @@ export default function AssetDetailPage() {
 
       {/* Service info */}
       <div className="p-5 mb-4"
-        style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <div className="flex items-center gap-2 mb-4">
           <Wrench size={13} style={{ color: '#F97316' }} />
           <p className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             Info Servis
           </p>
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
               JAM OPERASI
             </p>
             {editing ? (
@@ -327,28 +327,28 @@ export default function AssetDetailPage() {
             ) : (
               <p className="text-xl font-black font-mono" style={{ color: '#F97316' }}>
                 {asset.operatingHours}
-                <span className="text-xs font-normal ml-1" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-muted)' }}>
                   jam
                 </span>
               </p>
             )}
           </div>
           <div>
-            <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
               INTERVAL SERVIS
             </p>
-            <p className="text-xl font-black font-mono" style={{ color: '#f5f0eb' }}>
+            <p className="text-xl font-black font-mono" style={{ color: 'var(--text-primary)' }}>
               {asset.serviceIntervalHours}
-              <span className="text-xs font-normal ml-1" style={{ color: 'rgba(245,240,235,0.3)' }}>
+              <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-muted)' }}>
                 jam
               </span>
             </p>
           </div>
           <div>
-            <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)', fontSize: '9px' }}>
+            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
               SERVIS TERAKHIR
             </p>
-            <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {asset.lastServiceDate
                 ? format(asset.lastServiceDate, 'd MMM yyyy', { locale: id })
                 : 'Belum pernah'}
@@ -359,7 +359,7 @@ export default function AssetDetailPage() {
         {/* Service progress bar */}
         <div className="mt-4">
           <div className="flex justify-between text-xs mb-1"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             <span>Progress ke servis berikutnya</span>
             <span style={{ color: isServiceDue ? '#ef4444' : '#F97316' }}>
               {Math.min(Math.round((asset.operatingHours / asset.serviceIntervalHours) * 100), 100)}%
@@ -387,10 +387,10 @@ export default function AssetDetailPage() {
           </p>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold mb-1" style={{ color: '#f5f0eb' }}>
+              <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
                 Tandai Sebagai Hilang
               </p>
-              <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 Tindakan ini akan dicatat dan tidak bisa di-undo secara otomatis
               </p>
             </div>

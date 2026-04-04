@@ -28,7 +28,7 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
   idle: { label: 'Idle', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
   maintenance: { label: 'Servis', color: '#38bdf8', bg: 'rgba(56,189,248,0.1)' },
   lost: { label: 'Hilang', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-  retired: { label: 'Pensiun', color: 'rgba(245,240,235,0.3)', bg: 'rgba(245,240,235,0.05)' },
+  retired: { label: 'Pensiun', color: 'var(--text-muted)', bg: 'rgba(245,240,235,0.05)' },
 }
 
 const conditionConfig: Record<string, { label: string; color: string }> = {
@@ -92,10 +92,10 @@ export default function AssetsPage() {
             style={{ color: '#F97316' }}>
             Modul 03
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#f5f0eb' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             Equipment Tracker
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {assets.length} aset terdaftar · Semua terlacak dari satu tempat
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function AssetsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-24" style={{ color: 'rgba(245,240,235,0.2)' }}>
-          <Package size={40} className="mx-auto mb-4 opacity-30" style={{ color: '#f5f0eb' }} />
+          <Package size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm mb-4">
             {assets.length === 0 ? 'Belum ada aset terdaftar' : 'Tidak ada aset dengan filter ini'}
           </p>
@@ -206,10 +206,10 @@ export default function AssetsPage() {
                 href={`/assets/${asset.id}`}
                 className="flex items-center gap-4 p-5 transition-all group"
                 style={{
-                  background: '#111111',
+                  background: 'var(--bg-card)',
                   border: asset.status === 'lost'
                     ? '1px solid rgba(239,68,68,0.25)'
-                    : '1px solid rgba(245,240,235,0.06)',
+                    : '1px solid var(--border-color)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#151515'
@@ -232,7 +232,7 @@ export default function AssetsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono"
-                      style={{ color: 'rgba(245,240,235,0.3)' }}>
+                      style={{ color: 'var(--text-muted)' }}>
                       {asset.id.slice(-6).toUpperCase()}
                     </span>
                     <span className="text-xs px-2 py-0.5 font-semibold"
@@ -252,11 +252,11 @@ export default function AssetsPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold mb-1" style={{ color: '#f5f0eb' }}>
+                  <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
                     {asset.name}
                   </p>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                       {typeInfo.label}
                     </span>
                     <span className="text-xs"
@@ -265,7 +265,7 @@ export default function AssetsPage() {
                     </span>
                     {asset.currentProjectId && (
                       <span className="flex items-center gap-1 text-xs"
-                        style={{ color: 'rgba(245,240,235,0.3)' }}>
+                        style={{ color: 'var(--text-muted)' }}>
                         <MapPin size={10} />
                         Proyek aktif
                       </span>

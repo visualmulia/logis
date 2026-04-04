@@ -180,9 +180,9 @@ export default function InventoryPage() {
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    background: '#0a0a0a',
+    background: 'var(--bg-primary)',
     border: '1px solid rgba(245,240,235,0.08)',
-    color: '#f5f0eb',
+    color: 'var(--text-primary)',
     outline: 'none',
   }
 
@@ -192,7 +192,7 @@ export default function InventoryPage() {
     fontWeight: 600,
     letterSpacing: '2px',
     textTransform: 'uppercase' as const,
-    color: 'rgba(245,240,235,0.4)',
+    color: 'var(--text-secondary)',
     marginBottom: '6px',
   }
 
@@ -203,7 +203,7 @@ export default function InventoryPage() {
         <div>
           <Link href="/projects"
             className="inline-flex items-center gap-2 text-xs mb-3"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             <ArrowLeft size={12} />
             Semua Proyek
           </Link>
@@ -211,10 +211,10 @@ export default function InventoryPage() {
             style={{ color: '#F97316' }}>
             Modul 02 — Gudang Digital
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#f5f0eb' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             {project?.name || 'Memuat...'}
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {items.length} item terdaftar di gudang proyek ini
           </p>
         </div>
@@ -275,7 +275,7 @@ export default function InventoryPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-24" style={{ color: 'rgba(245,240,235,0.2)' }}>
-          <Package size={40} className="mx-auto mb-4 opacity-30" style={{ color: '#f5f0eb' }} />
+          <Package size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm mb-4">Gudang masih kosong</p>
           <button
             onClick={() => setShowAddForm(true)}
@@ -314,7 +314,7 @@ export default function InventoryPage() {
                       <div key={item.id}
                         className="flex items-center gap-3 px-4 py-3 lg:px-5 lg:py-4"
                         style={{
-                          background: '#111111',
+                          background: 'var(--bg-card)',
                           border: isCritical
                             ? '1px solid rgba(239,68,68,0.25)'
                             : '1px solid rgba(245,240,235,0.06)',
@@ -326,7 +326,7 @@ export default function InventoryPage() {
                           }} />
 
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium" style={{ color: '#f5f0eb' }}>
+                          <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {item.name}
                           </p>
                           {isCritical && (
@@ -346,7 +346,7 @@ export default function InventoryPage() {
                             {item.quantity}
                           </span>
                           <span className="text-xs ml-1"
-                            style={{ color: 'rgba(245,240,235,0.3)' }}>
+                            style={{ color: 'var(--text-muted)' }}>
                             {item.unit}
                           </span>
                         </div>
@@ -390,15 +390,15 @@ export default function InventoryPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}>
           <div className="w-full max-w-md"
-            style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.1)' }}>
+            style={{ background: 'var(--bg-card)', border: '1px solid rgba(245,240,235,0.1)' }}>
             <div className="flex items-center justify-between px-6 py-4"
               style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}>
               <h3 className="text-sm font-bold uppercase tracking-widest"
-                style={{ color: '#f5f0eb' }}>
+                style={{ color: 'var(--text-primary)' }}>
                 Tambah Item Gudang
               </h3>
               <button onClick={() => setShowAddForm(false)}
-                style={{ color: 'rgba(245,240,235,0.3)' }}>
+                style={{ color: 'var(--text-muted)' }}>
                 <X size={16} />
               </button>
             </div>
@@ -460,7 +460,7 @@ export default function InventoryPage() {
                 </button>
                 <button type="button" onClick={() => setShowAddForm(false)}
                   className="px-4 py-2.5 text-sm"
-                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
                   Batal
                 </button>
               </div>
@@ -474,7 +474,7 @@ export default function InventoryPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.8)' }}>
           <div className="w-full max-w-sm"
-            style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.1)' }}>
+            style={{ background: 'var(--bg-card)', border: '1px solid rgba(245,240,235,0.1)' }}>
             <div className="flex items-center justify-between px-6 py-4"
               style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}>
               <h3 className="text-sm font-bold uppercase tracking-widest"
@@ -484,19 +484,19 @@ export default function InventoryPage() {
                 {showMutationModal.type === 'in' ? '↑ Barang Masuk' : '↓ Barang Keluar'}
               </h3>
               <button onClick={() => setShowMutationModal(null)}
-                style={{ color: 'rgba(245,240,235,0.3)' }}>
+                style={{ color: 'var(--text-muted)' }}>
                 <X size={16} />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="p-3"
-                style={{ background: '#0a0a0a', border: '1px solid rgba(245,240,235,0.06)' }}>
-                <p className="text-xs mb-1" style={{ color: 'rgba(245,240,235,0.3)' }}>Item</p>
-                <p className="text-sm font-semibold" style={{ color: '#f5f0eb' }}>
+                style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+                <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Item</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {showMutationModal.item.name}
                 </p>
-                <p className="text-xs mt-1" style={{ color: 'rgba(245,240,235,0.4)' }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Stok saat ini:{' '}
                   <span className="font-bold" style={{ color: '#F97316' }}>
                     {showMutationModal.item.quantity} {showMutationModal.item.unit}
@@ -530,7 +530,7 @@ export default function InventoryPage() {
                     ? '1px solid rgba(34,197,94,0.2)'
                     : '1px solid rgba(249,115,22,0.2)',
                 }}>
-                <span className="text-xs" style={{ color: 'rgba(245,240,235,0.4)' }}>
+                <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                   Stok setelah mutasi
                 </span>
                 <span className="text-lg font-black font-mono"
@@ -557,7 +557,7 @@ export default function InventoryPage() {
                 </button>
                 <button onClick={() => setShowMutationModal(null)}
                   className="px-4 py-2.5 text-sm"
-                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
                   Batal
                 </button>
               </div>

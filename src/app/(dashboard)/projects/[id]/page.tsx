@@ -147,7 +147,7 @@ export default function ProjectDetailPage() {
 
   if (!project) {
     return (
-      <div className="p-8" style={{ color: 'rgba(245,240,235,0.3)' }}>
+      <div className="p-8" style={{ color: 'var(--text-muted)' }}>
         Proyek tidak ditemukan
       </div>
     )
@@ -163,7 +163,7 @@ export default function ProjectDetailPage() {
       <div className="mb-8">
         <Link href="/projects"
           className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft size={12} />
           Semua Proyek
         </Link>
@@ -173,11 +173,11 @@ export default function ProjectDetailPage() {
               style={{ color: '#F97316' }}>
               Detail Proyek
             </p>
-            <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
               {project.name}
             </h1>
             {project.location && (
-              <p className="text-sm mt-1" style={{ color: 'rgba(245,240,235,0.4)' }}>
+              <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
                 📍 {project.location}
               </p>
             )}
@@ -201,10 +201,10 @@ export default function ProjectDetailPage() {
 
       {/* Progress card */}
       <div className="p-6 mb-4"
-        style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <div className="flex items-center justify-between mb-4">
           <p className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             <TrendingUp size={12} className="inline mr-1" />
             Progress Keseluruhan
           </p>
@@ -260,11 +260,11 @@ export default function ProjectDetailPage() {
           <form onSubmit={handleUpdateProgress} className="mt-5 space-y-4">
             <div
               className="p-4"
-              style={{ background: '#0a0a0a', border: '1px solid rgba(245,240,235,0.08)' }}
+              style={{ background: 'var(--bg-primary)', border: '1px solid rgba(245,240,235,0.08)' }}
             >
               <div className="flex items-center justify-between mb-3">
                 <label className="text-xs font-semibold uppercase tracking-widest"
-                  style={{ color: 'rgba(245,240,235,0.4)' }}>
+                  style={{ color: 'var(--text-secondary)' }}>
                   Progress Baru
                 </label>
                 <span className="text-lg font-black font-mono"
@@ -326,7 +326,7 @@ export default function ProjectDetailPage() {
             {/* Catatan */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
-                style={{ color: 'rgba(245,240,235,0.4)' }}>
+                style={{ color: 'var(--text-secondary)' }}>
                 Catatan Update (opsional)
               </label>
               <textarea
@@ -336,9 +336,9 @@ export default function ProjectDetailPage() {
                 rows={2}
                 className="w-full p-3 text-sm outline-none resize-none"
                 style={{
-                  background: '#0a0a0a',
+                  background: 'var(--bg-primary)',
                   border: '1px solid rgba(245,240,235,0.08)',
-                  color: '#f5f0eb',
+                  color: 'var(--text-primary)',
                 }}
               />
             </div>
@@ -378,7 +378,7 @@ export default function ProjectDetailPage() {
                 className="px-4 py-3 text-sm"
                 style={{
                   border: '1px solid rgba(245,240,235,0.1)',
-                  color: 'rgba(245,240,235,0.4)',
+                  color: 'var(--text-secondary)',
                 }}>
                 Batal
               </button>
@@ -409,9 +409,9 @@ export default function ProjectDetailPage() {
       {/* Progress history */}
       {history.length > 0 && (
         <div className="p-5"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <p className="text-xs font-semibold uppercase tracking-widest mb-4"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             <Clock size={12} className="inline mr-1" />
             Riwayat Update ({history.length})
           </p>
@@ -444,7 +444,7 @@ export default function ProjectDetailPage() {
                       {h.percent}%
                     </span>
                     <span className="text-xs"
-                      style={{ color: 'rgba(245,240,235,0.3)' }}>
+                      style={{ color: 'var(--text-muted)' }}>
                       oleh {h.updatedByName}
                     </span>
                   </div>
@@ -472,8 +472,8 @@ export default function ProjectDetailPage() {
         <Link href={`/inventory/${projectId}`}
           className="flex items-center justify-between p-4 transition-all"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
@@ -482,10 +482,10 @@ export default function ProjectDetailPage() {
             e.currentTarget.style.borderColor = 'rgba(245,240,235,0.06)'
           }}>
           <div>
-            <p className="text-xs font-semibold" style={{ color: '#f5f0eb' }}>
+            <p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
               Gudang Digital
             </p>
-            <p className="text-xs mt-0.5" style={{ color: 'rgba(245,240,235,0.3)' }}>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               Lihat stok proyek ini
             </p>
           </div>
@@ -495,8 +495,8 @@ export default function ProjectDetailPage() {
         <Link href="/requests"
           className="flex items-center justify-between p-4 transition-all"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
@@ -505,10 +505,10 @@ export default function ProjectDetailPage() {
             e.currentTarget.style.borderColor = 'rgba(245,240,235,0.06)'
           }}>
           <div>
-            <p className="text-xs font-semibold" style={{ color: '#f5f0eb' }}>
+            <p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
               Request Material
             </p>
-            <p className="text-xs mt-0.5" style={{ color: 'rgba(245,240,235,0.3)' }}>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               Lihat semua request
             </p>
           </div>

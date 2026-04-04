@@ -75,7 +75,7 @@ export default function NewProjectPage() {
     fontWeight: 600,
     letterSpacing: '2px',
     textTransform: 'uppercase' as const,
-    color: 'rgba(245,240,235,0.4)',
+    color: 'var(--text-secondary)',
     marginBottom: '8px',
   }
 
@@ -83,9 +83,9 @@ export default function NewProjectPage() {
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    background: '#0a0a0a',
+    background: 'var(--bg-primary)',
     border: '1px solid rgba(245,240,235,0.08)',
-    color: '#f5f0eb',
+    color: 'var(--text-primary)',
     outline: 'none',
   }
 
@@ -94,7 +94,7 @@ export default function NewProjectPage() {
       <div className="mb-8">
         <Link href="/projects"
           className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft size={12} />
           Kembali ke daftar proyek
         </Link>
@@ -102,7 +102,7 @@ export default function NewProjectPage() {
           style={{ color: '#F97316' }}>
           Proyek Baru
         </p>
-        <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Daftarkan Proyek
         </h1>
       </div>
@@ -110,7 +110,7 @@ export default function NewProjectPage() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Basic info */}
         <div className="p-6 space-y-4"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div>
             <label style={labelStyle}>Nama Proyek *</label>
             <input name="name" value={form.name} onChange={handleChange}
@@ -134,7 +134,7 @@ export default function NewProjectPage() {
 
         {/* Dates & budget */}
         <div className="p-6 space-y-4"
-          style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.06)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label style={labelStyle}>Tanggal Mulai *</label>
@@ -175,7 +175,7 @@ export default function NewProjectPage() {
           </button>
           <Link href="/projects"
             className="px-6 py-3 text-sm font-semibold flex items-center"
-            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
+            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
             Batal
           </Link>
         </div>

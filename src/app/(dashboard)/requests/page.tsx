@@ -69,7 +69,7 @@ const statusConfig: Record<string, StatusConfig> = {
   },
   completed: {
     label: 'Selesai',
-    color: 'rgba(245,240,235,0.4)',
+    color: 'var(--text-secondary)',
     bg: 'rgba(245,240,235,0.05)',
     icon: CheckCircle,
   },
@@ -156,10 +156,10 @@ export default function RequestsPage() {
           >
             Modul 01
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#f5f0eb' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             Request Material
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Semua permintaan barang dari lapangan tercatat di sini
           </p>
         </div>
@@ -222,7 +222,7 @@ export default function RequestsPage() {
       <div
         className="flex gap-0 mb-6 -mx-4 lg:mx-0 px-4 lg:px-0"
         style={{
-          borderBottom: '1px solid rgba(245,240,235,0.06)',
+          borderBottom: '1px solid var(--border-color)',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -278,7 +278,7 @@ export default function RequestsPage() {
           <Package
             size={40}
             className="mx-auto mb-4 opacity-30"
-            style={{ color: '#f5f0eb' }}
+            style={{ color: 'var(--text-primary)' }}
           />
           <p className="text-sm">Belum ada request material</p>
           {canCreateRequest && (
@@ -304,8 +304,8 @@ export default function RequestsPage() {
                 href={`/requests/${req.id}`}
                 className="flex items-center gap-3 p-4 lg:p-5 transition-all group w-full overflow-hidden"
                 style={{
-                  background: '#111111',
-                  border: '1px solid rgba(245,240,235,0.06)',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
@@ -327,7 +327,7 @@ export default function RequestsPage() {
                   <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                     <span
                       className="text-xs font-mono"
-                      style={{ color: 'rgba(245,240,235,0.3)' }}
+                      style={{ color: 'var(--text-muted)' }}
                     >
                       #{req.id.slice(-6).toUpperCase()}
                     </span>
@@ -351,7 +351,7 @@ export default function RequestsPage() {
                   </div>
                   <p
                     className="text-sm font-medium truncate"
-                    style={{ color: '#f5f0eb' }}
+                    style={{ color: 'var(--text-primary)' }}
                   >
                     {req.items?.length} item
                     {req.items?.length > 1 ? 's' : ''} —{' '}
@@ -359,7 +359,7 @@ export default function RequestsPage() {
                   </p>
                   <p
                     className="text-xs mt-0.5"
-                    style={{ color: 'rgba(245,240,235,0.3)' }}
+                    style={{ color: 'var(--text-muted)' }}
                   >
                     Oleh {req.requestedByName} ·{' '}
                     {req.createdAt
@@ -384,3 +384,4 @@ export default function RequestsPage() {
     </div>
   )
 }
+

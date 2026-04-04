@@ -134,7 +134,7 @@ export default function OverviewPage() {
     rejected: { label: 'Ditolak', color: '#ef4444', icon: XCircle },
     po_issued: { label: 'PO Issued', color: '#a78bfa', icon: CheckCircle },
     on_delivery: { label: 'Dikirim', color: '#38bdf8', icon: Package },
-    completed: { label: 'Selesai', color: 'rgba(245,240,235,0.4)', icon: CheckCircle },
+    completed: { label: 'Selesai', color: 'var(--text-secondary)', icon: CheckCircle },
   }
 
   if (authLoading) {
@@ -187,10 +187,10 @@ export default function OverviewPage() {
           Command Center
         </p>
         <h1 className="text-xl lg:text-2xl font-bold"
-          style={{ color: '#f5f0eb' }}>
+          style={{ color: 'var(--text-primary)' }}>
           Selamat datang, {logisUser?.name?.split(' ')[0] || '...'}
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'rgba(245,240,235,0.4)' }}>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
           {new Date().toLocaleDateString('id-ID', {
             weekday: 'long',
             day: 'numeric',
@@ -211,7 +211,7 @@ export default function OverviewPage() {
                 background: stat.alert ? `${stat.color}08` : '#111111',
                 border: stat.alert
                   ? `1px solid ${stat.color}30`
-                  : '1px solid rgba(245,240,235,0.06)',
+                  : '1px solid var(--border-color)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = `${stat.color}40`
@@ -247,7 +247,7 @@ export default function OverviewPage() {
                 </div>
               )}
               <div className="text-xs uppercase tracking-wide leading-tight"
-                style={{ color: 'rgba(245,240,235,0.3)', fontSize: '10px' }}>
+                style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
                 {stat.label}
               </div>
             </Link>
@@ -259,12 +259,12 @@ export default function OverviewPage() {
         {/* Recent requests */}
         <div className="p-4 lg:p-6"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.3)' }}>
+              style={{ color: 'var(--text-muted)' }}>
               Request Terbaru
             </p>
             <Link href="/requests"
@@ -286,7 +286,7 @@ export default function OverviewPage() {
             <div className="text-center py-8"
               style={{ color: 'rgba(245,240,235,0.2)' }}>
               <Package size={28} className="mx-auto mb-2 opacity-30"
-                style={{ color: '#f5f0eb' }} />
+                style={{ color: 'var(--text-primary)' }} />
               <p className="text-xs">Belum ada request</p>
             </div>
           ) : (
@@ -310,10 +310,10 @@ export default function OverviewPage() {
                     <StatusIcon size={14} style={{ color: sc.color, flexShrink: 0 }} />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate"
-                        style={{ color: '#f5f0eb' }}>
+                        style={{ color: 'var(--text-primary)' }}>
                         {req.title}
                       </p>
-                      <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                         {req.subtitle}
                       </p>
                     </div>
@@ -331,11 +331,11 @@ export default function OverviewPage() {
         {/* Module status + quick actions */}
         <div className="p-4 lg:p-6"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}>
           <p className="text-xs font-semibold uppercase tracking-widest mb-4"
-            style={{ color: 'rgba(245,240,235,0.3)' }}>
+            style={{ color: 'var(--text-muted)' }}>
             Aksi Cepat
           </p>
           <div className="space-y-2">
@@ -398,10 +398,10 @@ export default function OverviewPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold"
-                      style={{ color: '#f5f0eb' }}>
+                      style={{ color: 'var(--text-primary)' }}>
                       {action.label}
                     </p>
-                    <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                       {action.desc}
                     </p>
                   </div>

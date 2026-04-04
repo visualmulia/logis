@@ -114,7 +114,7 @@ await createNotification({
     fontWeight: 600,
     letterSpacing: '2px',
     textTransform: 'uppercase' as const,
-    color: 'rgba(245,240,235,0.4)',
+    color: 'var(--text-secondary)',
     marginBottom: '8px',
   }
 
@@ -122,9 +122,9 @@ await createNotification({
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    background: '#0a0a0a',
+    background: 'var(--bg-primary)',
     border: '1px solid rgba(245,240,235,0.08)',
-    color: '#f5f0eb',
+    color: 'var(--text-primary)',
     outline: 'none',
   }
 
@@ -135,7 +135,7 @@ await createNotification({
         <Link
           href="/requests"
           className="inline-flex items-center gap-2 text-xs mb-4 transition-colors"
-          style={{ color: 'rgba(245,240,235,0.3)' }}
+          style={{ color: 'var(--text-muted)' }}
         >
           <ArrowLeft size={12} />
           Kembali ke daftar request
@@ -146,7 +146,7 @@ await createNotification({
         >
           Modul 01 — Request Baru
         </p>
-        <h1 className="text-2xl font-bold" style={{ color: '#f5f0eb' }}>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Buat Request Material
         </h1>
       </div>
@@ -156,8 +156,8 @@ await createNotification({
         <div
           className="p-6"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
         >
           <label style={labelStyle}>Tingkat Urgensi</label>
@@ -219,8 +219,8 @@ await createNotification({
         <div
           className="p-6"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
         >
           <div className="flex items-center justify-between mb-4">
@@ -248,8 +248,8 @@ await createNotification({
                 key={index}
                 className="p-4"
                 style={{
-                  background: '#0a0a0a',
-                  border: '1px solid rgba(245,240,235,0.06)',
+                  background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-3">
@@ -336,8 +336,8 @@ await createNotification({
 <div
   className="p-6"
   style={{
-    background: '#111111',
-    border: '1px solid rgba(245,240,235,0.06)',
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
   }}
 >
   <PhotoUpload
@@ -353,8 +353,8 @@ await createNotification({
         <div
           className="p-6"
           style={{
-            background: '#111111',
-            border: '1px solid rgba(245,240,235,0.06)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
           }}
         >
           <label style={labelStyle}>Alasan Permintaan</label>
@@ -400,7 +400,7 @@ await createNotification({
             className="px-6 py-3 text-sm font-semibold transition-all flex items-center"
             style={{
               border: '1px solid rgba(245,240,235,0.1)',
-              color: 'rgba(245,240,235,0.4)',
+              color: 'var(--text-secondary)',
             }}
           >
             Batal

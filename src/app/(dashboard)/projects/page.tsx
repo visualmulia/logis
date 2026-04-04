@@ -47,10 +47,10 @@ export default function ProjectsPage() {
             style={{ color: '#F97316' }}>
             Manajemen Proyek
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#f5f0eb' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
             Proyek Aktif
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Kelola semua proyek dan pantau kondisinya
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function ProjectsPage() {
         </div>
       ) : projects.length === 0 ? (
         <div className="text-center py-24" style={{ color: 'rgba(245,240,235,0.2)' }}>
-          <Building2 size={40} className="mx-auto mb-4 opacity-30" style={{ color: '#f5f0eb' }} />
+          <Building2 size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm mb-4">Belum ada proyek terdaftar</p>
           <Link
             href="/projects/new"
@@ -88,8 +88,8 @@ export default function ProjectsPage() {
     key={project.id}
     className="block p-4 lg:p-5 transition-all"
     style={{
-      background: '#111111',
-      border: '1px solid rgba(245,240,235,0.06)',
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border-color)',
     }}
   >
     {/* Row 1: Status dot + Nama proyek */}
@@ -102,7 +102,7 @@ export default function ProjectsPage() {
         }}
       />
       <h3 className="text-sm font-semibold leading-tight flex-1"
-        style={{ color: '#f5f0eb' }}>
+        style={{ color: 'var(--text-primary)' }}>
         {project.name}
       </h3>
     </div>
@@ -111,7 +111,7 @@ export default function ProjectsPage() {
     {project.location && (
       <div className="flex items-start gap-3 mb-2 pl-5">
         <span className="flex items-center gap-1.5 text-xs"
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <Building2 size={11} className="shrink-0" />
           <span className="line-clamp-1">{project.location}</span>
         </span>
@@ -122,7 +122,7 @@ export default function ProjectsPage() {
     <div className="flex items-center justify-between gap-4 pl-5 mb-3">
       {project.startDate ? (
         <span className="flex items-center gap-1.5 text-xs shrink-0"
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <Calendar size={11} />
           {format(project.startDate, 'd MMM yyyy', { locale: id })}
         </span>
@@ -165,8 +165,8 @@ export default function ProjectsPage() {
         className="flex-1 py-2 text-xs font-semibold text-center transition-all"
         style={{
           background: 'rgba(245,240,235,0.04)',
-          color: 'rgba(245,240,235,0.4)',
-          border: '1px solid rgba(245,240,235,0.06)',
+          color: 'var(--text-secondary)',
+          border: '1px solid var(--border-color)',
         }}
       >
         📦 Gudang
