@@ -339,9 +339,9 @@ export default function RegisterCompanyPage() {
       {/* Right — Info panel (desktop only) */}
       <div className="hidden lg:flex flex-col justify-center p-12 w-96"
         style={{
-          background: '#111111',
-          borderLeft: '1px solid rgba(245,240,235,0.06)',
-        }}>
+  background: 'var(--bg-card)',
+  border: '1px solid var(--border-color)',
+}}>
         <div className="mb-8">
           <p className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: '#F97316' }}>
