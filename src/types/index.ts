@@ -123,6 +123,12 @@ export interface MaterialRequest {
   createdAt: Date
   updatedAt: Date
   photos?: { url: string; path: string }[]
+  poFileUrl?: string
+poFilePath?: string
+poNotes?: string
+poIssuedAt?: Date
+poIssuedBy?: string
+poIssuedByName?: string
 }
 
 export interface DeliveryConfirmation {
@@ -292,6 +298,7 @@ export type NotificationType =
   | 'asset_service_due'
   | 'asset_lost'
   | 'stock_critical'
+  | 'request_po_issued'
 
 export interface LogisNotification {
   id: string
