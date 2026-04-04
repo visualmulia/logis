@@ -404,7 +404,7 @@ export default function TeamPage() {
                           <option
                             key={role}
                             value={role}
-                            style={{ background: '#111' }}
+                            style={{ background: 'var(--bg-card)' }}
                           >
                             {roleConfig[role].label} — {roleConfig[role].desc}
                           </option>

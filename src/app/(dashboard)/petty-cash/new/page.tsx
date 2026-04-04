@@ -265,7 +265,7 @@ await createNotification({
                   onChange={handleChange}
                   style={{ ...inputStyle, cursor: 'pointer' }}>
                   {['shopee', 'tokopedia', 'blibli', 'lazada', 'other'].map((p) => (
-                    <option key={p} value={p} style={{ background: '#111' }}>
+                    <option key={p} value={p} style={{ background: 'var(--bg-card)' }}>
                       {p.charAt(0).toUpperCase() + p.slice(1)}
                     </option>
                   ))}
@@ -294,9 +294,9 @@ await createNotification({
             <select name="projectId" value={form.projectId}
               onChange={handleChange}
               style={{ ...inputStyle, cursor: 'pointer' }} required>
-              <option value="" style={{ background: '#111' }}>— Pilih Proyek —</option>
+              <option value="" style={{ background: 'var(--bg-card)' }}>— Pilih Proyek —</option>
               {projects.map((p) => (
-                <option key={p.id} value={p.id} style={{ background: '#111' }}>
+                <option key={p.id} value={p.id} style={{ background: 'var(--bg-card)' }}>
                   {p.name}
                 </option>
               ))}
@@ -317,7 +317,7 @@ await createNotification({
                 }}
                 style={{ ...inputStyle, cursor: 'pointer' }}>
                 {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value} style={{ background: '#111' }}>
+                  <option key={c.value} value={c.value} style={{ background: 'var(--bg-card)' }}>
                     {c.label}
                   </option>
                 ))}
@@ -329,7 +329,7 @@ await createNotification({
                 onChange={handleChange}
                 style={{ ...inputStyle, cursor: 'pointer' }}>
                 {selectedCategory?.sub.map((s) => (
-                  <option key={s} value={s} style={{ background: '#111' }}>{s}</option>
+                  <option key={s} value={s} style={{ background: 'var(--bg-card)' }}>{s}</option>
                 ))}
               </select>
             </div>

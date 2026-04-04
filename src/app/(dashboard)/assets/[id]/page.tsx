@@ -234,7 +234,7 @@ export default function AssetDetailPage() {
               onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
               style={inputStyle}>
               {statusOptions.map((s) => (
-                <option key={s.value} value={s.value} style={{ background: '#111' }}>
+                <option key={s.value} value={s.value} style={{ background: 'var(--bg-card)' }}>
                   {s.label}
                 </option>
               ))}
@@ -261,7 +261,7 @@ export default function AssetDetailPage() {
               onChange={(e) => setEditForm({ ...editForm, condition: e.target.value })}
               style={inputStyle}>
               {conditionOptions.map((c) => (
-                <option key={c.value} value={c.value} style={{ background: '#111' }}>
+                <option key={c.value} value={c.value} style={{ background: 'var(--bg-card)' }}>
                   {c.label}
                 </option>
               ))}
@@ -289,9 +289,9 @@ export default function AssetDetailPage() {
           <select value={editForm.currentProjectId}
             onChange={(e) => setEditForm({ ...editForm, currentProjectId: e.target.value })}
             style={inputStyle}>
-            <option value="" style={{ background: '#111' }}>— Di Gudang / Tidak di Proyek —</option>
+            <option value="" style={{ background: 'var(--bg-card)' }}>— Di Gudang / Tidak di Proyek —</option>
             {projects.map((p) => (
-              <option key={p.id} value={p.id} style={{ background: '#111' }}>
+              <option key={p.id} value={p.id} style={{ background: 'var(--bg-card)' }}>
                 {p.name}
               </option>
             ))}

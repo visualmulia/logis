@@ -144,12 +144,12 @@ export default function NewAssetPage() {
             <div>
               <label style={labelStyle}>Jenis Aset</label>
               <select name="type" value={form.type} onChange={handleChange} style={selectStyle}>
-                <option value="heavy_equipment" style={{ background: '#111' }}>🏗️ Alat Berat</option>
-                <option value="power_tool" style={{ background: '#111' }}>🔧 Power Tool</option>
-                <option value="scaffolding" style={{ background: '#111' }}>🪜 Scaffolding</option>
-                <option value="measuring" style={{ background: '#111' }}>📐 Alat Ukur</option>
-                <option value="vehicle" style={{ background: '#111' }}>🚛 Kendaraan</option>
-                <option value="other" style={{ background: '#111' }}>📦 Lainnya</option>
+                <option value="heavy_equipment" style={{ background: 'var(--bg-card)' }}>🏗️ Alat Berat</option>
+                <option value="power_tool" style={{ background: 'var(--bg-card)' }}>🔧 Power Tool</option>
+                <option value="scaffolding" style={{ background: 'var(--bg-card)' }}>🪜 Scaffolding</option>
+                <option value="measuring" style={{ background: 'var(--bg-card)' }}>📐 Alat Ukur</option>
+                <option value="vehicle" style={{ background: 'var(--bg-card)' }}>🚛 Kendaraan</option>
+                <option value="other" style={{ background: 'var(--bg-card)' }}>📦 Lainnya</option>
               </select>
             </div>
             <div>
@@ -164,18 +164,18 @@ export default function NewAssetPage() {
             <div>
               <label style={labelStyle}>Kondisi Saat Ini</label>
               <select name="condition" value={form.condition} onChange={handleChange} style={selectStyle}>
-                <option value="good" style={{ background: '#111' }}>✅ Baik</option>
-                <option value="fair" style={{ background: '#111' }}>⚠️ Cukup</option>
-                <option value="poor" style={{ background: '#111' }}>🔴 Buruk</option>
-                <option value="damaged" style={{ background: '#111' }}>❌ Rusak</option>
+                <option value="good" style={{ background: 'var(--bg-card)' }}>✅ Baik</option>
+                <option value="fair" style={{ background: 'var(--bg-card)' }}>⚠️ Cukup</option>
+                <option value="poor" style={{ background: 'var(--bg-card)' }}>🔴 Buruk</option>
+                <option value="damaged" style={{ background: 'var(--bg-card)' }}>❌ Rusak</option>
               </select>
             </div>
             <div>
               <label style={labelStyle}>Status</label>
               <select name="status" value={form.status} onChange={handleChange} style={selectStyle}>
-                <option value="active" style={{ background: '#111' }}>Aktif Dipakai</option>
-                <option value="idle" style={{ background: '#111' }}>Idle / Standby</option>
-                <option value="maintenance" style={{ background: '#111' }}>Dalam Servis</option>
+                <option value="active" style={{ background: 'var(--bg-card)' }}>Aktif Dipakai</option>
+                <option value="idle" style={{ background: 'var(--bg-card)' }}>Idle / Standby</option>
+                <option value="maintenance" style={{ background: 'var(--bg-card)' }}>Dalam Servis</option>
               </select>
             </div>
           </div>
@@ -193,9 +193,9 @@ export default function NewAssetPage() {
             <label style={labelStyle}>Proyek Saat Ini</label>
             <select name="currentProjectId" value={form.currentProjectId}
               onChange={handleChange} style={selectStyle}>
-              <option value="" style={{ background: '#111' }}>— Di Gudang / Tidak di Proyek —</option>
+              <option value="" style={{ background: 'var(--bg-card)' }}>— Di Gudang / Tidak di Proyek —</option>
               {projects.map((p) => (
-                <option key={p.id} value={p.id} style={{ background: '#111' }}>
+                <option key={p.id} value={p.id} style={{ background: 'var(--bg-card)' }}>
                   {p.name}
                 </option>
               ))}

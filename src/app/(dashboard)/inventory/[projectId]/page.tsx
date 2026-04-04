@@ -419,7 +419,7 @@ export default function InventoryPage() {
                     onChange={(e) => setNewItem({ ...newItem, category: e.target.value as InventoryCategory })}
                     style={{ ...inputStyle, cursor: 'pointer' }}>
                     {(Object.keys(categoryConfig) as InventoryCategory[]).map((cat) => (
-                      <option key={cat} value={cat} style={{ background: '#111' }}>
+                      <option key={cat} value={cat} style={{ background: 'var(--bg-card)' }}>
                         {categoryConfig[cat].label}
                       </option>
                     ))}
@@ -431,7 +431,7 @@ export default function InventoryPage() {
                     onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
                     style={{ ...inputStyle, cursor: 'pointer' }}>
                     {UNITS.map((u) => (
-                      <option key={u} value={u} style={{ background: '#111' }}>{u}</option>
+                      <option key={u} value={u} style={{ background: 'var(--bg-card)' }}>{u}</option>
                     ))}
                   </select>
                 </div>

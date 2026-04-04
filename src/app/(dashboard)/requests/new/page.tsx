@@ -310,7 +310,7 @@ await createNotification({
                       style={{ ...inputStyle, cursor: 'pointer' }}
                     >
                       {UNITS.map((u) => (
-                        <option key={u} value={u} style={{ background: '#111' }}>
+                        <option key={u} value={u} style={{ background: 'var(--bg-card)' }}>
                           {u}
                         </option>
                       ))}
