@@ -47,12 +47,13 @@ export default function RegisterPage() {
   setIsLoading(true)
   try {
     await registerCompany({
-      companyName: data.companyName,
-      ownerName: data.ownerName,
-      email: data.email,
-      password: data.password,
-      phone: data.phone,
-    })
+  companyName: data.companyName,
+  companyAddress: '-',
+  companyPhone: data.phone || '-',
+  ownerName: data.ownerName,
+  ownerEmail: data.email,
+  password: data.password,
+})
     toast.success('Akun berhasil dibuat! Selamat datang di Logis.')
     
     // Tunggu sebentar supaya Firebase Auth state update dulu
