@@ -70,7 +70,7 @@ const statusConfig: Record<string, StatusConfig> = {
   completed: {
     label: 'Selesai',
     color: 'var(--text-secondary)',
-    bg: 'rgba(245,240,235,0.05)',
+    bg: 'rgba(100,100,100,0.08)',
     icon: CheckCircle,
   },
   discrepancy: {
@@ -150,13 +150,12 @@ export default function RequestsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <p
-            className="text-xs font-semibold uppercase tracking-widest mb-1"
-            style={{ color: '#F97316' }}
-          >
+          <p className="text-xs font-semibold uppercase tracking-widest mb-1"
+            style={{ color: '#F97316' }}>
             Modul 01
           </p>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-2xl font-bold mb-1"
+            style={{ color: 'var(--text-primary)' }}>
             Request Material
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -166,18 +165,18 @@ export default function RequestsPage() {
 
         {/* Action buttons */}
         <div className="flex gap-2 w-full sm:w-auto">
+          {/* PDF button — fixed colors for light/dark */}
           <button
             onClick={handleExport}
             disabled={exporting || requests.length === 0}
             className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold uppercase tracking-widest"
             style={{
-              border: '1px solid rgba(245,240,235,0.1)',
-              color:
-                exporting || requests.length === 0
-                  ? 'rgba(245,240,235,0.2)'
-                  : 'rgba(245,240,235,0.5)',
+              border: '1px solid var(--border-strong)',
+              color: exporting || requests.length === 0
+                ? 'var(--text-muted)'
+                : 'var(--text-secondary)',
               cursor: requests.length === 0 ? 'not-allowed' : 'pointer',
-              background: 'transparent',
+              background: 'var(--bg-card)',
             }}
           >
             {exporting ? (
@@ -192,7 +191,7 @@ export default function RequestsPage() {
             <Link
               href="/requests/new"
               className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest flex-1 sm:flex-none"
-              style={{ background: '#F97316', color: '#0a0a0a' }}
+              style={{ background: '#F97316', color: '#fff' }}
             >
               <Plus size={15} />
               Request Baru
@@ -218,7 +217,7 @@ export default function RequestsPage() {
         </div>
       )}
 
-      {/* Filter tabs */}
+      {/* Filter tabs — fixed text color */}
       <div
         className="flex gap-0 mb-6 -mx-4 lg:mx-0 px-4 lg:px-0"
         style={{
@@ -242,12 +241,10 @@ export default function RequestsPage() {
             onClick={() => setFilter(tab.key)}
             className="px-4 py-3 text-xs font-semibold uppercase tracking-widest whitespace-nowrap transition-all"
             style={{
-              color:
-                filter === tab.key ? '#F97316' : 'rgba(245,240,235,0.3)',
-              borderBottom:
-                filter === tab.key
-                  ? '2px solid #F97316'
-                  : '2px solid transparent',
+              color: filter === tab.key ? '#F97316' : 'var(--text-muted)',
+              borderBottom: filter === tab.key
+                ? '2px solid #F97316'
+                : '2px solid transparent',
               background: 'transparent',
             }}
           >
@@ -264,17 +261,10 @@ export default function RequestsPage() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2
-            size={24}
-            className="animate-spin"
-            style={{ color: '#F97316' }}
-          />
+          <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
         </div>
       ) : filtered.length === 0 ? (
-        <div
-          className="text-center py-24"
-          style={{ color: 'var(--text-muted)' }}
-        >
+        <div className="text-center py-24" style={{ color: 'var(--text-muted)' }}>
           <Package
             size={40}
             className="mx-auto mb-4 opacity-30"
@@ -308,13 +298,12 @@ export default function RequestsPage() {
                   border: '1px solid var(--border-color)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
-                  e.currentTarget.style.background = '#151515'
+                  e.currentTarget.style.borderColor = 'rgba(249,115,22,0.3)'
+                  e.currentTarget.style.background = 'var(--bg-secondary)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor =
-                    'rgba(245,240,235,0.06)'
-                  e.currentTarget.style.background = '#111111'
+                  e.currentTarget.style.borderColor = 'var(--border-color)'
+                  e.currentTarget.style.background = 'var(--bg-card)'
                 }}
               >
                 {/* Status indicator */}
@@ -325,42 +314,29 @@ export default function RequestsPage() {
                 {/* Main info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                    <span
-                      className="text-xs font-mono"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
+                    <span className="text-xs font-mono"
+                      style={{ color: 'var(--text-muted)' }}>
                       #{req.id.slice(-6).toUpperCase()}
                     </span>
-                    <span
-                      className="text-xs px-2 py-0.5 font-semibold"
-                      style={{ background: status.bg, color: status.color }}
-                    >
+                    <span className="text-xs px-2 py-0.5 font-semibold"
+                      style={{ background: status.bg, color: status.color }}>
                       {status.label}
                     </span>
                     {req.urgency === 'urgent' && (
-                      <span
-                        className="text-xs px-2 py-0.5 font-semibold"
-                        style={{
-                          background: 'rgba(239,68,68,0.1)',
-                          color: '#ef4444',
-                        }}
-                      >
+                      <span className="text-xs px-2 py-0.5 font-semibold"
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
                         URGENT
                       </span>
                     )}
                   </div>
-                  <p
-                    className="text-sm font-medium truncate"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
+                  <p className="text-sm font-medium truncate"
+                    style={{ color: 'var(--text-primary)' }}>
                     {req.items?.length} item
                     {req.items?.length > 1 ? 's' : ''} —{' '}
                     {req.items?.map((i) => i.name).join(', ')}
                   </p>
-                  <p
-                    className="text-xs mt-0.5"
-                    style={{ color: 'var(--text-muted)' }}
-                  >
+                  <p className="text-xs mt-0.5"
+                    style={{ color: 'var(--text-muted)' }}>
                     Oleh {req.requestedByName} ·{' '}
                     {req.createdAt
                       ? formatDistanceToNow(req.createdAt, {
@@ -371,11 +347,9 @@ export default function RequestsPage() {
                   </p>
                 </div>
 
-                <ChevronRight
-                  size={16}
+                <ChevronRight size={16}
                   style={{ color: 'var(--text-muted)' }}
-                  className="shrink-0"
-                />
+                  className="shrink-0" />
               </Link>
             )
           })}
@@ -384,4 +358,3 @@ export default function RequestsPage() {
     </div>
   )
 }
-

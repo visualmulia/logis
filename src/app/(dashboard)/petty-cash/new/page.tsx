@@ -26,8 +26,6 @@ const CATEGORIES = [
   { value: 'lainnya', label: 'Lainnya', sub: ['Lainnya'] },
 ]
 
-
-
 const MAX_REIMBURSEMENT = 2000000
 
 export default function NewPettyCashPage() {
@@ -67,9 +65,7 @@ export default function NewPettyCashPage() {
     setForm({ ...form, [target.name]: value })
   }
 
-  function detectAnomaly(amount: number, category: string): {
-    flag: boolean; reason: string
-  } {
+  function detectAnomaly(amount: number, category: string): { flag: boolean; reason: string } {
     if (amount > 1500000 && category === 'operasional_umum') {
       return { flag: true, reason: 'Nominal operasional umum melebihi Rp 1.500.000' }
     }
@@ -131,24 +127,23 @@ export default function NewPettyCashPage() {
         }
       )
 
-      // Setelah addDoc berhasil:
-await createNotification({
-  companyId,
-  type: 'petty_cash_new',
-  title: 'Request Petty Cash Baru 💰',
-  message: `${logisUser.name} mengajukan ${new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0
-  }).format(amount)} untuk ${form.description}`,
-  href: '/petty-cash',
-  createdBy: logisUser.id,
-  createdByName: logisUser.name,
-  targetRoles: ['owner', 'admin', 'pm'],
-})
+      await createNotification({
+        companyId,
+        type: 'petty_cash_new',
+        title: 'Request Petty Cash Baru',
+        message: `${logisUser.name} mengajukan ${new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0
+        }).format(amount)} untuk ${form.description}`,
+        href: '/petty-cash',
+        createdBy: logisUser.id,
+        createdByName: logisUser.name,
+        targetRoles: ['owner', 'admin', 'pm'],
+      })
 
       if (anomaly.flag) {
-        toast.warning('Request berhasil dikirim — tapi terdeteksi anomali. Kantor akan review lebih ketat.')
+        toast.warning('Request berhasil dikirim — tapi terdeteksi anomali.')
       } else {
         toast.success('Request petty cash berhasil dikirim!')
       }
@@ -170,7 +165,7 @@ await createNotification({
     fontWeight: 600,
     letterSpacing: '2px',
     textTransform: 'uppercase' as const,
-    color: 'var(--text-secondary)',
+    color: 'var(--text-muted)',
     marginBottom: '6px',
   }
 
@@ -178,8 +173,8 @@ await createNotification({
     width: '100%',
     padding: '10px 14px',
     fontSize: '14px',
-    background: 'var(--bg-primary)',
-    border: '1px solid rgba(245,240,235,0.08)',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-color)',
     color: 'var(--text-primary)',
     outline: 'none',
   }
@@ -188,7 +183,7 @@ await createNotification({
   const anomaly = detectAnomaly(currentAmount, form.category)
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 lg:p-8 max-w-2xl">
       {/* Header */}
       <div className="mb-8">
         <Link href="/petty-cash"
@@ -209,52 +204,55 @@ await createNotification({
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* Purchase type */}
-<div className="p-6"
-  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-  <label style={labelStyle}>Jenis Pembelian</label>
-  <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2">
-    {[
-      {
-        key: 'cash',
-        label: 'Pakai Kas',
-        desc: 'Dari dana kas proyek',
-        icon: <ShoppingBag size={16} />,
-      },
-      {
-        key: 'reimbursement',
-        label: 'Reimburse',
-        desc: `Bayar dulu, klaim balik (maks ${(MAX_REIMBURSEMENT/1000000).toFixed(1)}jt)`,
-        icon: <Wallet size={16} />,
-      },
-      {
-        key: 'online',
-        label: 'Beli Online',
-        desc: 'Shopee, Tokopedia, dll',
-        icon: <ShoppingCart size={16} />,
-      },
-    ].map((opt) => (
-      <button key={opt.key} type="button"
-        onClick={() => setPurchaseType(opt.key as typeof purchaseType)}
-        className="flex items-center sm:flex-col sm:items-start gap-3 sm:gap-1 p-3 text-left transition-all"
-        style={{
-          background: purchaseType === opt.key
-            ? 'rgba(249,115,22,0.1)'
-            : 'transparent',
-          border: purchaseType === opt.key
-            ? '1px solid rgba(249,115,22,0.3)'
-            : '1px solid rgba(245,240,235,0.08)',
-          color: purchaseType === opt.key
-            ? '#F97316'
-            : 'rgba(245,240,235,0.4)',
-        }}>
-        <div className="shrink-0">{opt.icon}</div>
-        <div>
-          <div className="text-sm font-semibold">{opt.label}</div>
-          <div className="text-xs mt-0.5 opacity-60 leading-tight">{opt.desc}</div>
-        </div>
-      </button>
-    ))}
-  </div>
+        <div className="p-6"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <label style={labelStyle}>Jenis Pembelian</label>
+          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2">
+            {[
+              {
+                key: 'cash',
+                label: 'Pakai Kas',
+                desc: 'Dari dana kas proyek',
+                icon: <ShoppingBag size={16} />,
+              },
+              {
+                key: 'reimbursement',
+                label: 'Reimburse',
+                desc: `Bayar dulu, klaim balik (maks ${(MAX_REIMBURSEMENT / 1000000).toFixed(1)}jt)`,
+                icon: <Wallet size={16} />,
+              },
+              {
+                key: 'online',
+                label: 'Beli Online',
+                desc: 'Shopee, Tokopedia, dll',
+                icon: <ShoppingCart size={16} />,
+              },
+            ].map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setPurchaseType(opt.key as typeof purchaseType)}
+                className="flex items-center sm:flex-col sm:items-start gap-3 sm:gap-1 p-3 text-left transition-all"
+                style={{
+                  background: purchaseType === opt.key
+                    ? 'rgba(249,115,22,0.1)'
+                    : 'var(--bg-secondary)',
+                  border: purchaseType === opt.key
+                    ? '1px solid rgba(249,115,22,0.3)'
+                    : '1px solid var(--border-strong)',
+                  color: purchaseType === opt.key
+                    ? '#F97316'
+                    : 'var(--text-secondary)',
+                }}
+              >
+                <div className="shrink-0">{opt.icon}</div>
+                <div>
+                  <div className="text-sm font-semibold">{opt.label}</div>
+                  <div className="text-xs mt-0.5 opacity-60 leading-tight">{opt.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
 
           {/* Online URL input */}
           {purchaseType === 'online' && (
@@ -276,7 +274,8 @@ await createNotification({
                 <input name="onlineUrl" value={form.onlineUrl}
                   onChange={handleChange}
                   placeholder="https://shopee.co.id/produk-xxx"
-                  style={inputStyle} required={purchaseType === 'online'} />
+                  style={inputStyle}
+                  required={purchaseType === 'online'} />
                 <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                   Link digunakan untuk verifikasi harga oleh kantor
                 </p>
@@ -288,12 +287,12 @@ await createNotification({
         {/* Project & Category */}
         <div className="p-6 space-y-4"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-
           <div>
             <label style={labelStyle}>Proyek *</label>
             <select name="projectId" value={form.projectId}
               onChange={handleChange}
-              style={{ ...inputStyle, cursor: 'pointer' }} required>
+              style={{ ...inputStyle, cursor: 'pointer' }}
+              required>
               <option value="" style={{ background: 'var(--bg-card)' }}>— Pilih Proyek —</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id} style={{ background: 'var(--bg-card)' }}>
@@ -340,7 +339,8 @@ await createNotification({
             <input name="description" value={form.description}
               onChange={handleChange}
               placeholder="Beli kawat bendrat 10kg untuk zona A, Token listrik direksi keet, dll"
-              style={inputStyle} required />
+              style={inputStyle}
+              required />
           </div>
 
           <div>
@@ -349,9 +349,9 @@ await createNotification({
               onChange={handleChange}
               placeholder="250000"
               min="1"
-              style={inputStyle} required />
+              style={inputStyle}
+              required />
 
-            {/* Anomaly warning — real time */}
             {currentAmount > 0 && anomaly.flag && (
               <div className="flex items-start gap-2 mt-2 p-3"
                 style={{
@@ -360,8 +360,8 @@ await createNotification({
                 }}>
                 <AlertTriangle size={13}
                   style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
-                <p className="text-xs" style={{ color: 'rgba(239,68,68,0.8)' }}>
-                  ⚠️ {anomaly.reason} — request akan di-flag untuk review lebih ketat oleh kantor.
+                <p className="text-xs" style={{ color: '#ef4444' }}>
+                  {anomaly.reason} — request akan di-flag untuk review lebih ketat oleh kantor.
                 </p>
               </div>
             )}
@@ -369,7 +369,8 @@ await createNotification({
 
           <div>
             <label style={labelStyle}>Catatan Tambahan (opsional)</label>
-            <textarea name="notes" value={form.notes} onChange={handleChange}
+            <textarea name="notes" value={form.notes}
+              onChange={handleChange}
               placeholder="Info tambahan yang perlu diketahui kantor..."
               rows={2}
               style={{ ...inputStyle, resize: 'vertical' }} />
@@ -377,28 +378,36 @@ await createNotification({
         </div>
 
         {/* Foto bukti */}
-<div className="p-6"
-  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-  <PhotoUpload
-    companyId={companyId || ''}
-    folder="petty-cash"
-    documentId={`draft-${Date.now()}`}
-    onPhotosChange={setPhotos}
-    maxPhotos={3}
-    label="Foto Struk / Bukti Pembelian"
-  />
-</div>
+        <div className="p-6"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <PhotoUpload
+            companyId={companyId || ''}
+            folder="petty-cash"
+            documentId={`draft-${Date.now()}`}
+            onPhotosChange={setPhotos}
+            maxPhotos={3}
+            label="Foto Struk / Bukti Pembelian"
+          />
+        </div>
+
         {/* Emergency toggle */}
         <div className="p-6"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div className="flex items-center gap-3 mb-3">
-            <input type="checkbox" id="isEmergency" name="isEmergency"
+            <input
+              type="checkbox"
+              id="isEmergency"
+              name="isEmergency"
               checked={form.isEmergency}
               onChange={handleChange}
-              className="w-4 h-4 accent-orange-500" />
-            <label htmlFor="isEmergency" className="text-sm cursor-pointer font-semibold"
-              style={{ color: form.isEmergency ? '#ef4444' : 'rgba(245,240,235,0.6)' }}>
-              <Zap size={13} className="inline mr-1" />
+              className="w-4 h-4 accent-orange-500"
+            />
+            <label
+              htmlFor="isEmergency"
+              className="text-sm cursor-pointer font-semibold flex items-center gap-1"
+              style={{ color: form.isEmergency ? '#ef4444' : 'var(--text-secondary)' }}
+            >
+              <Zap size={13} />
               Pembelian Darurat (PM sudah izinkan secara lisan)
             </label>
           </div>
@@ -406,15 +415,18 @@ await createNotification({
           {form.isEmergency && (
             <div>
               <label style={labelStyle}>Nama PM yang Mengizinkan *</label>
-              <input name="emergencyApprovedBy" value={form.emergencyApprovedBy}
+              <input
+                name="emergencyApprovedBy"
+                value={form.emergencyApprovedBy}
                 onChange={handleChange}
                 placeholder="Nama Project Manager yang memberi izin"
                 style={{
                   ...inputStyle,
                   border: '1px solid rgba(239,68,68,0.3)',
                 }}
-                required={form.isEmergency} />
-              <p className="text-xs mt-1" style={{ color: 'rgba(239,68,68,0.5)' }}>
+                required={form.isEmergency}
+              />
+              <p className="text-xs mt-1" style={{ color: 'rgba(239,68,68,0.6)' }}>
                 Sistem akan mengirim notifikasi ke PM untuk konfirmasi
               </p>
             </div>
@@ -423,20 +435,28 @@ await createNotification({
 
         {/* Submit */}
         <div className="flex gap-3">
-          <button type="submit" disabled={isLoading}
+          <button
+            type="submit"
+            disabled={isLoading}
             className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
             style={{
               background: isLoading ? '#c45a0e' : '#F97316',
-              color: '#0a0a0a',
+              color: '#fff',
               cursor: isLoading ? 'not-allowed' : 'pointer',
-            }}>
+            }}
+          >
             {isLoading ? (
               <><Loader2 size={15} className="animate-spin" />Mengirim...</>
             ) : 'Kirim Request'}
           </button>
-          <Link href="/petty-cash"
+          <Link
+            href="/petty-cash"
             className="px-6 py-3 text-sm font-semibold flex items-center"
-            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
+            style={{
+              border: '1px solid var(--border-strong)',
+              color: 'var(--text-secondary)',
+            }}
+          >
             Batal
           </Link>
         </div>

@@ -11,12 +11,10 @@ import Image from 'next/image'
 
 interface PhotoUploadProps {
   companyId: string
-  folder: string // 'petty-cash' | 'requests'
+  folder: string
   documentId: string
   existingPhotos?: { url: string; path: string; name: string }[]
-  onPhotosChange: (
-    photos: { url: string; path: string; name: string }[]
-  ) => void
+  onPhotosChange: (photos: { url: string; path: string; name: string }[]) => void
   maxPhotos?: number
   label?: string
 }
@@ -45,7 +43,6 @@ export default function PhotoUpload({
     }
 
     for (const file of files) {
-      // Validasi
       if (!file.type.startsWith('image/')) {
         toast.error('Hanya file gambar yang diizinkan')
         continue
@@ -59,7 +56,6 @@ export default function PhotoUpload({
         const timestamp = Date.now()
         const path = `logis/${companyId}/${folder}/${documentId}/${timestamp}_${file.name}`
         const result = await uploadFile(file, path)
-
         const newPhotos = [...photos, result]
         setPhotos(newPhotos)
         onPhotosChange(newPhotos)
@@ -69,7 +65,6 @@ export default function PhotoUpload({
       }
     }
 
-    // Reset input
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -88,16 +83,14 @@ export default function PhotoUpload({
 
   return (
     <div>
+      {/* Label */}
       <label
         className="block text-xs font-semibold uppercase tracking-widest mb-3"
-        style={{ color: 'rgba(245,240,235,0.4)' }}
+        style={{ color: 'var(--text-muted)' }}
       >
         {label}
         {maxPhotos > 1 && (
-          <span
-            className="ml-2 normal-case"
-            style={{ color: 'rgba(245,240,235,0.2)' }}
-          >
+          <span className="ml-2 normal-case" style={{ color: 'var(--text-muted)' }}>
             ({photos.length}/{maxPhotos})
           </span>
         )}
@@ -106,44 +99,31 @@ export default function PhotoUpload({
       {/* Photo grid */}
       <div className="flex flex-wrap gap-2 mb-3">
         {photos.map((photo, index) => (
-          <div
-            key={index}
-            className="relative group"
-            style={{ width: 80, height: 80 }}
-          >
+          <div key={index} className="relative group" style={{ width: 80, height: 80 }}>
             <Image
               src={photo.url}
               alt={photo.name}
               fill
               className="object-cover"
-              style={{ border: '1px solid rgba(245,240,235,0.1)' }}
+              style={{ border: '1px solid var(--border-color)' }}
             />
-            {/* Overlay actions */}
             <div
               className="absolute inset-0 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
               style={{ background: 'rgba(0,0,0,0.6)' }}
             >
-              <button
-                type="button"
-                onClick={() => setPreview(photo.url)}
-                className="p-1"
-                style={{ color: '#fff' }}
-              >
+              <button type="button" onClick={() => setPreview(photo.url)}
+                className="p-1" style={{ color: '#fff' }}>
                 <ZoomIn size={14} />
               </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(index)}
-                className="p-1"
-                style={{ color: '#ef4444' }}
-              >
+              <button type="button" onClick={() => handleDelete(index)}
+                className="p-1" style={{ color: '#ef4444' }}>
                 <X size={14} />
               </button>
             </div>
           </div>
         ))}
 
-        {/* Upload button */}
+        {/* Upload button — kotak kecil */}
         {photos.length < maxPhotos && (
           <button
             type="button"
@@ -153,13 +133,11 @@ export default function PhotoUpload({
             style={{
               width: 80,
               height: 80,
-              border: '1px dashed rgba(245,240,235,0.2)',
+              border: '1px dashed var(--border-strong)',
               background: uploading
                 ? 'rgba(249,115,22,0.05)'
-                : 'transparent',
-              color: uploading
-                ? '#F97316'
-                : 'rgba(245,240,235,0.3)',
+                : 'var(--bg-secondary)',
+              color: uploading ? '#F97316' : 'var(--text-muted)',
             }}
           >
             {uploading ? (
@@ -177,38 +155,34 @@ export default function PhotoUpload({
         )}
       </div>
 
-      {/* Upload progress bar */}
+      {/* Progress bar */}
       {uploading && (
-        <div
-          className="h-1 w-full mb-3"
-          style={{ background: 'rgba(245,240,235,0.08)' }}
-        >
+        <div className="h-1 w-full mb-3"
+          style={{ background: 'var(--border-color)' }}>
           <div
             className="h-full transition-all"
-            style={{
-              width: `${progress}%`,
-              background: '#F97316',
-            }}
+            style={{ width: `${progress}%`, background: '#F97316' }}
           />
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty state — area upload besar */}
       {photos.length === 0 && !uploading && (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           className="w-full py-6 flex flex-col items-center gap-2 transition-all"
           style={{
-            border: '1px dashed rgba(245,240,235,0.15)',
-            color: 'rgba(245,240,235,0.25)',
+            border: '1px dashed var(--border-strong)',
+            background: 'var(--bg-secondary)',
+            color: 'var(--text-muted)',
           }}
         >
           <ImageIcon size={24} />
-          <span className="text-xs">
+          <span className="text-xs font-medium">
             Tap untuk tambah foto bukti
           </span>
-          <span className="text-xs opacity-60">
+          <span className="text-xs" style={{ color: 'var(--text-muted)', opacity: 0.6 }}>
             JPG, PNG • Maks 5MB per foto
           </span>
         </button>
@@ -244,10 +218,7 @@ export default function PhotoUpload({
             <button
               onClick={() => setPreview(null)}
               className="absolute top-2 right-2 p-2"
-              style={{
-                background: 'rgba(0,0,0,0.5)',
-                color: '#fff',
-              }}
+              style={{ background: 'rgba(0,0,0,0.5)', color: '#fff' }}
             >
               <X size={20} />
             </button>
