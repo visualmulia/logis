@@ -277,7 +277,7 @@ await createNotification({
                   onChange={handleChange}
                   placeholder="https://shopee.co.id/produk-xxx"
                   style={inputStyle} required={purchaseType === 'online'} />
-                <p className="text-xs mt-1" style={{ color: 'rgba(245,240,235,0.2)' }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                   Link digunakan untuk verifikasi harga oleh kantor
                 </p>
               </div>

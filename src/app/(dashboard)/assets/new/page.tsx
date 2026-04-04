@@ -236,7 +236,7 @@ export default function NewAssetPage() {
               <label style={labelStyle}>Interval Servis (jam)</label>
               <input type="number" name="serviceIntervalHours" value={form.serviceIntervalHours}
                 onChange={handleChange} min="0" style={inputStyle} />
-              <p className="text-xs mt-1" style={{ color: 'rgba(245,240,235,0.2)' }}>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 Default: 500 jam
               </p>
             </div>

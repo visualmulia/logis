@@ -179,7 +179,7 @@ export default function AssetsPage() {
           <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-24" style={{ color: 'rgba(245,240,235,0.2)' }}>
+        <div className="text-center py-24" style={{ color: 'var(--text-muted)' }}>
           <Package size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm mb-4">
             {assets.length === 0 ? 'Belum ada aset terdaftar' : 'Tidak ada aset dengan filter ini'}
@@ -274,7 +274,7 @@ export default function AssetsPage() {
                 </div>
 
                 <ChevronRight size={16}
-                  style={{ color: 'rgba(245,240,235,0.15)', flexShrink: 0 }} />
+                  style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
               </Link>
             )
           })}

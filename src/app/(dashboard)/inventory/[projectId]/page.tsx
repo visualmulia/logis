@@ -274,7 +274,7 @@ export default function InventoryPage() {
           <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-24" style={{ color: 'rgba(245,240,235,0.2)' }}>
+        <div className="text-center py-24" style={{ color: 'var(--text-muted)' }}>
           <Package size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm mb-4">Gudang masih kosong</p>
           <button
@@ -300,7 +300,7 @@ export default function InventoryPage() {
                     style={{ color: config.color }}>
                     {config.label}
                   </span>
-                  <span className="text-xs" style={{ color: 'rgba(245,240,235,0.2)' }}>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     ({catItems.length})
                   </span>
                 </div>

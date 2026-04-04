@@ -205,7 +205,7 @@ export default function PettyCashPage() {
           <p className="text-2xl font-black font-mono" style={{ color: '#F97316' }}>
             {formatRupiah(totalThisMonth)}
           </p>
-          <p className="text-xs mt-1" style={{ color: 'rgba(245,240,235,0.2)' }}>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             {format(new Date(), 'MMMM yyyy', { locale: id })}
           </p>
         </div>
@@ -319,7 +319,7 @@ export default function PettyCashPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-24"
-          style={{ color: 'rgba(245,240,235,0.2)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           <Wallet size={40} className="mx-auto mb-4 opacity-30"
             style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm">Belum ada transaksi petty cash</p>
@@ -406,7 +406,7 @@ export default function PettyCashPage() {
                 </div>
 
                 <ChevronRight size={16}
-                  style={{ color: 'rgba(245,240,235,0.15)', flexShrink: 0 }} />
+                  style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
               </Link>
             )
           })}

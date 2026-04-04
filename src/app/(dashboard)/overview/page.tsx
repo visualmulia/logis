@@ -284,7 +284,7 @@ export default function OverviewPage() {
             </div>
           ) : recentRequests.length === 0 ? (
             <div className="text-center py-8"
-              style={{ color: 'rgba(245,240,235,0.2)' }}>
+              style={{ color: 'var(--text-muted)' }}>
               <Package size={28} className="mx-auto mb-2 opacity-30"
                 style={{ color: 'var(--text-primary)' }} />
               <p className="text-xs">Belum ada request</p>
@@ -406,7 +406,7 @@ export default function OverviewPage() {
                     </p>
                   </div>
                   <ChevronRight size={14}
-                    style={{ color: 'rgba(245,240,235,0.15)', flexShrink: 0 }} />
+                    style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                 </Link>
               ))}
           </div>

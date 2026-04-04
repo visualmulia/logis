@@ -155,7 +155,7 @@ export default function NewProjectPage() {
               onChange={handleChange}
               placeholder="5000000000"
               style={inputStyle} />
-            <p className="text-xs mt-1" style={{ color: 'rgba(245,240,235,0.2)' }}>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
               Opsional — bisa diisi nanti
             </p>
           </div>

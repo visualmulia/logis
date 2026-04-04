@@ -255,13 +255,13 @@ await createNotification({
                 <div className="flex items-center gap-2 mb-3">
                   <span
                     className="text-xs font-mono w-5"
-                    style={{ color: 'rgba(245,240,235,0.2)' }}
+                    style={{ color: 'var(--text-muted)' }}
                   >
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <span
                     className="flex-1 text-xs"
-                    style={{ color: 'rgba(245,240,235,0.2)' }}
+                    style={{ color: 'var(--text-muted)' }}
                   >
                     Item ke-{index + 1}
                   </span>
@@ -368,7 +368,7 @@ await createNotification({
           />
           <p
             className="text-xs mt-2"
-            style={{ color: 'rgba(245,240,235,0.2)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             Alasan yang jelas membantu kantor approve lebih cepat.
           </p>

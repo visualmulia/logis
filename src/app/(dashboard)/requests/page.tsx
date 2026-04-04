@@ -273,7 +273,7 @@ export default function RequestsPage() {
       ) : filtered.length === 0 ? (
         <div
           className="text-center py-24"
-          style={{ color: 'rgba(245,240,235,0.2)' }}
+          style={{ color: 'var(--text-muted)' }}
         >
           <Package
             size={40}
@@ -373,7 +373,7 @@ export default function RequestsPage() {
 
                 <ChevronRight
                   size={16}
-                  style={{ color: 'rgba(245,240,235,0.2)' }}
+                  style={{ color: 'var(--text-muted)' }}
                   className="shrink-0"
                 />
               </Link>

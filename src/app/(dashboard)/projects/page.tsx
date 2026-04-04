@@ -69,7 +69,7 @@ export default function ProjectsPage() {
           <Loader2 size={24} className="animate-spin" style={{ color: '#F97316' }} />
         </div>
       ) : projects.length === 0 ? (
-        <div className="text-center py-24" style={{ color: 'rgba(245,240,235,0.2)' }}>
+        <div className="text-center py-24" style={{ color: 'var(--text-muted)' }}>
           <Building2 size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm mb-4">Belum ada proyek terdaftar</p>
           <Link

@@ -234,7 +234,7 @@ export default function ProjectDetailPage() {
 
         {/* Milestone markers */}
         <div className="flex justify-between text-xs"
-          style={{ color: 'rgba(245,240,235,0.2)' }}>
+          style={{ color: 'var(--text-muted)' }}>
           {[0, 25, 50, 75, 100].map((m) => (
             <span key={m}
               style={{ color: progress >= m ? 'rgba(245,240,235,0.5)' : 'rgba(245,240,235,0.15)' }}>
@@ -286,7 +286,7 @@ export default function ProjectDetailPage() {
               />
 
               <div className="flex justify-between text-xs mt-1"
-                style={{ color: 'rgba(245,240,235,0.2)' }}>
+                style={{ color: 'var(--text-muted)' }}>
                 <span>{project.progressPercent || 0}% (sekarang)</span>
                 <span>100%</span>
               </div>
@@ -455,7 +455,7 @@ export default function ProjectDetailPage() {
                     </p>
                   )}
                   <p className="text-xs"
-                    style={{ color: 'rgba(245,240,235,0.2)' }}>
+                    style={{ color: 'var(--text-muted)' }}>
                     {h.updatedAt instanceof Date
                       ? format(h.updatedAt, 'd MMM yyyy, HH:mm', { locale: id })
                       : '—'}
@@ -489,7 +489,7 @@ export default function ProjectDetailPage() {
               Lihat stok proyek ini
             </p>
           </div>
-          <ChevronRight size={14} style={{ color: 'rgba(245,240,235,0.2)' }} />
+          <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
         </Link>
 
         <Link href="/requests"
@@ -512,7 +512,7 @@ export default function ProjectDetailPage() {
               Lihat semua request
             </p>
           </div>
-          <ChevronRight size={14} style={{ color: 'rgba(245,240,235,0.2)' }} />
+          <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
         </Link>
       </div>
     </div>

@@ -256,11 +256,11 @@ export default function RequestDetailPage() {
             className="text-sm font-semibold uppercase"
             style={{
               color:
-                request.urgency === 'urgent'
-                  ? '#ef4444'
-                  : request.urgency === 'normal'
-                  ? '#F97316'
-                  : 'rgba(245,240,235,0.4)',
+  request.urgency === 'urgent'
+    ? '#ef4444'
+    : request.urgency === 'normal'
+    ? '#F97316'
+    : 'var(--text-muted)',
             }}
           >
             {request.urgency}
@@ -298,7 +298,7 @@ export default function RequestDetailPage() {
             <div key={index} className="px-5 py-4 flex items-center gap-4">
               <span
                 className="font-mono text-xs w-5 flex-shrink-0"
-                style={{ color: 'rgba(245,240,235,0.2)' }}
+                style={{ color: 'var(--text-muted)' }}
               >
                 {String(index + 1).padStart(2, '0')}
               </span>
@@ -388,7 +388,7 @@ export default function RequestDetailPage() {
         </p>
         <p
           className="text-sm leading-relaxed"
-          style={{ color: 'rgba(245,240,235,0.7)' }}
+          style={{ color: 'var(--text-secondary)' }}
         >
           {request.reason}
         </p>
@@ -409,7 +409,7 @@ export default function RequestDetailPage() {
           >
             Alasan Penolakan
           </p>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.7)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {request.rejectedReason}
           </p>
         </div>
@@ -436,12 +436,12 @@ export default function RequestDetailPage() {
               <button
                 onClick={handleApprove}
                 disabled={actionLoading}
-                className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all"
-                style={{
-                  background: 'rgba(34,197,94,0.1)',
-                  color: '#22c55e',
-                  border: '1px solid rgba(34,197,94,0.3)',
-                }}
+                className="flex-1 py-3 px-4 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
+style={{
+  background: 'rgba(34,197,94,0.1)',
+  color: '#22c55e',
+  border: '1px solid rgba(34,197,94,0.3)',
+}}
               >
                 {actionLoading ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -453,7 +453,7 @@ export default function RequestDetailPage() {
               <button
                 onClick={() => setShowRejectForm(true)}
                 disabled={actionLoading}
-                className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all"
+                className="flex-1 py-3 px-4 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
                 style={{
                   background: 'rgba(239,68,68,0.1)',
                   color: '#ef4444',

@@ -263,7 +263,7 @@ export default function PettyCashDetailPage() {
           style={{ color: 'var(--text-muted)' }}>
           Deskripsi Pengeluaran
         </p>
-        <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,240,235,0.8)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           {tx.description}
         </p>
         {tx.notes && (
@@ -339,7 +339,7 @@ export default function PettyCashDetailPage() {
             style={{ color: '#ef4444' }}>
             Alasan Penolakan
           </p>
-          <p className="text-sm" style={{ color: 'rgba(245,240,235,0.7)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {tx.rejectedReason}
           </p>
         </div>
