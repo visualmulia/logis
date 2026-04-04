@@ -30,52 +30,66 @@ export async function loginUser(
 // ============================================
 export async function registerCompany(data: {
   companyName: string
+  companyAddress: string
+  companyPhone: string
   ownerName: string
-  email: string
+  ownerEmail: string
   password: string
-  phone: string
 }): Promise<void> {
   // 1. Buat user di Firebase Auth
   const credential = await createUserWithEmailAndPassword(
     auth,
-    data.email,
+    data.ownerEmail,
     data.password
   )
-
   const uid = credential.user.uid
 
   // 2. Update display name
-  await updateProfile(credential.user, {
-    displayName: data.ownerName,
-  })
+  await updateProfile(credential.user, { displayName: data.ownerName })
 
-  // 3. Buat dokumen company di Firestore
-  const companyId = uid // Gunakan uid owner sebagai companyId
+  // 3. Trial 30 hari
+  const trialStart = new Date()
+  const trialEnd = new Date()
+  trialEnd.setDate(trialEnd.getDate() + 30)
+
+  // 4. Buat company document
+  const companyId = uid
   await setDoc(doc(db, 'logis_companies', companyId), {
     id: companyId,
     name: data.companyName,
-    plan: 'starter',
-    projectLimit: 1,
-    subscriptionEnd: null,
-    ownerId: uid,
+    address: data.companyAddress,
+    phone: data.companyPhone,
+    ownerName: data.ownerName,
+    ownerEmail: data.ownerEmail,
+    plan: 'trial',
+    trialStartDate: trialStart,
+    trialEndDate: trialEnd,
+    isTrialActive: true,
+    maxProjects: 999,
+    maxUsers: 999,
     createdAt: serverTimestamp(),
   })
 
-  // 4. Buat dokumen user di Firestore
+  // 5. Buat user document untuk owner
   await setDoc(
     doc(db, 'logis_companies', companyId, 'users', uid),
     {
       id: uid,
       companyId,
       name: data.ownerName,
-      email: data.email,
-      phone: data.phone,
+      email: data.ownerEmail,
+      phone: data.companyPhone,
       role: 'owner' as UserRole,
       projectIds: [],
       isActive: true,
       createdAt: serverTimestamp(),
     }
   )
+
+  // 6. Simpan ke localStorage
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('logis_company_id', companyId)
+  }
 }
 
 // ============================================

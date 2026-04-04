@@ -78,13 +78,15 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative z-10">
-          <div
-            className="text-4xl font-black tracking-[6px]"
-            style={{ fontFamily: 'monospace', color: '#f5f0eb' }}
-          >
-            LOG
-            <span style={{ color: '#F97316' }}>I</span>S
-          </div>
+          <Link href="/">
+  <div
+    className="text-4xl font-black tracking-[6px]"
+    style={{ fontFamily: 'monospace', color: '#f5f0eb' }}
+  >
+    LOG
+    <span style={{ color: '#F97316' }}>I</span>S
+  </div>
+</Link>
         </div>
 
         {/* Center quote */}
@@ -172,11 +174,11 @@ export default function LoginPage() {
             <p className="text-sm" style={{ color: 'rgba(245,240,235,0.5)' }}>
               Belum punya akun?{' '}
               <Link
-                href="/register"
+                href="/register-company"
                 className="font-medium transition-colors"
                 style={{ color: '#F97316' }}
               >
-                Daftar gratis
+                Daftar Perusahaan
               </Link>
             </p>
           </div>
