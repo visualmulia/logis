@@ -11,10 +11,12 @@ import Link from 'next/link'
 import {
   Plus, Wallet, AlertTriangle, CheckCircle,
   XCircle, Clock, Loader2, ChevronRight,
-  ShoppingBag, AlertCircle
+  ShoppingBag, AlertCircle, Download,
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { exportPettyCashPDF } from '@/lib/pdf/exportPDF'
+import { toast } from 'sonner'
 
 const statusConfig: { [key: string]: {
   label: string; color: string; bg: string; icon: React.ElementType
@@ -70,6 +72,7 @@ export default function PettyCashPage() {
   const [transactions, setTransactions] = useState<PettyCashTransaction[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (!companyId) return
@@ -96,7 +99,6 @@ export default function PettyCashPage() {
   const canCreate = ['owner', 'admin', 'admin_site', 'logistik'].includes(
     logisUser?.role || ''
   )
-  const canApprove = ['owner', 'admin', 'pm'].includes(logisUser?.role || '')
 
   const filtered = filter === 'all'
     ? transactions
@@ -120,6 +122,30 @@ export default function PettyCashPage() {
     })
     .reduce((sum, t) => sum + t.amount, 0)
 
+  async function handleExport() {
+    setExporting(true)
+    try {
+      exportPettyCashPDF(
+        transactions.map((t) => ({
+          id: t.id,
+          requestedBy: t.requestedBy,
+          category: t.category,
+          description: t.description,
+          amount: t.amount,
+          purchaseType: t.purchaseType,
+          status: t.status,
+          anomalyFlag: t.anomalyFlag,
+          createdAt: t.createdAt,
+        }))
+      )
+      toast.success('PDF berhasil didownload!')
+    } catch {
+      toast.error('Gagal export PDF')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="p-4 lg:p-8">
       {/* Header */}
@@ -136,14 +162,36 @@ export default function PettyCashPage() {
             Setiap rupiah ada jejak dan justifikasinya
           </p>
         </div>
-        {canCreate && (
-          <Link href="/petty-cash/new"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest w-full sm:w-auto"
-            style={{ background: '#F97316', color: '#0a0a0a' }}>
-            <Plus size={15} />
-            Request Kas
-          </Link>
-        )}
+
+        {/* Action buttons */}
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleExport}
+            disabled={exporting || transactions.length === 0}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold uppercase tracking-widest"
+            style={{
+              border: '1px solid rgba(245,240,235,0.1)',
+              color: exporting || transactions.length === 0
+                ? 'rgba(245,240,235,0.2)'
+                : 'rgba(245,240,235,0.5)',
+              cursor: transactions.length === 0 ? 'not-allowed' : 'pointer',
+              background: 'transparent',
+            }}
+          >
+            {exporting
+              ? <Loader2 size={14} className="animate-spin" />
+              : <Download size={14} />}
+            PDF
+          </button>
+          {canCreate && (
+            <Link href="/petty-cash/new"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest flex-1 sm:flex-none"
+              style={{ background: '#F97316', color: '#0a0a0a' }}>
+              <Plus size={15} />
+              Request Kas
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Summary cards */}
@@ -312,13 +360,10 @@ export default function PettyCashPage() {
                     : 'rgba(245,240,235,0.06)'
                 }}>
 
-                {/* Status icon */}
-                <div className="p-2 flex-shrink-0"
-                  style={{ background: status.bg }}>
+                <div className="p-2 flex-shrink-0" style={{ background: status.bg }}>
                   <StatusIcon size={14} style={{ color: status.color }} />
                 </div>
 
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono"
@@ -331,43 +376,31 @@ export default function PettyCashPage() {
                     </span>
                     {tx.anomalyFlag && (
                       <span className="text-xs px-2 py-0.5 font-semibold flex items-center gap-1"
-                        style={{
-                          background: 'rgba(239,68,68,0.1)',
-                          color: '#ef4444'
-                        }}>
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
                         <AlertCircle size={10} />
                         ANOMALI
                       </span>
                     )}
                     {tx.isEmergency && (
                       <span className="text-xs px-2 py-0.5 font-semibold"
-                        style={{
-                          background: 'rgba(239,68,68,0.1)',
-                          color: '#ef4444'
-                        }}>
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
                         ⚡ DARURAT
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold mb-0.5"
-                    style={{ color: '#f5f0eb' }}>
+                  <p className="text-sm font-semibold mb-0.5" style={{ color: '#f5f0eb' }}>
                     {tx.description}
                   </p>
-                  <p className="text-xs"
-                    style={{ color: 'rgba(245,240,235,0.3)' }}>
+                  <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
                     {tx.category} · {tx.requestedBy} ·{' '}
                     {tx.createdAt
-                      ? formatDistanceToNow(tx.createdAt, {
-                          addSuffix: true, locale: id
-                        })
+                      ? formatDistanceToNow(tx.createdAt, { addSuffix: true, locale: id })
                       : '—'}
                   </p>
                 </div>
 
-                {/* Amount */}
                 <div className="text-right flex-shrink-0 mr-2">
-                  <p className="text-sm font-black font-mono"
-                    style={{ color: '#F97316' }}>
+                  <p className="text-sm font-black font-mono" style={{ color: '#F97316' }}>
                     {formatRupiah(tx.amount)}
                   </p>
                 </div>
