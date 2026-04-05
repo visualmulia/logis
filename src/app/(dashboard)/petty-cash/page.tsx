@@ -3,15 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import {
-  collection, query, orderBy, onSnapshot
+  collection, query, orderBy, onSnapshot, getDocs
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
-import { PettyCashTransaction } from '@/types'
+import { PettyCashTransaction, Project } from '@/types'
 import Link from 'next/link'
 import {
-  Plus, Wallet, CheckCircle,
-  XCircle, Clock, Loader2, ChevronRight,
-  ShoppingBag, AlertCircle, Download,
+  Plus, Wallet, CheckCircle, XCircle, Clock,
+  Loader2, ChevronRight, ShoppingBag, AlertCircle,
+  Download, FolderOpen,
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { id } from 'date-fns/locale'
@@ -22,60 +22,69 @@ const statusConfig: { [key: string]: {
   label: string; color: string; bg: string; icon: React.ElementType
 }} = {
   pending_approval: {
-    label: 'Menunggu Approval',
-    color: '#eab308',
-    bg: 'rgba(234,179,8,0.1)',
-    icon: Clock,
+    label: 'Menunggu Approval', color: '#eab308',
+    bg: 'rgba(234,179,8,0.1)', icon: Clock,
   },
   approved: {
-    label: 'Disetujui',
-    color: '#22c55e',
-    bg: 'rgba(34,197,94,0.1)',
-    icon: CheckCircle,
+    label: 'Disetujui', color: '#22c55e',
+    bg: 'rgba(34,197,94,0.1)', icon: CheckCircle,
   },
   in_progress: {
-    label: 'Sedang Belanja',
-    color: '#38bdf8',
-    bg: 'rgba(56,189,248,0.1)',
-    icon: ShoppingBag,
+    label: 'Sedang Belanja', color: '#38bdf8',
+    bg: 'rgba(56,189,248,0.1)', icon: ShoppingBag,
   },
   pending_reimbursement: {
-    label: 'Menunggu Reimburse',
-    color: '#a78bfa',
-    bg: 'rgba(167,139,250,0.1)',
-    icon: Wallet,
+    label: 'Menunggu Reimburse', color: '#a78bfa',
+    bg: 'rgba(167,139,250,0.1)', icon: Wallet,
   },
   completed: {
-    label: 'Selesai',
-    color: 'var(--text-secondary)',
-    bg: 'rgba(100,100,100,0.08)',
-    icon: CheckCircle,
+    label: 'Selesai', color: 'var(--text-secondary)',
+    bg: 'rgba(100,100,100,0.08)', icon: CheckCircle,
   },
   rejected: {
-    label: 'Ditolak',
-    color: '#ef4444',
-    bg: 'rgba(239,68,68,0.1)',
-    icon: XCircle,
+    label: 'Ditolak', color: '#ef4444',
+    bg: 'rgba(239,68,68,0.1)', icon: XCircle,
   },
 }
 
 function formatRupiah(amount: number) {
   return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
+    style: 'currency', currency: 'IDR', minimumFractionDigits: 0,
   }).format(amount)
 }
+
+const CAN_CREATE = ['owner', 'admin_site', 'supervisor']
+const CAN_APPROVE = ['owner', 'pm']
+const ASSIGNED_ONLY = ['pm', 'supervisor', 'logistik', 'admin_site']
 
 export default function PettyCashPage() {
   const { companyId, logisUser } = useAuth()
   const [transactions, setTransactions] = useState<PettyCashTransaction[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [selectedProject, setSelectedProject] = useState('all')
   const [exporting, setExporting] = useState(false)
+
+  const role = logisUser?.role || ''
+  const canCreate  = CAN_CREATE.includes(role)
+  const canApprove = CAN_APPROVE.includes(role)
+  const isPM       = role === 'pm'
+  const isAssignedOnly = ASSIGNED_ONLY.includes(role)
 
   useEffect(() => {
     if (!companyId) return
+
+    // Fetch projects untuk toggle
+    getDocs(collection(db, 'logis_companies', companyId, 'projects')).then((snap) => {
+      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Project))
+      if (isAssignedOnly && logisUser?.projectIds?.length) {
+        setProjects(all.filter((p) => logisUser.projectIds.includes(p.id)))
+      } else {
+        setProjects(all)
+      }
+    })
+
     const q = query(
       collection(db, 'logis_companies', companyId, 'petty_cash'),
       orderBy('createdAt', 'desc')
@@ -87,23 +96,35 @@ export default function PettyCashPage() {
         createdAt: doc.data().createdAt?.toDate(),
         completedAt: doc.data().completedAt?.toDate(),
       })) as PettyCashTransaction[]
-      setTransactions(data)
+
+      // PM & staff hanya lihat transaksi proyek yang di-assign
+      if (isAssignedOnly && logisUser?.projectIds?.length) {
+        setTransactions(data.filter(
+          (t) => t.projectId && logisUser.projectIds.includes(t.projectId)
+        ))
+      } else {
+        setTransactions(data)
+      }
+
       setLoading(false)
     })
     return () => unsub()
-  }, [companyId])
+  }, [companyId, logisUser, isAssignedOnly])
 
-  const canCreate = ['owner', 'admin', 'admin_site', 'logistik'].includes(
-    logisUser?.role || ''
-  )
-
-  const filtered = filter === 'all'
+  // Transactions yang aktif berdasarkan project filter
+  const projectFiltered = selectedProject === 'all'
     ? transactions
-    : transactions.filter((t) => t.status === filter)
+    : transactions.filter((t) => t.projectId === selectedProject)
 
-  const pendingCount = transactions.filter((t) => t.status === 'pending_approval').length
-  const anomalyCount = transactions.filter((t) => t.anomalyFlag).length
-  const totalThisMonth = transactions
+  // Kemudian filter by status
+  const filtered = filter === 'all'
+    ? projectFiltered
+    : projectFiltered.filter((t) => t.status === filter)
+
+  // Stats berdasarkan project yang dipilih
+  const pendingCount = projectFiltered.filter((t) => t.status === 'pending_approval').length
+  const anomalyCount = projectFiltered.filter((t) => t.anomalyFlag).length
+  const totalThisMonth = projectFiltered
     .filter((t) => {
       if (!t.createdAt) return false
       const now = new Date()
@@ -115,11 +136,15 @@ export default function PettyCashPage() {
     })
     .reduce((sum, t) => sum + t.amount, 0)
 
+  const selectedProjectName = selectedProject === 'all'
+    ? 'Semua Proyek'
+    : projects.find((p) => p.id === selectedProject)?.name || '—'
+
   async function handleExport() {
     setExporting(true)
     try {
       exportPettyCashPDF(
-        transactions.map((t) => ({
+        filtered.map((t) => ({
           id: t.id,
           requestedBy: t.requestedBy,
           category: t.category,
@@ -156,24 +181,19 @@ export default function PettyCashPage() {
           </p>
         </div>
 
-        {/* Action buttons — FIXED */}
         <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={handleExport}
-            disabled={exporting || transactions.length === 0}
+            disabled={exporting || filtered.length === 0}
             className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold uppercase tracking-widest"
             style={{
               border: '1px solid var(--border-strong)',
-              color: exporting || transactions.length === 0
-                ? 'var(--text-muted)'
-                : 'var(--text-secondary)',
-              cursor: transactions.length === 0 ? 'not-allowed' : 'pointer',
+              color: exporting || filtered.length === 0 ? 'var(--text-muted)' : 'var(--text-secondary)',
+              cursor: filtered.length === 0 ? 'not-allowed' : 'pointer',
               background: 'var(--bg-card)',
             }}
           >
-            {exporting
-              ? <Loader2 size={14} className="animate-spin" />
-              : <Download size={14} />}
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
             PDF
           </button>
           {canCreate && (
@@ -187,13 +207,52 @@ export default function PettyCashPage() {
         </div>
       </div>
 
-      {/* Summary cards */}
+      {/* Project toggle — PM & semua role */}
+      {projects.length > 0 && (
+        <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <span className="text-xs font-semibold uppercase tracking-widest flex-shrink-0"
+            style={{ color: 'var(--text-muted)' }}>
+            Proyek:
+          </span>
+          <button
+            onClick={() => setSelectedProject('all')}
+            className="px-3 py-1.5 text-xs font-semibold uppercase tracking-widest"
+            style={{
+              background: selectedProject === 'all' ? '#F97316' : 'var(--bg-card)',
+              color: selectedProject === 'all' ? '#fff' : 'var(--text-secondary)',
+              border: selectedProject === 'all' ? '1px solid #F97316' : '1px solid var(--border-strong)',
+            }}>
+            Semua
+          </button>
+          {projects.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedProject(p.id)}
+              className="px-3 py-1.5 text-xs font-semibold uppercase tracking-widest flex items-center gap-1.5"
+              style={{
+                background: selectedProject === p.id ? 'rgba(249,115,22,0.1)' : 'var(--bg-card)',
+                color: selectedProject === p.id ? '#F97316' : 'var(--text-secondary)',
+                border: selectedProject === p.id ? '1px solid rgba(249,115,22,0.3)' : '1px solid var(--border-strong)',
+              }}>
+              <FolderOpen size={11} />
+              {p.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Summary cards — berdasarkan project yang dipilih */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 mb-6">
         <div className="p-5"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs uppercase tracking-widest mb-2"
+          <p className="text-xs uppercase tracking-widest mb-1"
             style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
             Total Bulan Ini
+          </p>
+          <p className="text-xs mb-2 flex items-center gap-1"
+            style={{ color: '#F97316' }}>
+            <FolderOpen size={10} />
+            {selectedProjectName}
           </p>
           <p className="text-2xl font-black font-mono" style={{ color: '#F97316' }}>
             {formatRupiah(totalThisMonth)}
@@ -208,13 +267,15 @@ export default function PettyCashPage() {
             style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.2)' }}>
             <p className="text-xs uppercase tracking-widest mb-2"
               style={{ color: '#eab308', fontSize: '9px' }}>
-              Menunggu Approval
+              Menunggu {canApprove ? 'Approval Kamu' : 'Approval'}
             </p>
             <p className="text-2xl font-black font-mono" style={{ color: '#eab308' }}>
               {pendingCount}
             </p>
             <p className="text-xs mt-1" style={{ color: 'rgba(234,179,8,0.7)' }}>
-              request belum disetujui
+              {canApprove
+                ? 'Perlu keputusanmu segera'
+                : 'request belum disetujui'}
             </p>
           </div>
         ) : (
@@ -268,7 +329,7 @@ export default function PettyCashPage() {
         )}
       </div>
 
-      {/* Filter tabs — FIXED */}
+      {/* Filter tabs */}
       <div className="flex gap-0 mb-6 -mx-4 lg:mx-0 px-4 lg:px-0"
         style={{
           borderBottom: '1px solid var(--border-color)',
@@ -277,27 +338,25 @@ export default function PettyCashPage() {
           scrollbarWidth: 'none',
         }}>
         {[
-          { key: 'all', label: 'Semua' },
-          { key: 'pending_approval', label: 'Pending' },
-          { key: 'approved', label: 'Disetujui' },
-          { key: 'in_progress', label: 'Berlangsung' },
-          { key: 'pending_reimbursement', label: 'Reimburse' },
-          { key: 'completed', label: 'Selesai' },
-          { key: 'rejected', label: 'Ditolak' },
+          { key: 'all',                  label: 'Semua' },
+          { key: 'pending_approval',     label: 'Pending' },
+          { key: 'approved',             label: 'Disetujui' },
+          { key: 'in_progress',          label: 'Berlangsung' },
+          { key: 'pending_reimbursement',label: 'Reimburse' },
+          { key: 'completed',            label: 'Selesai' },
+          { key: 'rejected',             label: 'Ditolak' },
         ].map((tab) => (
           <button key={tab.key} onClick={() => setFilter(tab.key)}
             className="px-4 py-3 text-xs font-semibold uppercase tracking-widest whitespace-nowrap transition-all"
             style={{
               color: filter === tab.key ? '#F97316' : 'var(--text-muted)',
-              borderBottom: filter === tab.key
-                ? '2px solid #F97316'
-                : '2px solid transparent',
+              borderBottom: filter === tab.key ? '2px solid #F97316' : '2px solid transparent',
               background: 'transparent',
             }}>
             {tab.label}
             {tab.key !== 'all' && (
               <span className="ml-2 opacity-50">
-                {transactions.filter((t) => t.status === tab.key).length}
+                {projectFiltered.filter((t) => t.status === tab.key).length}
               </span>
             )}
           </button>
@@ -313,7 +372,11 @@ export default function PettyCashPage() {
         <div className="text-center py-24" style={{ color: 'var(--text-muted)' }}>
           <Wallet size={40} className="mx-auto mb-4 opacity-30"
             style={{ color: 'var(--text-primary)' }} />
-          <p className="text-sm">Belum ada transaksi petty cash</p>
+          <p className="text-sm">
+            {selectedProject !== 'all'
+              ? `Belum ada transaksi di proyek ${selectedProjectName}`
+              : 'Belum ada transaksi petty cash'}
+          </p>
           {canCreate && (
             <Link href="/petty-cash/new"
               className="inline-flex items-center gap-2 mt-4 text-sm font-semibold"
@@ -328,6 +391,8 @@ export default function PettyCashPage() {
           {filtered.map((tx) => {
             const status = statusConfig[tx.status] || statusConfig.pending_approval
             const StatusIcon = status.icon
+            const projectName = projects.find((p) => p.id === tx.projectId)?.name
+
             return (
               <Link key={tx.id}
                 href={`/petty-cash/${tx.id}`}
@@ -376,9 +441,20 @@ export default function PettyCashPage() {
                         DARURAT
                       </span>
                     )}
+                    {/* Nama proyek — tampil saat mode semua proyek */}
+                    {selectedProject === 'all' && projectName && (
+                      <span className="text-xs px-2 py-0.5 flex items-center gap-1"
+                        style={{
+                          background: 'rgba(249,115,22,0.08)',
+                          color: '#F97316',
+                          border: '1px solid rgba(249,115,22,0.15)',
+                        }}>
+                        <FolderOpen size={9} />
+                        {projectName}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-sm font-semibold mb-0.5"
-                    style={{ color: 'var(--text-primary)' }}>
+                  <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>
                     {tx.description}
                   </p>
                   <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -395,8 +471,7 @@ export default function PettyCashPage() {
                   </p>
                 </div>
 
-                <ChevronRight size={16}
-                  style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                <ChevronRight size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
               </Link>
             )
           })}

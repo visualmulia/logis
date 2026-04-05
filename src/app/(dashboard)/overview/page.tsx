@@ -28,44 +28,42 @@ interface RecentActivity {
   createdAt: Date | null
 }
 
-// Aksi cepat per role
+// Aksi cepat — PM tidak dapat aksi cepat sama sekali
 const QUICK_ACTIONS = [
-  {
-    label: 'Buat Request Material',
-    desc: 'Request barang dari lapangan',
-    href: '/requests/new',
-    color: '#F97316',
-    // Admin TIDAK bisa buat request
-    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site'],
-  },
   {
     label: 'Lihat Semua Request',
     desc: 'Review & approve request material',
     href: '/requests',
     color: '#F97316',
-    // Admin hanya bisa review, bukan buat
     roles: ['admin'],
+  },
+  {
+    label: 'Buat Request Material',
+    desc: 'Request barang dari lapangan',
+    href: '/requests/new',
+    color: '#F97316',
+    roles: ['owner', 'supervisor', 'logistik', 'admin_site'],
   },
   {
     label: 'Tambah Item Gudang',
     desc: 'Catat stok masuk ke gudang',
     href: '/projects',
     color: '#22c55e',
-    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site'],
+    roles: ['owner', 'logistik', 'admin_site'],
   },
   {
     label: 'Daftarkan Aset Baru',
     desc: 'Tambah alat ke equipment tracker',
     href: '/assets/new',
     color: '#38bdf8',
-    roles: ['owner', 'pm', 'supervisor', 'logistik'],
+    roles: ['owner', 'logistik'],
   },
   {
     label: 'Request Petty Cash',
     desc: 'Ajukan penggunaan kas lapangan',
     href: '/petty-cash/new',
     color: '#a78bfa',
-    roles: ['owner', 'pm', 'admin_site', 'supervisor'],
+    roles: ['owner', 'admin_site', 'supervisor'],
   },
 ]
 
@@ -82,52 +80,97 @@ export default function OverviewPage() {
 
   const role = logisUser?.role || ''
   const isAdmin = role === 'admin'
+  const isPM    = role === 'pm'
 
   useEffect(() => {
     if (!companyId) return
     const unsubs: (() => void)[] = []
 
-    // Active projects — semua role kecuali admin
+    // Proyek aktif — semua kecuali admin
     if (!isAdmin) {
       const projUnsub = onSnapshot(
-        query(collection(db, 'logis_companies', companyId, 'projects'), where('status', '==', 'active')),
-        (snap) => setStats((prev) => ({ ...prev, activeProjects: snap.size }))
+        query(
+          collection(db, 'logis_companies', companyId, 'projects'),
+          where('status', '==', 'active')
+        ),
+        (snap) => {
+          // PM hanya hitung proyek yang di-assign
+          if (isPM && logisUser?.projectIds?.length) {
+            const assigned = snap.docs.filter(
+              (d) => logisUser.projectIds.includes(d.id)
+            ).length
+            setStats((prev) => ({ ...prev, activeProjects: assigned }))
+          } else {
+            setStats((prev) => ({ ...prev, activeProjects: snap.size }))
+          }
+        }
       )
       unsubs.push(projUnsub)
     }
 
-    // Pending requests — semua role
+    // Pending requests untuk PM — hanya yang pending_pm_review
+    // untuk role lain — submitted + in_review
+    const pendingStatuses = isPM
+      ? ['pending_pm_review', 'submitted']
+      : ['submitted', 'in_review', 'pending_pm_review']
+
     const reqUnsub = onSnapshot(
       query(
         collection(db, 'logis_companies', companyId, 'requests'),
-        where('status', 'in', ['submitted', 'in_review', 'pending_pm_review'])
+        where('status', 'in', pendingStatuses)
       ),
       (snap) => setStats((prev) => ({ ...prev, pendingRequests: snap.size }))
     )
     unsubs.push(reqUnsub)
 
-    // Assets — semua role kecuali admin
+    // Assets — semua kecuali admin
     if (!isAdmin) {
       const assetUnsub = onSnapshot(
-        query(collection(db, 'logis_companies', companyId, 'assets'), where('status', '!=', 'retired')),
+        query(
+          collection(db, 'logis_companies', companyId, 'assets'),
+          where('status', '!=', 'retired')
+        ),
         (snap) => {
-          const needsAttention = snap.docs.filter((d) => {
+          // PM hanya hitung aset di proyek yang di-assign
+          const relevantDocs = (isPM && logisUser?.projectIds?.length)
+            ? snap.docs.filter(
+                (d) => d.data().currentProjectId &&
+                  logisUser.projectIds.includes(d.data().currentProjectId)
+              )
+            : snap.docs
+
+          const needsAttention = relevantDocs.filter((d) => {
             const data = d.data()
             if (data.status === 'lost') return true
             if (data.nextServiceDue) return new Date() >= data.nextServiceDue.toDate()
             return false
           }).length
-          setStats((prev) => ({ ...prev, totalAssets: snap.size, needsAttention }))
+
+          setStats((prev) => ({
+            ...prev,
+            totalAssets: relevantDocs.length,
+            needsAttention,
+          }))
         }
       )
       unsubs.push(assetUnsub)
     }
 
-    // Recent requests — semua role
+    // Recent requests
     const recentReqUnsub = onSnapshot(
       query(collection(db, 'logis_companies', companyId, 'requests')),
       (snap) => {
-        const data = snap.docs
+        let docs = snap.docs
+
+        // PM hanya lihat request dari proyek yang di-assign
+        if (isPM && logisUser?.projectIds?.length) {
+          docs = docs.filter(
+            (d) => d.data().projectId &&
+              logisUser.projectIds.includes(d.data().projectId)
+          )
+        }
+
+        const data = docs
           .map((d) => ({
             id: d.id,
             type: 'request' as const,
@@ -140,10 +183,19 @@ export default function OverviewPage() {
             createdAt: d.data().createdAt?.toDate() || null,
           }))
           .sort((a, b) => {
+            // PM: prioritaskan yang menunggu acknowledge dulu
+            if (isPM) {
+              const priority = ['pending_pm_review', 'submitted', 'revision_requested']
+              const aIdx = priority.indexOf(a.status)
+              const bIdx = priority.indexOf(b.status)
+              if (aIdx !== -1 && bIdx === -1) return -1
+              if (aIdx === -1 && bIdx !== -1) return 1
+            }
             if (!a.createdAt || !b.createdAt) return 0
             return b.createdAt.getTime() - a.createdAt.getTime()
           })
           .slice(0, 5)
+
         setRecentRequests(data)
         setLoadingStats(false)
       }
@@ -151,19 +203,19 @@ export default function OverviewPage() {
     unsubs.push(recentReqUnsub)
 
     return () => unsubs.forEach((u) => u())
-  }, [companyId, isAdmin])
+  }, [companyId, isAdmin, isPM, logisUser])
 
   const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-    submitted:          { label: 'Pending',        color: '#eab308', icon: Clock },
-    pending_pm_review:  { label: 'Review PM',      color: '#eab308', icon: Clock },
-    revision_requested: { label: 'Perlu Revisi',   color: '#F97316', icon: Clock },
-    in_review:          { label: 'Review Pusat',   color: '#38bdf8', icon: Clock },
-    approved:           { label: 'Disetujui',      color: '#22c55e', icon: CheckCircle },
-    rejected:           { label: 'Ditolak',        color: '#ef4444', icon: XCircle },
-    po_issued:          { label: 'PO Issued',      color: '#a78bfa', icon: FileText },
-    on_delivery:        { label: 'Dikirim',        color: '#38bdf8', icon: Package },
-    completed:          { label: 'Selesai',        color: 'var(--text-secondary)', icon: CheckCircle },
-    discrepancy:        { label: 'Tidak Sesuai',   color: '#ef4444', icon: AlertTriangle },
+    submitted:          { label: 'Pending',         color: '#eab308', icon: Clock },
+    pending_pm_review:  { label: 'Perlu Acknowledge',color: '#F97316', icon: Clock },
+    revision_requested: { label: 'Perlu Revisi',    color: '#F97316', icon: Clock },
+    in_review:          { label: 'Review Pusat',    color: '#38bdf8', icon: Clock },
+    approved:           { label: 'Disetujui',       color: '#22c55e', icon: CheckCircle },
+    rejected:           { label: 'Ditolak',         color: '#ef4444', icon: XCircle },
+    po_issued:          { label: 'PO Issued',       color: '#a78bfa', icon: FileText },
+    on_delivery:        { label: 'Dikirim',         color: '#38bdf8', icon: Package },
+    completed:          { label: 'Selesai',         color: 'var(--text-secondary)', icon: CheckCircle },
+    discrepancy:        { label: 'Tidak Sesuai',    color: '#ef4444', icon: AlertTriangle },
   }
 
   if (authLoading) {
@@ -174,7 +226,7 @@ export default function OverviewPage() {
     )
   }
 
-  // Stat cards — admin hanya lihat request pending
+  // Stat cards per role
   const statCards = isAdmin
     ? [
         {
@@ -192,6 +244,49 @@ export default function OverviewPage() {
           color: '#a78bfa',
           href: '/requests',
           alert: recentRequests.filter((r) => r.status === 'approved').length > 0,
+        },
+      ]
+    : isPM
+    ? [
+        // PM: Proyek aktif yang dia kelola
+        {
+          label: 'Proyek Saya',
+          value: stats.activeProjects,
+          icon: TrendingUp,
+          color: '#F97316',
+          href: '/projects',
+          alert: false,
+        },
+        // PM: Request yang menunggu acknowledge dari dia
+        {
+          label: 'Perlu Acknowledge',
+          value: recentRequests.filter(
+            (r) => r.status === 'pending_pm_review' || r.status === 'submitted'
+          ).length,
+          icon: Package,
+          color: '#eab308',
+          href: '/requests',
+          alert: recentRequests.filter(
+            (r) => r.status === 'pending_pm_review' || r.status === 'submitted'
+          ).length > 0,
+        },
+        // PM: Aset di proyeknya
+        {
+          label: 'Aset Terdaftar',
+          value: stats.totalAssets,
+          icon: Wrench,
+          color: '#22c55e',
+          href: '/assets',
+          alert: false,
+        },
+        // PM: Aset perlu perhatian
+        {
+          label: 'Perlu Perhatian',
+          value: stats.needsAttention,
+          icon: AlertTriangle,
+          color: '#ef4444',
+          href: '/assets',
+          alert: stats.needsAttention > 0,
         },
       ]
     : [
@@ -229,9 +324,16 @@ export default function OverviewPage() {
         },
       ]
 
-  const quickActions = QUICK_ACTIONS.filter(
-    (item) => item.roles === null || item.roles.includes(role)
-  )
+  const quickActions = QUICK_ACTIONS.filter((item) => item.roles.includes(role))
+  const showQuickActions = !isPM && quickActions.length > 0
+
+  // Label header per role
+  const headerLabel = isAdmin ? 'Admin Pusat' : isPM ? 'Project Manager' : 'Command Center'
+  const requestSectionLabel = isPM
+    ? 'Request Menunggu Acknowledge'
+    : isAdmin
+    ? 'Request Menunggu Tindakan'
+    : 'Request Terbaru'
 
   return (
     <div className="p-4 lg:p-8">
@@ -239,7 +341,7 @@ export default function OverviewPage() {
       <div className="mb-6 lg:mb-8">
         <p className="text-xs font-semibold uppercase tracking-widest mb-1"
           style={{ color: '#F97316' }}>
-          {isAdmin ? 'Admin Pusat' : 'Command Center'}
+          {headerLabel}
         </p>
         <h1 className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Selamat datang, {logisUser?.name?.split(' ')[0] || '...'}
@@ -252,7 +354,9 @@ export default function OverviewPage() {
       </div>
 
       {/* Stats grid */}
-      <div className={`grid gap-3 lg:gap-4 mb-6 lg:mb-8 ${isAdmin ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'}`}>
+      <div className={`grid gap-3 lg:gap-4 mb-6 lg:mb-8 ${
+        isAdmin ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'
+      }`}>
         {statCards.map((stat) => {
           const Icon = stat.icon
           return (
@@ -260,9 +364,13 @@ export default function OverviewPage() {
               className="p-4 lg:p-6 block transition-all"
               style={{
                 background: stat.alert ? `${stat.color}08` : 'var(--bg-card)',
-                border: stat.alert ? `1px solid ${stat.color}30` : '1px solid var(--border-color)',
+                border: stat.alert
+                  ? `1px solid ${stat.color}30`
+                  : '1px solid var(--border-color)',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${stat.color}40` }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = `${stat.color}40`
+              }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = stat.alert
                   ? `${stat.color}30`
@@ -270,11 +378,15 @@ export default function OverviewPage() {
               }}>
               <div className="flex items-start justify-between mb-3 lg:mb-4">
                 <div className="p-1.5 lg:p-2"
-                  style={{ background: `${stat.color}15`, border: `1px solid ${stat.color}30` }}>
+                  style={{
+                    background: `${stat.color}15`,
+                    border: `1px solid ${stat.color}30`,
+                  }}>
                   <Icon size={13} style={{ color: stat.color }} />
                 </div>
                 {stat.alert && stat.value > 0 && (
-                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: stat.color }} />
+                  <div className="w-2 h-2 rounded-full animate-pulse"
+                    style={{ background: stat.color }} />
                 )}
               </div>
               {loadingStats ? (
@@ -284,7 +396,9 @@ export default function OverviewPage() {
                 <div className="text-2xl lg:text-3xl font-black mb-1"
                   style={{
                     fontFamily: 'monospace',
-                    color: stat.alert && stat.value > 0 ? stat.color : 'var(--text-primary)',
+                    color: stat.alert && stat.value > 0
+                      ? stat.color
+                      : 'var(--text-primary)',
                   }}>
                   {stat.value}
                 </div>
@@ -298,14 +412,16 @@ export default function OverviewPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Recent requests */}
+      {/* Bottom grid — PM: full width request list, lainnya: 2 kolom */}
+      <div className={`grid grid-cols-1 gap-4 ${showQuickActions ? 'lg:grid-cols-2' : ''}`}>
+
+        {/* Request list */}
         <div className="p-4 lg:p-6"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs font-semibold uppercase tracking-widest"
               style={{ color: 'var(--text-muted)' }}>
-              {isAdmin ? 'Request Menunggu Tindakan' : 'Request Terbaru'}
+              {requestSectionLabel}
             </p>
             <Link href="/requests" className="text-xs flex items-center gap-1"
               style={{ color: '#F97316' }}>
@@ -328,28 +444,34 @@ export default function OverviewPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {/* Admin: prioritaskan yang butuh tindakan */}
-              {(isAdmin
-                ? [...recentRequests].sort((a, b) => {
-                    const priority = ['in_review', 'approved', 'submitted']
-                    return priority.indexOf(a.status) - priority.indexOf(b.status)
-                  })
-                : recentRequests
-              ).map((req) => {
+              {recentRequests.map((req) => {
                 const sc = statusConfig[req.status] || statusConfig.submitted
                 const StatusIcon = sc.icon
+                const needsAction = isPM &&
+                  ['pending_pm_review', 'submitted'].includes(req.status)
                 return (
                   <Link key={req.id} href={req.href}
                     className="flex items-center gap-3 p-3 transition-all"
                     style={{
-                      background: 'rgba(245,240,235,0.03)',
-                      border: '1px solid rgba(245,240,235,0.04)',
+                      background: needsAction
+                        ? 'rgba(249,115,22,0.04)'
+                        : 'rgba(245,240,235,0.03)',
+                      border: needsAction
+                        ? '1px solid rgba(249,115,22,0.15)'
+                        : '1px solid rgba(245,240,235,0.04)',
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-secondary)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(245,240,235,0.03)' }}>
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--bg-secondary)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = needsAction
+                        ? 'rgba(249,115,22,0.04)'
+                        : 'rgba(245,240,235,0.03)'
+                    }}>
                     <StatusIcon size={14} style={{ color: sc.color, flexShrink: 0 }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                      <p className="text-xs font-medium truncate"
+                        style={{ color: 'var(--text-primary)' }}>
                         {req.title}
                       </p>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -367,19 +489,14 @@ export default function OverviewPage() {
           )}
         </div>
 
-        {/* Quick actions — role-based */}
-        <div className="p-4 lg:p-6"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-4"
-            style={{ color: 'var(--text-muted)' }}>
-            Aksi Cepat
-          </p>
-
-          {quickActions.length === 0 ? (
-            <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
-              <p className="text-xs">Tidak ada aksi tersedia</p>
-            </div>
-          ) : (
+        {/* Quick actions — TIDAK tampil untuk PM */}
+        {showQuickActions && (
+          <div className="p-4 lg:p-6"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-4"
+              style={{ color: 'var(--text-muted)' }}>
+              Aksi Cepat
+            </p>
             <div className="space-y-2">
               {quickActions.map((action) => (
                 <Link key={action.href + action.label} href={action.href}
@@ -397,7 +514,10 @@ export default function OverviewPage() {
                     e.currentTarget.style.borderColor = 'rgba(245,240,235,0.04)'
                   }}>
                   <div className="w-7 h-7 flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${action.color}15`, border: `1px solid ${action.color}30` }}>
+                    style={{
+                      background: `${action.color}15`,
+                      border: `1px solid ${action.color}30`,
+                    }}>
                     <ChevronRight size={12} style={{ color: action.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -408,12 +528,13 @@ export default function OverviewPage() {
                       {action.desc}
                     </p>
                   </div>
-                  <ChevronRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <ChevronRight size={14}
+                    style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                 </Link>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
