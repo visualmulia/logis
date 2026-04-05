@@ -16,22 +16,47 @@ import {
 import NotificationBell from '@/components/shared/NotificationBell'
 
 const navItems = [
-  { label: 'Overview', href: '/overview', icon: LayoutDashboard, module: null, roles: null },
-  { label: 'Request Material', href: '/requests', icon: PackageSearch, module: '01', roles: null },
   {
-    label: 'Gudang Digital', href: '/projects', icon: Warehouse, module: '02',
-    roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site'],
+    label: 'Overview',
+    href: '/overview',
+    icon: LayoutDashboard,
+    module: null,
+    // Semua role kecuali admin — admin hanya lihat request material
+    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site', 'readonly'],
   },
   {
-    label: 'Equipment Tracker', href: '/assets', icon: Wrench, module: '03',
-    roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik'],
+    label: 'Request Material',
+    href: '/requests',
+    icon: PackageSearch,
+    module: '01',
+    roles: null, // semua role bisa lihat
   },
   {
-    label: 'Petty Cash', href: '/petty-cash', icon: Wallet, module: '💰',
-    roles: ['owner', 'admin', 'pm', 'admin_site', 'supervisor'],
+    label: 'Gudang Digital',
+    href: '/projects',
+    icon: Warehouse,
+    module: '02',
+    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site'],
   },
   {
-    label: 'Tim & Akses', href: '/team', icon: Users, module: null,
+    label: 'Equipment Tracker',
+    href: '/assets',
+    icon: Wrench,
+    module: '03',
+    roles: ['owner', 'pm', 'supervisor', 'logistik'],
+  },
+  {
+    label: 'Petty Cash',
+    href: '/petty-cash',
+    icon: Wallet,
+    module: null,
+    roles: ['owner', 'pm', 'admin_site', 'supervisor'],
+  },
+  {
+    label: 'Tim & Akses',
+    href: '/team',
+    icon: Users,
+    module: null,
     roles: ['owner', 'admin'],
   },
 ]
@@ -59,8 +84,7 @@ export default function Sidebar() {
     : 'rgba(245,240,235,0.08)'
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full"
-      style={{ background: sidebarBg }}>
+    <div className="flex flex-col h-full" style={{ background: sidebarBg }}>
 
       {/* Logo + close */}
       <div className="px-6 py-5 flex items-center justify-between flex-shrink-0"
@@ -70,8 +94,7 @@ export default function Sidebar() {
           LOG<span style={{ color: '#F97316' }}>I</span>S
         </div>
         <button onClick={() => setMobileOpen(false)}
-          className="lg:hidden p-1"
-          style={{ color: sidebarMuted }}>
+          className="lg:hidden p-1" style={{ color: sidebarMuted }}>
           <X size={18} />
         </button>
       </div>
@@ -87,8 +110,7 @@ export default function Sidebar() {
           <Building2 size={14} style={{ color: '#F97316' }} />
         </div>
         <div className="overflow-hidden min-w-0">
-          <div className="text-xs font-semibold truncate"
-            style={{ color: sidebarText }}>
+          <div className="text-xs font-semibold truncate" style={{ color: sidebarText }}>
             {logisUser?.name || '...'}
           </div>
           <div className="uppercase tracking-widest"
@@ -104,71 +126,63 @@ export default function Sidebar() {
           style={{ color: 'rgba(245,240,235,0.2)', fontSize: '9px', fontWeight: 600 }}>
           Menu Utama
         </div>
-        
-<ul className="space-y-0.5">
-  {navItems
-    .filter((item) =>
-      item.roles === null ||
-      (logisUser?.role && item.roles.includes(logisUser.role))
-    )
-    .map((item) => {
-      const isActive =
-        pathname === item.href ||
-        (item.href !== '/overview' && pathname.startsWith(item.href))
-      const Icon = item.icon
-      return (
-        <li key={item.href}>
-          <Link
-            href={item.href}
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-3 text-sm transition-all"
-            style={{
-              background: isActive ? 'rgba(249,115,22,0.12)' : 'transparent',
-              color: isActive ? '#F97316' : sidebarMuted,
-              borderLeft: isActive
-                ? '2px solid #F97316'
-                : '2px solid transparent',
-              fontWeight: isActive ? 600 : 400,
-            }}
-          >
-            <Icon size={15} className="flex-shrink-0" />
-            <span className="flex-1 text-sm">{item.label}</span>
-            {item.module && (
-              <span className="font-mono opacity-30 flex-shrink-0"
-                style={{ fontSize: '9px' }}>
-                {item.module}
-              </span>
-            )}
-            {isActive && (
-              <ChevronRight size={11}
-                style={{ color: '#F97316' }}
-                className="flex-shrink-0" />
-            )}
-          </Link>
-        </li>
-      )
-    })}
-</ul>
+
+        <ul className="space-y-0.5">
+          {navItems
+            .filter((item) =>
+              item.roles === null ||
+              (logisUser?.role && item.roles.includes(logisUser.role))
+            )
+            .map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/overview' && pathname.startsWith(item.href))
+              const Icon = item.icon
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-3 text-sm transition-all"
+                    style={{
+                      background: isActive ? 'rgba(249,115,22,0.12)' : 'transparent',
+                      color: isActive ? '#F97316' : sidebarMuted,
+                      borderLeft: isActive ? '2px solid #F97316' : '2px solid transparent',
+                      fontWeight: isActive ? 600 : 400,
+                    }}
+                  >
+                    <Icon size={15} className="flex-shrink-0" />
+                    <span className="flex-1 text-sm">{item.label}</span>
+                    {item.module && (
+                      <span className="font-mono opacity-30 flex-shrink-0"
+                        style={{ fontSize: '9px' }}>
+                        {item.module}
+                      </span>
+                    )}
+                    {isActive && (
+                      <ChevronRight size={11} style={{ color: '#F97316' }} className="flex-shrink-0" />
+                    )}
+                  </Link>
+                </li>
+              )
+            })}
+        </ul>
       </nav>
 
-      {/* Bottom: Theme toggle + Logout */}
+      {/* Bottom */}
       <div className="px-3 py-3 flex-shrink-0"
         style={{ borderTop: `1px solid ${sidebarBorder}` }}>
 
-        {/* Notification bell — desktop */}
-  <div className="px-1 py-1 mb-1 flex items-center gap-3"
-    style={{ color: sidebarMuted }}>
-    <NotificationBell />
-    <span className="text-sm font-medium">Notifikasi</span>
-  </div>
-        
+        {/* Notification bell */}
+        <div className="px-1 py-1 mb-1 flex items-center gap-3" style={{ color: sidebarMuted }}>
+          <NotificationBell />
+          <span className="text-sm font-medium">Notifikasi</span>
+        </div>
+
         {/* Theme toggle */}
         <button onClick={toggleTheme}
           className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all mb-1"
-          style={{
-            color: sidebarMuted,
-            borderRadius: '2px',
-          }}
+          style={{ color: sidebarMuted, borderRadius: '2px' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(249,115,22,0.08)'
             e.currentTarget.style.color = '#F97316'
@@ -177,23 +191,12 @@ export default function Sidebar() {
             e.currentTarget.style.background = 'transparent'
             e.currentTarget.style.color = sidebarMuted
           }}>
-          {isDark
-            ? <Sun size={15} className="flex-shrink-0" />
-            : <Moon size={15} className="flex-shrink-0" />
-          }
-          <span className="font-medium">
-            {isDark ? 'Mode Terang' : 'Mode Gelap'}
-          </span>
-          {/* Toggle pill */}
+          {isDark ? <Sun size={15} className="flex-shrink-0" /> : <Moon size={15} className="flex-shrink-0" />}
+          <span className="font-medium">{isDark ? 'Mode Terang' : 'Mode Gelap'}</span>
           <div className="ml-auto flex-shrink-0 w-10 h-5 rounded-full relative transition-all"
-            style={{
-              background: isDark ? 'rgba(245,240,235,0.15)' : '#F97316',
-            }}>
+            style={{ background: isDark ? 'rgba(245,240,235,0.15)' : '#F97316' }}>
             <div className="absolute top-0.5 w-4 h-4 rounded-full transition-all"
-              style={{
-                background: '#fff',
-                left: isDark ? '2px' : '22px',
-              }} />
+              style={{ background: '#fff', left: isDark ? '2px' : '22px' }} />
           </div>
         </button>
 
@@ -226,28 +229,18 @@ export default function Sidebar() {
 
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3"
-        style={{
-          background: sidebarBg,
-          borderBottom: `1px solid ${sidebarBorder}`,
-        }}>
+        style={{ background: sidebarBg, borderBottom: `1px solid ${sidebarBorder}` }}>
         <div className="text-lg font-black tracking-[4px]"
           style={{ fontFamily: 'monospace', color: sidebarText }}>
           LOG<span style={{ color: '#F97316' }}>I</span>S
         </div>
         <div className="flex items-center gap-2">
-          {/* Theme toggle mobile */}
-          <button onClick={toggleTheme}
-            className="p-2 rounded-full transition-all"
+          <button onClick={toggleTheme} className="p-2 rounded-full transition-all"
             style={{ color: sidebarMuted }}>
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          {/* Notification bell */}
-    <NotificationBell />
-          
-          {/* Hamburger */}
-          <button onClick={() => setMobileOpen(true)}
-            className="p-2"
-            style={{ color: sidebarMuted }}>
+          <NotificationBell />
+          <button onClick={() => setMobileOpen(true)} className="p-2" style={{ color: sidebarMuted }}>
             <Menu size={22} />
           </button>
         </div>

@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase/config'
 import {
   Loader2, TrendingUp, Package,
   Wrench, AlertTriangle, ChevronRight,
-  Clock, CheckCircle, XCircle
+  Clock, CheckCircle, XCircle, FileText,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -20,13 +20,54 @@ interface DashboardStats {
 
 interface RecentActivity {
   id: string
-  type: 'request' | 'asset' | 'petty_cash'
+  type: 'request'
   title: string
   subtitle: string
   status: string
   href: string
   createdAt: Date | null
 }
+
+// Aksi cepat per role
+const QUICK_ACTIONS = [
+  {
+    label: 'Buat Request Material',
+    desc: 'Request barang dari lapangan',
+    href: '/requests/new',
+    color: '#F97316',
+    // Admin TIDAK bisa buat request
+    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site'],
+  },
+  {
+    label: 'Lihat Semua Request',
+    desc: 'Review & approve request material',
+    href: '/requests',
+    color: '#F97316',
+    // Admin hanya bisa review, bukan buat
+    roles: ['admin'],
+  },
+  {
+    label: 'Tambah Item Gudang',
+    desc: 'Catat stok masuk ke gudang',
+    href: '/projects',
+    color: '#22c55e',
+    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site'],
+  },
+  {
+    label: 'Daftarkan Aset Baru',
+    desc: 'Tambah alat ke equipment tracker',
+    href: '/assets/new',
+    color: '#38bdf8',
+    roles: ['owner', 'pm', 'supervisor', 'logistik'],
+  },
+  {
+    label: 'Request Petty Cash',
+    desc: 'Ajukan penggunaan kas lapangan',
+    href: '/petty-cash/new',
+    color: '#a78bfa',
+    roles: ['owner', 'pm', 'admin_site', 'supervisor'],
+  },
+]
 
 export default function OverviewPage() {
   const { logisUser, companyId, loading: authLoading } = useAuth()
@@ -39,66 +80,52 @@ export default function OverviewPage() {
   const [recentRequests, setRecentRequests] = useState<RecentActivity[]>([])
   const [loadingStats, setLoadingStats] = useState(true)
 
+  const role = logisUser?.role || ''
+  const isAdmin = role === 'admin'
+
   useEffect(() => {
     if (!companyId) return
-
     const unsubs: (() => void)[] = []
 
-    // 1. Active projects
-    const projUnsub = onSnapshot(
-      query(
-        collection(db, 'logis_companies', companyId, 'projects'),
-        where('status', '==', 'active')
-      ),
-      (snap) => {
-        setStats((prev) => ({ ...prev, activeProjects: snap.size }))
-      }
-    )
-    unsubs.push(projUnsub)
+    // Active projects — semua role kecuali admin
+    if (!isAdmin) {
+      const projUnsub = onSnapshot(
+        query(collection(db, 'logis_companies', companyId, 'projects'), where('status', '==', 'active')),
+        (snap) => setStats((prev) => ({ ...prev, activeProjects: snap.size }))
+      )
+      unsubs.push(projUnsub)
+    }
 
-    // 2. Pending requests
+    // Pending requests — semua role
     const reqUnsub = onSnapshot(
       query(
         collection(db, 'logis_companies', companyId, 'requests'),
-        where('status', 'in', ['submitted', 'in_review'])
+        where('status', 'in', ['submitted', 'in_review', 'pending_pm_review'])
       ),
-      (snap) => {
-        setStats((prev) => ({ ...prev, pendingRequests: snap.size }))
-      }
+      (snap) => setStats((prev) => ({ ...prev, pendingRequests: snap.size }))
     )
     unsubs.push(reqUnsub)
 
-    // 3. Total assets
-    const assetUnsub = onSnapshot(
-      query(
-        collection(db, 'logis_companies', companyId, 'assets'),
-        where('status', '!=', 'retired')
-      ),
-      (snap) => {
-        // Hitung needs attention: lost + service due
-        const needsAttention = snap.docs.filter((d) => {
-          const data = d.data()
-          if (data.status === 'lost') return true
-          if (data.nextServiceDue) {
-            return new Date() >= data.nextServiceDue.toDate()
-          }
-          return false
-        }).length
+    // Assets — semua role kecuali admin
+    if (!isAdmin) {
+      const assetUnsub = onSnapshot(
+        query(collection(db, 'logis_companies', companyId, 'assets'), where('status', '!=', 'retired')),
+        (snap) => {
+          const needsAttention = snap.docs.filter((d) => {
+            const data = d.data()
+            if (data.status === 'lost') return true
+            if (data.nextServiceDue) return new Date() >= data.nextServiceDue.toDate()
+            return false
+          }).length
+          setStats((prev) => ({ ...prev, totalAssets: snap.size, needsAttention }))
+        }
+      )
+      unsubs.push(assetUnsub)
+    }
 
-        setStats((prev) => ({
-          ...prev,
-          totalAssets: snap.size,
-          needsAttention: needsAttention,
-        }))
-      }
-    )
-    unsubs.push(assetUnsub)
-
-    // 4. Recent requests untuk activity feed
+    // Recent requests — semua role
     const recentReqUnsub = onSnapshot(
-      query(
-        collection(db, 'logis_companies', companyId, 'requests')
-      ),
+      query(collection(db, 'logis_companies', companyId, 'requests')),
       (snap) => {
         const data = snap.docs
           .map((d) => ({
@@ -117,7 +144,6 @@ export default function OverviewPage() {
             return b.createdAt.getTime() - a.createdAt.getTime()
           })
           .slice(0, 5)
-
         setRecentRequests(data)
         setLoadingStats(false)
       }
@@ -125,16 +151,19 @@ export default function OverviewPage() {
     unsubs.push(recentReqUnsub)
 
     return () => unsubs.forEach((u) => u())
-  }, [companyId])
+  }, [companyId, isAdmin])
 
   const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-    submitted: { label: 'Pending', color: '#eab308', icon: Clock },
-    in_review: { label: 'Review', color: '#F97316', icon: Clock },
-    approved: { label: 'Disetujui', color: '#22c55e', icon: CheckCircle },
-    rejected: { label: 'Ditolak', color: '#ef4444', icon: XCircle },
-    po_issued: { label: 'PO Issued', color: '#a78bfa', icon: CheckCircle },
-    on_delivery: { label: 'Dikirim', color: '#38bdf8', icon: Package },
-    completed: { label: 'Selesai', color: 'var(--text-secondary)', icon: CheckCircle },
+    submitted:          { label: 'Pending',        color: '#eab308', icon: Clock },
+    pending_pm_review:  { label: 'Review PM',      color: '#eab308', icon: Clock },
+    revision_requested: { label: 'Perlu Revisi',   color: '#F97316', icon: Clock },
+    in_review:          { label: 'Review Pusat',   color: '#38bdf8', icon: Clock },
+    approved:           { label: 'Disetujui',      color: '#22c55e', icon: CheckCircle },
+    rejected:           { label: 'Ditolak',        color: '#ef4444', icon: XCircle },
+    po_issued:          { label: 'PO Issued',      color: '#a78bfa', icon: FileText },
+    on_delivery:        { label: 'Dikirim',        color: '#38bdf8', icon: Package },
+    completed:          { label: 'Selesai',        color: 'var(--text-secondary)', icon: CheckCircle },
+    discrepancy:        { label: 'Tidak Sesuai',   color: '#ef4444', icon: AlertTriangle },
   }
 
   if (authLoading) {
@@ -145,38 +174,64 @@ export default function OverviewPage() {
     )
   }
 
-  const statCards = [
-    {
-      label: 'Proyek Aktif',
-      value: stats.activeProjects,
-      icon: TrendingUp,
-      color: '#F97316',
-      href: '/projects',
-    },
-    {
-      label: 'Request Pending',
-      value: stats.pendingRequests,
-      icon: Package,
-      color: '#eab308',
-      href: '/requests',
-      alert: stats.pendingRequests > 0,
-    },
-    {
-      label: 'Aset Terdaftar',
-      value: stats.totalAssets,
-      icon: Wrench,
-      color: '#22c55e',
-      href: '/assets',
-    },
-    {
-      label: 'Perlu Perhatian',
-      value: stats.needsAttention,
-      icon: AlertTriangle,
-      color: '#ef4444',
-      href: '/assets',
-      alert: stats.needsAttention > 0,
-    },
-  ]
+  // Stat cards — admin hanya lihat request pending
+  const statCards = isAdmin
+    ? [
+        {
+          label: 'Request Pending',
+          value: stats.pendingRequests,
+          icon: Package,
+          color: '#eab308',
+          href: '/requests',
+          alert: stats.pendingRequests > 0,
+        },
+        {
+          label: 'Request — Perlu PO',
+          value: recentRequests.filter((r) => r.status === 'approved').length,
+          icon: FileText,
+          color: '#a78bfa',
+          href: '/requests',
+          alert: recentRequests.filter((r) => r.status === 'approved').length > 0,
+        },
+      ]
+    : [
+        {
+          label: 'Proyek Aktif',
+          value: stats.activeProjects,
+          icon: TrendingUp,
+          color: '#F97316',
+          href: '/projects',
+          alert: false,
+        },
+        {
+          label: 'Request Pending',
+          value: stats.pendingRequests,
+          icon: Package,
+          color: '#eab308',
+          href: '/requests',
+          alert: stats.pendingRequests > 0,
+        },
+        {
+          label: 'Aset Terdaftar',
+          value: stats.totalAssets,
+          icon: Wrench,
+          color: '#22c55e',
+          href: '/assets',
+          alert: false,
+        },
+        {
+          label: 'Perlu Perhatian',
+          value: stats.needsAttention,
+          icon: AlertTriangle,
+          color: '#ef4444',
+          href: '/assets',
+          alert: stats.needsAttention > 0,
+        },
+      ]
+
+  const quickActions = QUICK_ACTIONS.filter(
+    (item) => item.roles === null || item.roles.includes(role)
+  )
 
   return (
     <div className="p-4 lg:p-8">
@@ -184,54 +239,42 @@ export default function OverviewPage() {
       <div className="mb-6 lg:mb-8">
         <p className="text-xs font-semibold uppercase tracking-widest mb-1"
           style={{ color: '#F97316' }}>
-          Command Center
+          {isAdmin ? 'Admin Pusat' : 'Command Center'}
         </p>
-        <h1 className="text-xl lg:text-2xl font-bold"
-          style={{ color: 'var(--text-primary)' }}>
+        <h1 className="text-xl lg:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Selamat datang, {logisUser?.name?.split(' ')[0] || '...'}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
           {new Date().toLocaleDateString('id-ID', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
           })}
         </p>
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
+      <div className={`grid gap-3 lg:gap-4 mb-6 lg:mb-8 ${isAdmin ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'}`}>
         {statCards.map((stat) => {
           const Icon = stat.icon
           return (
             <Link key={stat.label} href={stat.href}
-  className="p-4 lg:p-6 block transition-all"
-  style={{
-    background: stat.alert ? `${stat.color}08` : 'var(--bg-card)',
-    border: stat.alert
-      ? `1px solid ${stat.color}30`
-      : '1px solid var(--border-color)',
-  }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = `${stat.color}40`
+              className="p-4 lg:p-6 block transition-all"
+              style={{
+                background: stat.alert ? `${stat.color}08` : 'var(--bg-card)',
+                border: stat.alert ? `1px solid ${stat.color}30` : '1px solid var(--border-color)',
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${stat.color}40` }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = stat.alert
                   ? `${stat.color}30`
-                  : 'rgba(245,240,235,0.06)'
+                  : 'var(--border-color)'
               }}>
               <div className="flex items-start justify-between mb-3 lg:mb-4">
                 <div className="p-1.5 lg:p-2"
-                  style={{
-                    background: `${stat.color}15`,
-                    border: `1px solid ${stat.color}30`,
-                  }}>
+                  style={{ background: `${stat.color}15`, border: `1px solid ${stat.color}30` }}>
                   <Icon size={13} style={{ color: stat.color }} />
                 </div>
                 {stat.alert && stat.value > 0 && (
-                  <div className="w-2 h-2 rounded-full animate-pulse"
-                    style={{ background: stat.color }} />
+                  <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: stat.color }} />
                 )}
               </div>
               {loadingStats ? (
@@ -239,15 +282,15 @@ export default function OverviewPage() {
                   style={{ background: 'rgba(245,240,235,0.06)' }} />
               ) : (
                 <div className="text-2xl lg:text-3xl font-black mb-1"
-  style={{
-    fontFamily: 'monospace',
-    color: stat.alert && stat.value > 0 ? stat.color : 'var(--text-primary)',
-  }}>
+                  style={{
+                    fontFamily: 'monospace',
+                    color: stat.alert && stat.value > 0 ? stat.color : 'var(--text-primary)',
+                  }}>
                   {stat.value}
                 </div>
               )}
               <div className="text-xs uppercase tracking-wide leading-tight"
-  style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+                style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
                 {stat.label}
               </div>
             </Link>
@@ -258,20 +301,15 @@ export default function OverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent requests */}
         <div className="p-4 lg:p-6"
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-          }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs font-semibold uppercase tracking-widest"
               style={{ color: 'var(--text-muted)' }}>
-              Request Terbaru
+              {isAdmin ? 'Request Menunggu Tindakan' : 'Request Terbaru'}
             </p>
-            <Link href="/requests"
-              className="text-xs flex items-center gap-1 transition-colors"
+            <Link href="/requests" className="text-xs flex items-center gap-1"
               style={{ color: '#F97316' }}>
-              Lihat semua
-              <ChevronRight size={12} />
+              Lihat semua <ChevronRight size={12} />
             </Link>
           </div>
 
@@ -283,15 +321,21 @@ export default function OverviewPage() {
               ))}
             </div>
           ) : recentRequests.length === 0 ? (
-            <div className="text-center py-8"
-              style={{ color: 'var(--text-muted)' }}>
+            <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
               <Package size={28} className="mx-auto mb-2 opacity-30"
                 style={{ color: 'var(--text-primary)' }} />
               <p className="text-xs">Belum ada request</p>
             </div>
           ) : (
             <div className="space-y-2">
-              {recentRequests.map((req) => {
+              {/* Admin: prioritaskan yang butuh tindakan */}
+              {(isAdmin
+                ? [...recentRequests].sort((a, b) => {
+                    const priority = ['in_review', 'approved', 'submitted']
+                    return priority.indexOf(a.status) - priority.indexOf(b.status)
+                  })
+                : recentRequests
+              ).map((req) => {
                 const sc = statusConfig[req.status] || statusConfig.submitted
                 const StatusIcon = sc.icon
                 return (
@@ -301,16 +345,11 @@ export default function OverviewPage() {
                       background: 'rgba(245,240,235,0.03)',
                       border: '1px solid rgba(245,240,235,0.04)',
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--bg-secondary)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(245,240,235,0.03)'
-                    }}>
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-secondary)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(245,240,235,0.03)' }}>
                     <StatusIcon size={14} style={{ color: sc.color, flexShrink: 0 }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate"
-                        style={{ color: 'var(--text-primary)' }}>
+                      <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                         {req.title}
                       </p>
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -328,54 +367,22 @@ export default function OverviewPage() {
           )}
         </div>
 
-        {/* Module status + quick actions */}
+        {/* Quick actions — role-based */}
         <div className="p-4 lg:p-6"
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-color)',
-          }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <p className="text-xs font-semibold uppercase tracking-widest mb-4"
             style={{ color: 'var(--text-muted)' }}>
             Aksi Cepat
           </p>
-          <div className="space-y-2">
-            {[
-              {
-                label: 'Buat Request Material',
-                desc: 'Request barang dari lapangan',
-                href: '/requests/new',
-                color: '#F97316',
-                roles: null,
-              },
-              {
-                label: 'Tambah Item Gudang',
-                desc: 'Catat stok masuk ke gudang',
-                href: '/projects',
-                color: '#22c55e',
-                roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site'],
-              },
-              {
-                label: 'Daftarkan Aset Baru',
-                desc: 'Tambah alat ke equipment tracker',
-                href: '/assets/new',
-                color: '#38bdf8',
-                roles: ['owner', 'admin', 'pm', 'supervisor', 'logistik'],
-              },
-              {
-                label: 'Request Petty Cash',
-                desc: 'Ajukan penggunaan kas lapangan',
-                href: '/petty-cash/new',
-                color: '#a78bfa',
-                roles: ['owner', 'admin', 'pm', 'admin_site', 'supervisor'],
-              },
-            ]
-              .filter(
-                (item) =>
-                  item.roles === null ||
-                  (logisUser?.role && item.roles.includes(logisUser.role))
-              )
-              .map((action) => (
-                <Link key={action.href} href={action.href}
+
+          {quickActions.length === 0 ? (
+            <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-xs">Tidak ada aksi tersedia</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {quickActions.map((action) => (
+                <Link key={action.href + action.label} href={action.href}
                   className="flex items-center gap-3 p-3 transition-all"
                   style={{
                     background: 'rgba(245,240,235,0.03)',
@@ -390,26 +397,22 @@ export default function OverviewPage() {
                     e.currentTarget.style.borderColor = 'rgba(245,240,235,0.04)'
                   }}>
                   <div className="w-7 h-7 flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: `${action.color}15`,
-                      border: `1px solid ${action.color}30`,
-                    }}>
+                    style={{ background: `${action.color}15`, border: `1px solid ${action.color}30` }}>
                     <ChevronRight size={12} style={{ color: action.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold"
-                      style={{ color: 'var(--text-primary)' }}>
+                    <p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
                       {action.label}
                     </p>
                     <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                       {action.desc}
                     </p>
                   </div>
-                  <ChevronRight size={14}
-                    style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                  <ChevronRight size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                 </Link>
               ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
