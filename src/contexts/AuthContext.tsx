@@ -33,14 +33,16 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 async function findCompanyIdForUser(uid: string): Promise<string | null> {
-  // Step 1: Cek apakah owner (companyId == uid)
-  const ownerDoc = await getDoc(doc(db, 'logis_companies', uid))
-  if (ownerDoc.exists()) {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('logis_company_id', uid)
+  // Step 1: Cek apakah owner
+  try {
+    const ownerDoc = await getDoc(doc(db, 'logis_companies', uid))
+    if (ownerDoc.exists()) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('logis_company_id', uid)
+      }
+      return uid
     }
-    return uid
-  }
+  } catch {}
 
   // Step 2: Cek localStorage
   const stored = typeof window !== 'undefined'
@@ -53,12 +55,25 @@ async function findCompanyIdForUser(uid: string): Promise<string | null> {
         doc(db, 'logis_companies', stored, 'users', uid)
       )
       if (userDoc.exists()) return stored
-    } catch {
-      // stale, lanjut
-    }
+    } catch {}
   }
 
-  // Step 3: CollectionGroup query by id
+  // Step 3: Cek document user_index — path langsung by UID
+  // Ini yang paling reliable, tidak perlu collectionGroup
+  try {
+    const indexDoc = await getDoc(
+      doc(db, 'user_company_index', uid)
+    )
+    if (indexDoc.exists()) {
+      const cId = indexDoc.data().companyId as string
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('logis_company_id', cId)
+      }
+      return cId
+    }
+  } catch {}
+
+  // Step 4: CollectionGroup sebagai last resort
   try {
     const { collectionGroup, query, where, getDocs } = await import('firebase/firestore')
     const snap = await getDocs(
@@ -67,37 +82,20 @@ async function findCompanyIdForUser(uid: string): Promise<string | null> {
     if (!snap.empty) {
       const cId = snap.docs[0].data().companyId as string
       if (cId) {
+        // Simpan ke index untuk next time
+        const { setDoc } = await import('firebase/firestore')
+        await setDoc(doc(db, 'user_company_index', uid), {
+          companyId: cId,
+          updatedAt: new Date(),
+        }).catch(() => {})
         if (typeof window !== 'undefined') {
           localStorage.setItem('logis_company_id', cId)
         }
         return cId
       }
     }
-  } catch {
-    // permission denied — lanjut ke step 4
-  }
-
-  // Step 4: CollectionGroup query by email — FALLBACK BARU
-  try {
-    const currentEmail = auth.currentUser?.email
-    if (!currentEmail) return null
-
-    const { collectionGroup, query, where, getDocs } = await import('firebase/firestore')
-    const snap = await getDocs(
-      query(collectionGroup(db, 'users'), where('email', '==', currentEmail))
-    )
-    if (!snap.empty) {
-      const data = snap.docs[0].data()
-      const cId = data.companyId as string
-      if (cId) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('logis_company_id', cId)
-        }
-        return cId
-      }
-    }
-  } catch {
-    // gagal juga
+  } catch (err) {
+    console.error('CollectionGroup failed:', err)
   }
 
   return null
