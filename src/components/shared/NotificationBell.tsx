@@ -3,13 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import {
-  collection, query, where, orderBy,
+  collection, query, orderBy,
   onSnapshot, updateDoc, doc, writeBatch,
-  limit
+  deleteDoc, limit
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { LogisNotification } from '@/types'
-import { Bell, X, CheckCheck } from 'lucide-react'
+import { Bell, X, CheckCheck, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { id } from 'date-fns/locale'
@@ -18,6 +18,7 @@ const notifIcons: Record<string, string> = {
   request_new: '📦',
   request_approved: '✅',
   request_rejected: '❌',
+  request_po_issued: '📄',
   petty_cash_new: '💰',
   petty_cash_approved: '✅',
   petty_cash_rejected: '❌',
@@ -50,7 +51,6 @@ export default function NotificationBell() {
         createdAt: d.data().createdAt?.toDate(),
       })) as LogisNotification[]
 
-      // Filter by role
       const filtered = all.filter(
         (n) =>
           n.targetRoles.includes(logisUser.role) ||
@@ -96,6 +96,28 @@ export default function NotificationBell() {
     await batch.commit()
   }
 
+  async function deleteNotif(e: React.MouseEvent, notifId: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!companyId) return
+    await deleteDoc(
+      doc(db, 'logis_companies', companyId, 'notifications', notifId)
+    )
+  }
+
+  async function deleteAllRead() {
+    if (!companyId) return
+    const batch = writeBatch(db)
+    notifications
+      .filter((n) => n.isRead)
+      .forEach((n) => {
+        batch.delete(
+          doc(db, 'logis_companies', companyId, 'notifications', n.id)
+        )
+      })
+    await batch.commit()
+  }
+
   return (
     <div className="relative" ref={panelRef}>
       {/* Bell button */}
@@ -108,11 +130,7 @@ export default function NotificationBell() {
         {unreadCount > 0 && (
           <span
             className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center text-white font-bold"
-            style={{
-              background: '#ef4444',
-              fontSize: '9px',
-              minWidth: '16px',
-            }}
+            style={{ background: '#ef4444', fontSize: '9px', minWidth: '16px' }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
@@ -122,8 +140,15 @@ export default function NotificationBell() {
       {/* Panel */}
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 w-80 z-50 overflow-hidden"
+          className="fixed sm:absolute z-50 overflow-hidden"
           style={{
+            // Desktop: dropdown dari bell
+            // Mobile: full width di bawah navbar
+            top: 'var(--notif-top, 56px)',
+            right: 0,
+            left: 'auto',
+            width: '320px',
+            maxWidth: 'calc(100vw - 16px)',
             background: '#111111',
             border: '1px solid rgba(245,240,235,0.1)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
@@ -135,34 +160,38 @@ export default function NotificationBell() {
             style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}
           >
             <div className="flex items-center gap-2">
-              <p
-                className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: '#f5f0eb' }}
-              >
+              <p className="text-xs font-bold uppercase tracking-widest"
+                style={{ color: '#f5f0eb' }}>
                 Notifikasi
               </p>
               {unreadCount > 0 && (
-                <span
-                  className="text-xs px-1.5 py-0.5 font-bold"
-                  style={{
-                    background: 'rgba(239,68,68,0.15)',
-                    color: '#ef4444',
-                  }}
-                >
+                <span className="text-xs px-1.5 py-0.5 font-bold"
+                  style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>
                   {unreadCount} baru
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {unreadCount > 0 && (
                 <button
                   onClick={markAllRead}
-                  className="text-xs flex items-center gap-1 transition-colors"
-                  style={{ color: 'rgba(245,240,235,0.3)' }}
+                  className="text-xs flex items-center gap-1"
+                  style={{ color: 'rgba(245,240,235,0.4)' }}
                   title="Tandai semua sudah dibaca"
                 >
                   <CheckCheck size={12} />
-                  Baca semua
+                  <span className="hidden sm:inline">Baca semua</span>
+                </button>
+              )}
+              {notifications.some((n) => n.isRead) && (
+                <button
+                  onClick={deleteAllRead}
+                  className="text-xs flex items-center gap-1"
+                  style={{ color: 'rgba(239,68,68,0.4)' }}
+                  title="Hapus semua yang sudah dibaca"
+                >
+                  <Trash2 size={12} />
+                  <span className="hidden sm:inline">Hapus dibaca</span>
                 </button>
               )}
               <button
@@ -175,29 +204,19 @@ export default function NotificationBell() {
           </div>
 
           {/* List */}
-          <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
+          <div className="overflow-y-auto" style={{ maxHeight: '420px' }}>
             {notifications.length === 0 ? (
-              <div
-                className="text-center py-10"
-                style={{ color: 'rgba(245,240,235,0.2)' }}
-              >
-                <Bell
-                  size={28}
-                  className="mx-auto mb-2 opacity-30"
-                  style={{ color: '#f5f0eb' }}
-                />
+              <div className="text-center py-10"
+                style={{ color: 'rgba(245,240,235,0.2)' }}>
+                <Bell size={28} className="mx-auto mb-2 opacity-30"
+                  style={{ color: '#f5f0eb' }} />
                 <p className="text-xs">Tidak ada notifikasi</p>
               </div>
             ) : (
               notifications.map((notif) => (
-                <Link
+                <div
                   key={notif.id}
-                  href={notif.href}
-                  onClick={() => {
-                    markAsRead(notif.id)
-                    setOpen(false)
-                  }}
-                  className="flex items-start gap-3 px-4 py-3 transition-all block"
+                  className="flex items-start gap-3 px-4 py-3 transition-all group"
                   style={{
                     background: notif.isRead
                       ? 'transparent'
@@ -218,36 +237,41 @@ export default function NotificationBell() {
                     {notifIcons[notif.type] || '🔔'}
                   </span>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
+                  {/* Content — clickable */}
+                  <Link
+                    href={notif.href}
+                    onClick={() => {
+                      markAsRead(notif.id)
+                      setOpen(false)
+                    }}
+                    className="flex-1 min-w-0"
+                  >
                     <div className="flex items-start justify-between gap-2">
-                      <p
-                        className="text-xs font-semibold leading-tight"
+                      <p className="text-xs font-semibold leading-tight"
                         style={{
                           color: notif.isRead
                             ? 'rgba(245,240,235,0.6)'
                             : '#f5f0eb',
-                        }}
-                      >
+                        }}>
                         {notif.title}
                       </p>
                       {!notif.isRead && (
-                        <div
-                          className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1"
-                          style={{ background: '#F97316' }}
-                        />
+                        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1"
+                          style={{ background: '#F97316' }} />
                       )}
                     </div>
-                    <p
-                      className="text-xs mt-0.5 line-clamp-2 leading-relaxed"
-                      style={{ color: 'rgba(245,240,235,0.35)' }}
-                    >
+                    <p className="text-xs mt-0.5 leading-relaxed"
+                      style={{
+                        color: 'rgba(245,240,235,0.4)',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical' as const,
+                        overflow: 'hidden',
+                      }}>
                       {notif.message}
                     </p>
-                    <p
-                      className="text-xs mt-1"
-                      style={{ color: 'rgba(245,240,235,0.2)' }}
-                    >
+                    <p className="text-xs mt-1"
+                      style={{ color: 'rgba(245,240,235,0.2)' }}>
                       {notif.createdAt
                         ? formatDistanceToNow(notif.createdAt, {
                             addSuffix: true,
@@ -255,11 +279,41 @@ export default function NotificationBell() {
                           })
                         : '—'}
                     </p>
-                  </div>
-                </Link>
+                  </Link>
+
+                  {/* Delete button — selalu terlihat di mobile, hover di desktop */}
+                  <button
+                    onClick={(e) => deleteNotif(e, notif.id)}
+                    className="flex-shrink-0 p-1 mt-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                    style={{ color: 'rgba(239,68,68,0.5)' }}
+                    title="Hapus notifikasi"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
               ))
             )}
           </div>
+
+          {/* Footer */}
+          {notifications.length > 0 && (
+            <div
+              className="px-4 py-2.5 flex items-center justify-between"
+              style={{ borderTop: '1px solid rgba(245,240,235,0.06)' }}
+            >
+              <p className="text-xs" style={{ color: 'rgba(245,240,235,0.2)' }}>
+                {notifications.length} notifikasi
+              </p>
+              <button
+                onClick={deleteAllRead}
+                className="text-xs flex items-center gap-1"
+                style={{ color: 'rgba(239,68,68,0.35)' }}
+              >
+                <Trash2 size={11} />
+                Hapus yang sudah dibaca
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
