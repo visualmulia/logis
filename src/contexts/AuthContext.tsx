@@ -36,78 +36,69 @@ async function findCompanyIdForUser(uid: string): Promise<string | null> {
   // Step 1: Cek apakah owner (companyId == uid)
   const ownerDoc = await getDoc(doc(db, 'logis_companies', uid))
   if (ownerDoc.exists()) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('logis_company_id', uid)
+    }
     return uid
   }
 
   // Step 2: Cek localStorage
-  const stored =
-    typeof window !== 'undefined'
-      ? localStorage.getItem('logis_company_id')
-      : null
+  const stored = typeof window !== 'undefined'
+    ? localStorage.getItem('logis_company_id')
+    : null
 
   if (stored) {
     try {
       const userDoc = await getDoc(
         doc(db, 'logis_companies', stored, 'users', uid)
       )
-      if (userDoc.exists()) {
-        return stored
-      }
+      if (userDoc.exists()) return stored
     } catch {
-      // localStorage value mungkin stale, lanjut ke step 3
+      // stale, lanjut
     }
   }
 
-  // Step 3 — BARU: Cari di collectionGroup users
-  // Di fungsi findCompanyIdForUser, ganti Step 3:
-try {
-  const { collectionGroup, query, where, getDocs } = await import('firebase/firestore')
-
-  // Coba cari by id dulu
-  const byIdQuery = query(
-    collectionGroup(db, 'users'),
-    where('id', '==', uid)
-  )
-  const byIdSnap = await getDocs(byIdQuery)
-  if (!byIdSnap.empty) {
-    const data = byIdSnap.docs[0].data()
-    const cId = data.companyId as string
-    if (cId) {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('logis_company_id', cId)
-      }
-      return cId
-    }
-  }
-
-  // Fallback: cari by email
-  const currentUser = auth.currentUser
-  if (currentUser?.email) {
-    const byEmailQuery = query(
-      collectionGroup(db, 'users'),
-      where('email', '==', currentUser.email)
+  // Step 3: CollectionGroup query by id
+  try {
+    const { collectionGroup, query, where, getDocs } = await import('firebase/firestore')
+    const snap = await getDocs(
+      query(collectionGroup(db, 'users'), where('id', '==', uid))
     )
-    const byEmailSnap = await getDocs(byEmailQuery)
-    if (!byEmailSnap.empty) {
-      const data = byEmailSnap.docs[0].data()
-      const cId = data.companyId as string
+    if (!snap.empty) {
+      const cId = snap.docs[0].data().companyId as string
       if (cId) {
-        // Sekalian fix field id yang mungkin salah
-        const { doc, updateDoc } = await import('firebase/firestore')
-        await updateDoc(
-          doc(db, 'logis_companies', cId, 'users', uid),
-          { id: uid }
-        ).catch(() => {}) // non-critical
         if (typeof window !== 'undefined') {
           localStorage.setItem('logis_company_id', cId)
         }
         return cId
       }
     }
+  } catch {
+    // permission denied — lanjut ke step 4
   }
-} catch (err) {
-  console.error('CollectionGroup query failed:', err)
-}
+
+  // Step 4: CollectionGroup query by email — FALLBACK BARU
+  try {
+    const currentEmail = auth.currentUser?.email
+    if (!currentEmail) return null
+
+    const { collectionGroup, query, where, getDocs } = await import('firebase/firestore')
+    const snap = await getDocs(
+      query(collectionGroup(db, 'users'), where('email', '==', currentEmail))
+    )
+    if (!snap.empty) {
+      const data = snap.docs[0].data()
+      const cId = data.companyId as string
+      if (cId) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('logis_company_id', cId)
+        }
+        return cId
+      }
+    }
+  } catch {
+    // gagal juga
+  }
 
   return null
 }
