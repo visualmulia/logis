@@ -91,32 +91,33 @@ export default function TeamPage() {
   }, [companyId])
 
   async function handleInvite(e: React.FormEvent) {
-    e.preventDefault()
-    if (!inviteForm.email.trim() || !companyId || !logisUser) return
+  e.preventDefault()
+  if (!inviteForm.email.trim() || !companyId || !logisUser) return
 
-    setInviting(true)
-    try {
-      const inviteId = await createInvite({
-        companyId,
-        companyName: 'Perusahaan Anda',
-        email: inviteForm.email.toLowerCase().trim(),
-        role: inviteForm.role,
-        invitedByName: logisUser.name,
-        projectId: inviteForm.projectId || null,
-      })
+  setInviting(true)
+  try {
+    const inviteId = await createInvite({
+      companyId,
+      companyName: 'Perusahaan Anda',
+      email: inviteForm.email.toLowerCase().trim(),
+      role: inviteForm.role,
+      invitedByName: logisUser.name,
+      projectId: inviteForm.projectId || null,
+    })
 
-      const baseUrl = window.location.origin
-      const link = `${baseUrl}/join?invite=${inviteId}&company=${companyId}`
-      const [editingUser, setEditingUser] = useState<LogisUser | null>(null)
-const [editProjectId, setEditProjectId] = useState('')
-      setGeneratedLink(link)
-      toast.success('Link undangan berhasil dibuat!')
-    } catch {
-      toast.error('Gagal membuat undangan')
-    } finally {
-      setInviting(false)
-    }
+    const baseUrl = window.location.origin
+    const link = `${baseUrl}/join?invite=${inviteId}&company=${companyId}`
+    setGeneratedLink(link)
+    toast.success('Link undangan berhasil dibuat!')
+  } catch (error) {
+    console.error('Invite error:', error)
+    // Cek apakah invite sudah tersimpan meski ada error network
+    // Tampilkan pesan yang lebih helpful
+    toast.error('Koneksi bermasalah. Cek tab Undangan Pending — undangan mungkin sudah tersimpan.')
+  } finally {
+    setInviting(false)
   }
+}
 
   // Fungsi update project assignment
 async function handleUpdateProject() {
