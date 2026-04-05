@@ -17,15 +17,17 @@ export type HealthScore = 'healthy' | 'warning' | 'critical'
 
 export type RequestStatus =
   | 'draft'
-  | 'submitted'
-  | 'in_review'
-  | 'approved'
-  | 'rejected'
-  | 'po_issued'
-  | 'on_delivery'
-  | 'partial'
-  | 'completed'
-  | 'discrepancy'
+  | 'submitted'           // Admin proyek submit → menunggu PM
+  | 'pending_pm_review'   // NEW: Menunggu acknowledge PM
+  | 'revision_requested'  // NEW: PM minta revisi → balik ke admin proyek
+  | 'in_review'           // PM sudah acknowledge → menunggu admin pusat
+  | 'approved'            // Admin pusat setujui
+  | 'rejected'            // Admin pusat tolak
+  | 'po_issued'           // PO sudah diterbitkan
+  | 'on_delivery'         // Barang sedang dikirim
+  | 'partial'             // Terima sebagian
+  | 'completed'           // Selesai
+  | 'discrepancy'         // NEW: Logistik tandai barang tidak sesuai PO
 
 export type AssetStatus =
   | 'active'
@@ -63,7 +65,7 @@ export interface LogisUser {
   phone: string
   role: UserRole
   projectIds: string[]
-  assignedProjectId?: string  // ← tambahkan ini
+  assignedProjectId?: string
   isActive: boolean
   fcmToken?: string
   createdAt: Date
@@ -115,20 +117,43 @@ export interface MaterialRequest {
   reason: string
   currentStockPhoto?: string
   status: RequestStatus
+  photos?: { url: string; path: string }[]
+
+  // PM acknowledge
+  pmAcknowledgedBy?: string
+  pmAcknowledgedByName?: string
+  pmAcknowledgedAt?: Date
+  pmRevisionNote?: string       // Catatan revisi dari PM
+
+  // Admin pusat approval
+  approvedBy?: string
+  approvedByName?: string
+  rejectedReason?: string
+
+  // PO
   poNumber?: string
   poUrl?: string
+  poFileUrl?: string
+  poFilePath?: string
+  poNotes?: string
+  poIssuedAt?: Date
+  poIssuedBy?: string
+  poIssuedByName?: string
+
+  // Delivery
   expectedDelivery?: Date
-  approvedBy?: string
-  rejectedReason?: string
+  deliveryConfirmedBy?: string
+  deliveryConfirmedByName?: string
+  deliveryConfirmedAt?: Date
+
+  // Discrepancy (logistik tandai tidak sesuai)
+  discrepancyNote?: string
+  discrepancyReportedBy?: string
+  discrepancyReportedByName?: string
+  discrepancyReportedAt?: Date
+
   createdAt: Date
   updatedAt: Date
-  photos?: { url: string; path: string }[]
-  poFileUrl?: string
-poFilePath?: string
-poNotes?: string
-poIssuedAt?: Date
-poIssuedBy?: string
-poIssuedByName?: string
 }
 
 export interface DeliveryConfirmation {
@@ -174,7 +199,7 @@ export interface PettyCashTransaction {
   description: string
   purchaseType: 'cash' | 'reimbursement' | 'online'
   receipts: string[]
-  photos?: { url: string; path: string }[]  // ← tambahkan ini
+  photos?: { url: string; path: string }[]
   status: PettyCashStatus
   approvedBy?: string
   approvedByName?: string
@@ -288,17 +313,23 @@ export interface ProjectHealthData {
 // ============================================
 // NOTIFICATIONS
 // ============================================
+
 export type NotificationType =
   | 'request_new'
+  | 'request_pm_review'       // NEW: notif ke PM untuk acknowledge
+  | 'request_revision'        // NEW: notif ke admin proyek untuk revisi
   | 'request_approved'
   | 'request_rejected'
+  | 'request_po_issued'
+  | 'request_on_delivery'     // NEW: notif ke logistik saat PO diterbitkan
+  | 'request_discrepancy'     // NEW: notif ke admin pusat saat barang tidak sesuai
+  | 'request_completed'       // NEW: notif selesai
   | 'petty_cash_new'
   | 'petty_cash_approved'
   | 'petty_cash_rejected'
   | 'asset_service_due'
   | 'asset_lost'
   | 'stock_critical'
-  | 'request_po_issued'
 
 export interface LogisNotification {
   id: string
@@ -317,6 +348,7 @@ export interface LogisNotification {
 // ============================================
 // COMPANY & SUBSCRIPTION
 // ============================================
+
 export type PlanType = 'trial' | 'starter' | 'builder' | 'prime' | 'enterprise'
 
 export interface CompanyProfile {

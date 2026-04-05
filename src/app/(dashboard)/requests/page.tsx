@@ -9,7 +9,7 @@ import Link from 'next/link'
 import {
   Plus, Clock, CheckCircle, XCircle, Truck,
   AlertCircle, Loader2, ChevronRight, Package,
-  Download, Calendar, ChevronDown, FolderOpen,
+  Download, Calendar, ChevronDown, FolderOpen, RotateCcw,
 } from 'lucide-react'
 import { formatDistanceToNow, format, isWithinInterval, startOfDay, endOfDay } from 'date-fns'
 import { id } from 'date-fns/locale'
@@ -29,6 +29,18 @@ const statusConfig: Record<string, StatusConfig> = {
   on_delivery:  { label: 'Dalam Pengiriman',      color: '#38bdf8', bg: 'rgba(56,189,248,0.1)',  icon: Truck },
   completed:    { label: 'Selesai',               color: 'var(--text-secondary)', bg: 'rgba(100,100,100,0.08)', icon: CheckCircle },
   discrepancy:  { label: 'Ada Ketidaksesuaian',   color: '#ef4444', bg: 'rgba(239,68,68,0.1)',   icon: AlertCircle },
+  pending_pm_review: {
+  label: 'Menunggu PM',
+  color: '#eab308',
+  bg: 'rgba(234,179,8,0.1)',
+  icon: Clock,
+},
+revision_requested: {
+  label: 'Perlu Revisi',
+  color: '#F97316',
+  bg: 'rgba(249,115,22,0.1)',
+  icon: RotateCcw,
+},
 }
 
 // Role yang BOLEH buat request baru — admin TIDAK termasuk
