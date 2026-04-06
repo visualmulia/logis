@@ -13,17 +13,17 @@ import { toast } from 'sonner'
 import {
   Plus, Users, Mail, Trash2,
   Loader2, Copy, CheckCircle, X,
-  Shield, Clock, FolderOpen
+  Shield, Clock, FolderOpen, Check,
 } from 'lucide-react'
 
 const roleConfig: Record<UserRole, { label: string; color: string; desc: string }> = {
-  owner: { label: 'Owner', color: '#F97316', desc: 'Akses penuh semua fitur' },
-  admin: { label: 'Admin', color: '#a78bfa', desc: 'Kelola keuangan & pengadaan' },
-  pm: { label: 'Project Manager', color: '#38bdf8', desc: 'Kelola proyek & approve request' },
-  supervisor: { label: 'Supervisor', color: '#22c55e', desc: 'Monitor lapangan & laporan' },
-  logistik: { label: 'Logistik', color: '#eab308', desc: 'Kelola gudang & penerimaan' },
-  admin_site: { label: 'Admin Proyek', color: '#f472b6', desc: 'Pegang petty cash lapangan' },
-  readonly: { label: 'Read Only', color: '#94a3b8', desc: 'Hanya bisa lihat data' },
+  owner:      { label: 'Owner',          color: '#F97316', desc: 'Akses penuh semua fitur' },
+  admin:      { label: 'Admin',          color: '#a78bfa', desc: 'Kelola keuangan & pengadaan' },
+  pm:         { label: 'Project Manager',color: '#38bdf8', desc: 'Kelola proyek & approve request' },
+  supervisor: { label: 'Supervisor',     color: '#22c55e', desc: 'Monitor lapangan & laporan' },
+  logistik:   { label: 'Logistik',       color: '#eab308', desc: 'Kelola gudang & penerimaan' },
+  admin_site: { label: 'Admin Proyek',   color: '#f472b6', desc: 'Pegang petty cash lapangan' },
+  readonly:   { label: 'Read Only',      color: '#94a3b8', desc: 'Hanya bisa lihat data' },
 }
 
 interface Invite {
@@ -51,9 +51,9 @@ export default function TeamPage() {
   const [generatedLink, setGeneratedLink] = useState('')
   const [copied, setCopied] = useState(false)
 
-  // Edit project assignment
+  // Edit project assignment — multi select
   const [editingUser, setEditingUser] = useState<LogisUser | null>(null)
-  const [editProjectId, setEditProjectId] = useState('')
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([])
   const [savingProject, setSavingProject] = useState(false)
 
   const canManage = ['owner', 'admin'].includes(logisUser?.role || '')
@@ -73,8 +73,7 @@ export default function TeamPage() {
       query(collection(db, 'logis_companies', companyId, 'invites'), orderBy('createdAt', 'desc')),
       (snap) => {
         setInvites(snap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
+          id: d.id, ...d.data(),
           createdAt: d.data().createdAt?.toDate(),
         } as Invite)))
       }
@@ -84,59 +83,69 @@ export default function TeamPage() {
       setProjects(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Project)))
     })
 
-    return () => {
-      userUnsub()
-      inviteUnsub()
-    }
+    return () => { userUnsub(); inviteUnsub() }
   }, [companyId])
 
-  async function handleInvite(e: React.FormEvent) {
-  e.preventDefault()
-  if (!inviteForm.email.trim() || !companyId || !logisUser) return
-
-  setInviting(true)
-  try {
-    const inviteId = await createInvite({
-      companyId,
-      companyName: 'Perusahaan Anda',
-      email: inviteForm.email.toLowerCase().trim(),
-      role: inviteForm.role,
-      invitedByName: logisUser.name,
-      projectId: inviteForm.projectId || null,
-    })
-
-    const baseUrl = window.location.origin
-    const link = `${baseUrl}/join?invite=${inviteId}&company=${companyId}`
-    setGeneratedLink(link)
-    toast.success('Link undangan berhasil dibuat!')
-  } catch (error) {
-    console.error('Invite error:', error)
-    // Cek apakah invite sudah tersimpan meski ada error network
-    // Tampilkan pesan yang lebih helpful
-    toast.error('Koneksi bermasalah. Cek tab Undangan Pending — undangan mungkin sudah tersimpan.')
-  } finally {
-    setInviting(false)
+  // Buka modal edit — load existing projectIds
+  function openEditModal(user: LogisUser) {
+    setEditingUser(user)
+    setSelectedProjectIds(user.projectIds || (user.assignedProjectId ? [user.assignedProjectId] : []))
   }
-}
 
-  // Fungsi update project assignment
-async function handleUpdateProject() {
-  if (!companyId || !editingUser) return
-  try {
-    const { doc, updateDoc } = await import('firebase/firestore')
-    await updateDoc(
-      doc(db, 'logis_companies', companyId, 'users', editingUser.id),
-      {
-        assignedProjectId: editProjectId || null,
-        projectIds: editProjectId ? [editProjectId] : [],
-      }
+  // Toggle project selection
+  function toggleProject(projectId: string) {
+    setSelectedProjectIds((prev) =>
+      prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId]
     )
-    toast.success('Proyek assignment diupdate!')
-    setEditingUser(null)
-  } catch {
-    toast.error('Gagal update proyek')
   }
-}
+
+  // Save multi-project assignment
+  async function handleUpdateProjects() {
+    if (!companyId || !editingUser) return
+    setSavingProject(true)
+    try {
+      await updateDoc(
+        doc(db, 'logis_companies', companyId, 'users', editingUser.id),
+        {
+          projectIds: selectedProjectIds,
+          // assignedProjectId tetap untuk backward compat — pakai yang pertama
+          assignedProjectId: selectedProjectIds[0] || null,
+        }
+      )
+      toast.success(`${editingUser.name} berhasil di-assign ke ${selectedProjectIds.length} proyek!`)
+      setEditingUser(null)
+    } catch {
+      toast.error('Gagal update proyek')
+    } finally {
+      setSavingProject(false)
+    }
+  }
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault()
+    if (!inviteForm.email.trim() || !companyId || !logisUser) return
+    setInviting(true)
+    try {
+      const inviteId = await createInvite({
+        companyId,
+        companyName: 'Perusahaan Anda',
+        email: inviteForm.email.toLowerCase().trim(),
+        role: inviteForm.role,
+        invitedByName: logisUser.name,
+        projectId: inviteForm.projectId || null,
+      })
+      const link = `${window.location.origin}/join?invite=${inviteId}&company=${companyId}`
+      setGeneratedLink(link)
+      toast.success('Link undangan berhasil dibuat!')
+    } catch (error) {
+      console.error('Invite error:', error)
+      toast.error('Koneksi bermasalah. Cek tab Undangan Pending — undangan mungkin sudah tersimpan.')
+    } finally {
+      setInviting(false)
+    }
+  }
 
   function copyLink() {
     navigator.clipboard.writeText(generatedLink)
@@ -207,7 +216,11 @@ async function handleUpdateProject() {
             <div className="space-y-2">
               {users.map((user) => {
                 const role = roleConfig[user.role as UserRole] || roleConfig.readonly
-                const assignedProject = projects.find((p) => p.id === user.assignedProjectId)
+                // Ambil semua nama proyek yang di-assign
+                const assignedProjects = projects.filter(
+                  (p) => (user.projectIds || []).includes(p.id) ||
+                         p.id === user.assignedProjectId
+                )
                 return (
                   <div key={user.id}
                     className="flex items-center gap-4 p-4"
@@ -242,37 +255,47 @@ async function handleUpdateProject() {
                       <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
                         {user.email}
                       </p>
-                      {/* Assigned project info */}
-                      {assignedProject && (
-                        <p className="text-xs mt-1 flex items-center gap-1"
-                          style={{ color: '#F97316' }}>
-                          <FolderOpen size={10} />
-                          {assignedProject.name}
-                        </p>
+                      {/* Assigned projects */}
+                      {assignedProjects.length > 0 && (
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          {assignedProjects.map((p) => (
+                            <span key={p.id}
+                              className="text-xs flex items-center gap-1 px-1.5 py-0.5"
+                              style={{
+                                background: 'rgba(249,115,22,0.08)',
+                                color: '#F97316',
+                                border: '1px solid rgba(249,115,22,0.2)',
+                              }}>
+                              <FolderOpen size={9} />
+                              {p.name}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
 
+                    {/* Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {/* Hanya owner/admin yang bisa edit */}
-{canManage && user.role !== 'owner' && (
-  <button
-    onClick={() => {
-      setEditingUser(user)
-      setEditProjectId(user.assignedProjectId || '')
-    }}
-    className="text-xs px-2 py-1 flex-shrink-0"
-    style={{
-      border: '1px solid rgba(249,115,22,0.3)',
-      color: '#F97316',
-    }}
-  >
-    {user.assignedProjectId
-      ? `Proyek: ${projects.find(p => p.id === user.assignedProjectId)?.name || '...'}`
-      : '+ Assign Proyek'
-    }
-  </button>
-)}
-
+                      {canManage && user.role !== 'owner' && (
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="text-xs px-2 py-1 flex-shrink-0 transition-colors"
+                          style={{
+                            border: '1px solid rgba(249,115,22,0.3)',
+                            color: '#F97316',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(249,115,22,0.08)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent'
+                          }}
+                        >
+                          {assignedProjects.length > 0
+                            ? `${assignedProjects.length} Proyek`
+                            : '+ Assign Proyek'}
+                        </button>
+                      )}
                       {user.role === 'owner' && (
                         <Shield size={14} style={{ color: '#F97316' }} />
                       )}
@@ -313,15 +336,12 @@ async function handleUpdateProject() {
                             {role.label}
                           </span>
                           {inviteProject && (
-                            <span className="text-xs flex items-center gap-1"
-                              style={{ color: '#F97316' }}>
+                            <span className="text-xs flex items-center gap-1" style={{ color: '#F97316' }}>
                               <FolderOpen size={10} />
                               {inviteProject.name}
                             </span>
                           )}
-                          <span className="text-xs" style={{ color: '#eab308' }}>
-                            Menunggu
-                          </span>
+                          <span className="text-xs" style={{ color: '#eab308' }}>Menunggu</span>
                         </div>
                       </div>
                       <button onClick={() => deleteInvite(invite.id)}
@@ -339,7 +359,7 @@ async function handleUpdateProject() {
         </>
       )}
 
-      {/* Invite Modal */}
+      {/* ── INVITE MODAL ────────────────────────────────── */}
       {showInviteModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
           style={{ background: 'rgba(0,0,0,0.8)' }}>
@@ -360,7 +380,6 @@ async function handleUpdateProject() {
                 <X size={16} />
               </button>
             </div>
-
             <div className="p-6">
               {!generatedLink ? (
                 <form onSubmit={handleInvite} className="space-y-4">
@@ -373,11 +392,8 @@ async function handleUpdateProject() {
                       value={inviteForm.email}
                       onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
                       placeholder="email@anggota.com"
-                      className={inputClass}
-                      style={inputStyle}
-                      required />
+                      className={inputClass} style={inputStyle} required />
                   </div>
-
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
                       style={{ color: 'var(--text-secondary)' }}>
@@ -386,8 +402,7 @@ async function handleUpdateProject() {
                     <select
                       value={inviteForm.role}
                       onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value as UserRole })}
-                      className={inputClass}
-                      style={{ ...inputStyle, cursor: 'pointer' }}>
+                      className={inputClass} style={{ ...inputStyle, cursor: 'pointer' }}>
                       {(Object.keys(roleConfig) as UserRole[])
                         .filter((r) => r !== 'owner')
                         .map((r) => (
@@ -397,8 +412,6 @@ async function handleUpdateProject() {
                         ))}
                     </select>
                   </div>
-
-                  {/* Assign Proyek */}
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-widest mb-2"
                       style={{ color: 'var(--text-secondary)' }}>
@@ -407,8 +420,7 @@ async function handleUpdateProject() {
                     <select
                       value={inviteForm.projectId}
                       onChange={(e) => setInviteForm({ ...inviteForm, projectId: e.target.value })}
-                      className={inputClass}
-                      style={{ ...inputStyle, cursor: 'pointer' }}>
+                      className={inputClass} style={{ ...inputStyle, cursor: 'pointer' }}>
                       <option value="" style={{ background: 'var(--bg-card)' }}>
                         — Pilih Proyek (opsional) —
                       </option>
@@ -422,13 +434,8 @@ async function handleUpdateProject() {
                       User akan otomatis diarahkan ke proyek ini setelah login
                     </p>
                   </div>
-
-                  {/* Role description */}
                   <div className="p-3"
-                    style={{
-                      background: 'rgba(249,115,22,0.05)',
-                      border: '1px solid rgba(249,115,22,0.15)',
-                    }}>
+                    style={{ background: 'rgba(249,115,22,0.05)', border: '1px solid rgba(249,115,22,0.15)' }}>
                     <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                       <span style={{ color: '#F97316', fontWeight: 600 }}>
                         {roleConfig[inviteForm.role].label}:
@@ -436,15 +443,12 @@ async function handleUpdateProject() {
                       {roleConfig[inviteForm.role].desc}
                     </p>
                   </div>
-
                   <button type="submit" disabled={inviting}
                     className="w-full py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                     style={{ background: '#F97316', color: '#fff' }}>
-                    {inviting ? (
-                      <><Loader2 size={15} className="animate-spin" />Membuat link...</>
-                    ) : (
-                      <><Mail size={15} />Buat Link Undangan</>
-                    )}
+                    {inviting
+                      ? <><Loader2 size={15} className="animate-spin" />Membuat link...</>
+                      : <><Mail size={15} />Buat Link Undangan</>}
                   </button>
                 </form>
               ) : (
@@ -455,22 +459,14 @@ async function handleUpdateProject() {
                       Link undangan berhasil dibuat!
                     </p>
                   </div>
-
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     Kirim link ini ke{' '}
-                    <strong style={{ color: 'var(--text-primary)' }}>
-                      {inviteForm.email}
-                    </strong>{' '}
+                    <strong style={{ color: 'var(--text-primary)' }}>{inviteForm.email}</strong>{' '}
                     via WhatsApp atau email. Link berlaku 7 hari.
                   </p>
-
                   <div className="p-3 flex items-center gap-3"
-                    style={{
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border-color)',
-                    }}>
-                    <p className="text-xs flex-1 truncate font-mono"
-                      style={{ color: 'var(--text-secondary)' }}>
+                    style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                    <p className="text-xs flex-1 truncate font-mono" style={{ color: 'var(--text-secondary)' }}>
                       {generatedLink}
                     </p>
                     <button onClick={copyLink} className="flex-shrink-0"
@@ -478,7 +474,6 @@ async function handleUpdateProject() {
                       {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
                     </button>
                   </div>
-
                   <a href={`https://wa.me/?text=${encodeURIComponent(
                     `Halo! Kamu diundang bergabung ke tim Logis. Klik link ini untuk membuat akun: ${generatedLink}`
                   )}`}
@@ -487,7 +482,6 @@ async function handleUpdateProject() {
                     style={{ background: '#22c55e', color: '#fff' }}>
                     Kirim via WhatsApp
                   </a>
-
                   <button
                     onClick={() => { setGeneratedLink(''); setInviteForm({ email: '', role: 'logistik', projectId: '' }) }}
                     className="w-full py-2.5 text-sm"
@@ -501,61 +495,127 @@ async function handleUpdateProject() {
         </div>
       )}
 
-      {/* Edit Project Modal */}
-{editingUser && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-    style={{ background: 'rgba(0,0,0,0.8)' }}>
-    <div className="w-full max-w-sm"
-      style={{ background: '#111111', border: '1px solid rgba(245,240,235,0.1)' }}>
-      <div className="flex items-center justify-between px-6 py-4"
-        style={{ borderBottom: '1px solid rgba(245,240,235,0.06)' }}>
-        <h3 className="text-sm font-bold uppercase tracking-widest"
-          style={{ color: '#f5f0eb' }}>
-          Assign Proyek — {editingUser.name}
-        </h3>
-        <button onClick={() => setEditingUser(null)}
-          style={{ color: 'rgba(245,240,235,0.3)' }}>
-          <X size={16} />
-        </button>
-      </div>
-      <div className="p-6 space-y-4">
-        <select
-          value={editProjectId}
-          onChange={(e) => setEditProjectId(e.target.value)}
-          className="w-full px-4 py-3 text-sm outline-none"
-          style={{
-            background: '#0a0a0a',
-            border: '1px solid rgba(245,240,235,0.08)',
-            color: '#f5f0eb',
-            cursor: 'pointer',
-          }}
-        >
-          <option value="" style={{ background: '#111' }}>— Tidak di-assign ke proyek —</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id} style={{ background: '#111' }}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs" style={{ color: 'rgba(245,240,235,0.3)' }}>
-          User akan diarahkan ke proyek ini otomatis saat login berikutnya.
-        </p>
-        <div className="flex gap-3">
-          <button onClick={handleUpdateProject}
-            className="flex-1 py-3 text-sm font-bold uppercase tracking-widest"
-            style={{ background: '#F97316', color: '#0a0a0a' }}>
-            Simpan
-          </button>
-          <button onClick={() => setEditingUser(null)}
-            className="px-4 py-3 text-sm"
-            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'rgba(245,240,235,0.4)' }}>
-            Batal
-          </button>
+      {/* ── EDIT PROJECT ASSIGNMENT MODAL ───────────────── */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.8)' }}>
+          <div className="w-full max-w-sm"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--border-color)' }}>
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest"
+                  style={{ color: 'var(--text-primary)' }}>
+                  Assign Proyek
+                </h3>
+                <p className="text-xs mt-0.5" style={{ color: '#F97316' }}>
+                  {editingUser.name} · {roleConfig[editingUser.role]?.label}
+                </p>
+              </div>
+              <button onClick={() => setEditingUser(null)} style={{ color: 'var(--text-muted)' }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Project checklist */}
+            <div className="px-6 pt-4 pb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3"
+                style={{ color: 'var(--text-muted)' }}>
+                Pilih proyek yang dikelola
+              </p>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {projects.length === 0 ? (
+                  <p className="text-xs text-center py-4" style={{ color: 'var(--text-muted)' }}>
+                    Belum ada proyek terdaftar
+                  </p>
+                ) : (
+                  projects.map((p) => {
+                    const isSelected = selectedProjectIds.includes(p.id)
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => toggleProject(p.id)}
+                        className="w-full flex items-center gap-3 p-3 text-left transition-all"
+                        style={{
+                          background: isSelected
+                            ? 'rgba(249,115,22,0.08)'
+                            : 'var(--bg-secondary)',
+                          border: isSelected
+                            ? '1px solid rgba(249,115,22,0.3)'
+                            : '1px solid var(--border-color)',
+                        }}
+                      >
+                        {/* Checkbox */}
+                        <div
+                          className="w-5 h-5 flex items-center justify-center flex-shrink-0"
+                          style={{
+                            background: isSelected ? '#F97316' : 'transparent',
+                            border: isSelected
+                              ? '1px solid #F97316'
+                              : '1px solid var(--border-strong)',
+                          }}
+                        >
+                          {isSelected && <Check size={12} color="#fff" />}
+                        </div>
+
+                        {/* Proyek info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold"
+                            style={{ color: isSelected ? '#F97316' : 'var(--text-primary)' }}>
+                            {p.name}
+                          </p>
+                          {p.location && (
+                            <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
+                              {p.location}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Status proyek */}
+                        <div
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{
+                            background: p.status === 'active' ? '#22c55e' : '#eab308',
+                          }}
+                        />
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+
+              {/* Summary */}
+              <p className="text-xs mt-3 mb-4"
+                style={{ color: selectedProjectIds.length > 0 ? '#F97316' : 'var(--text-muted)' }}>
+                {selectedProjectIds.length > 0
+                  ? `${selectedProjectIds.length} proyek dipilih`
+                  : 'Belum ada proyek dipilih — user tidak akan di-assign ke proyek manapun'}
+              </p>
+            </div>
+
+            {/* Footer buttons */}
+            <div className="px-6 pb-6 flex gap-3">
+              <button
+                onClick={handleUpdateProjects}
+                disabled={savingProject}
+                className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                style={{ background: '#F97316', color: '#fff' }}>
+                {savingProject
+                  ? <><Loader2 size={14} className="animate-spin" />Menyimpan...</>
+                  : 'Simpan Assignment'}
+              </button>
+              <button
+                onClick={() => setEditingUser(null)}
+                className="px-4 py-3 text-sm"
+                style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                Batal
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </div>
   )
 }
