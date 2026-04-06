@@ -142,11 +142,11 @@ export default function NotificationBell() {
         <div
           className="absolute z-50 overflow-hidden"
 style={{
-  top: 'calc(100% + 8px)',
-  right: 0,
-  left: 'auto',
+  bottom: 'calc(100% + 8px)', // ← muncul ke ATAS bukan ke bawah
+  left: 0,                    // ← rata kiri dari icon bell
+  right: 'auto',
   width: '320px',
-  maxWidth: 'calc(100vw - 16px)',
+  maxWidth: 'calc(100vw - 80px)',
             background: '#111111',
             border: '1px solid rgba(245,240,235,0.1)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
