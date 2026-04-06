@@ -171,11 +171,17 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="px-3 py-3 flex-shrink-0"
-        style={{ borderTop: `1px solid ${sidebarBorder}` }}>
+  style={{ 
+    borderTop: `1px solid ${sidebarBorder}`,
+    overflow: 'visible',  // ← tambahkan ini
+    position: 'relative', // ← dan ini
+    zIndex: 100,          // ← z-index lebih tinggi dari nav
+  }}>
 
         {/* Notification bell */}
-        <div className="px-1 py-1 mb-1 flex items-center gap-3" style={{ color: sidebarMuted }}>
-          <NotificationBell />
+        <div className="px-1 py-1 mb-1 flex items-center gap-3"
+  style={{ color: sidebarMuted, position: 'relative', zIndex: 100 }}>
+  <NotificationBell />
           <span className="text-sm font-medium">Notifikasi</span>
         </div>
 

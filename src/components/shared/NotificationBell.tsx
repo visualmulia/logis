@@ -119,7 +119,7 @@ export default function NotificationBell() {
   }
 
   return (
-    <div className="relative" ref={panelRef}>
+    <div className="relative" ref={panelRef} style={{ position: 'relative', zIndex: 50 }}>
       {/* Bell button */}
       <button
         onClick={() => setOpen(!open)}
@@ -140,15 +140,13 @@ export default function NotificationBell() {
       {/* Panel */}
       {open && (
         <div
-          className="fixed sm:absolute z-50 overflow-hidden"
-          style={{
-            // Desktop: dropdown dari bell
-            // Mobile: full width di bawah navbar
-            top: 'var(--notif-top, 56px)',
-            right: 0,
-            left: 'auto',
-            width: '320px',
-            maxWidth: 'calc(100vw - 16px)',
+          className="absolute z-50 overflow-hidden"
+style={{
+  top: 'calc(100% + 8px)',
+  right: 0,
+  left: 'auto',
+  width: '320px',
+  maxWidth: 'calc(100vw - 16px)',
             background: '#111111',
             border: '1px solid rgba(245,240,235,0.1)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
