@@ -44,7 +44,7 @@ revision_requested: {
 }
 
 // Role yang BOLEH buat request baru — admin TIDAK termasuk
-const CREATE_REQUEST_ROLES = ['owner', 'supervisor', 'logistik', 'admin_site']
+const CREATE_REQUEST_ROLES = ['owner', 'admin_site']
 
 // Role yang bisa lihat semua proyek sekaligus
 const ALL_PROJECTS_ROLES = ['owner', 'admin', 'pm']

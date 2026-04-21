@@ -36,7 +36,7 @@ const navItems = [
     href: '/projects',
     icon: Warehouse,
     module: '02',
-    roles: ['owner', 'pm', 'supervisor', 'logistik', 'admin_site'],
+    roles: ['owner', 'pm', 'supervisor', 'logistik'],
   },
   {
     label: 'Equipment Tracker',
