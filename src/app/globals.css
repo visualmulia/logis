@@ -48,38 +48,25 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.97 0.01 0.08);        /* ← warm off-white, bukan pure white */
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: oklch(1 0 0);                          /* ← pure white (beda dari bg) */
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.95 0.01 0.08);           /* ← warm, sedikit lebih gelap */
+  --secondary-foreground: oklch(0.25 0 0);      /* ← lebih gelap untuk kontras */
+  --muted: oklch(0.95 0.01 0.08);               /* ← warm light */
+  --muted-foreground: oklch(0.45 0 0);          /* ← LEBIH GELAP, terbaca! */
+  --accent: oklch(0.95 0.01 0.08);
+  --accent-foreground: oklch(0.25 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.88 0 0);                    /* ← lebih terlihat */
+  --input: oklch(0.88 0 0);
+  --ring: oklch(0.65 0 0);
+  /* ... sisanya tetap sama ... */
 }
 
 .dark {
@@ -189,4 +176,52 @@ body {
 .logis-card {
   background: var(--bg-card) !important;
   border-color: var(--border-color) !important;
+}
+
+/* ─── Card Elevated Shadow ───────────────────────────────────── */
+[data-slot="card"] {
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.04),
+    0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+[data-slot="card"]:hover {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -2px rgba(0, 0, 0, 0.04),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03);
+  transform: translateY(-1px);
+}
+
+/* ─── Sidebar Contrast Fix ───────────────────────────────────── */
+[data-slot="sidebar"] {
+  background: oklch(0.22 0.01 0.08);
+}
+
+[data-slot="sidebar"] [data-slot="sidebar-menu-button"] {
+  color: oklch(0.75 0 0);
+}
+
+[data-slot="sidebar"] [data-slot="sidebar-menu-button"]:hover {
+  color: oklch(0.98 0 0);
+  background: oklch(0.28 0.01 0.08);
+}
+
+/* ─── Skeleton Warm Glow ─────────────────────────────────────── */
+.skeleton-glow {
+  background: linear-gradient(
+    90deg,
+    oklch(0.95 0.01 0.08) 0%,
+    oklch(0.98 0.01 0.08) 50%,
+    oklch(0.95 0.01 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
