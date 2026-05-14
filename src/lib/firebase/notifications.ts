@@ -1,6 +1,10 @@
 import {
-  collection, addDoc, serverTimestamp,
-  getDocs, query, where
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  query,
+  where,
 } from 'firebase/firestore'
 import { db } from './config'
 import { NotificationType } from '@/types'
@@ -35,7 +39,7 @@ export async function createNotification(params: CreateNotifParams) {
       }
     )
 
-    // 2. Kirim push ke user yang punya FCM token
+    // 2. Kirim push via server API (FCM V1)
     await sendPushToTargets(params)
   } catch (err) {
     console.error('Failed to create notification:', err)
@@ -53,6 +57,7 @@ async function sendPushToTargets(params: CreateNotifParams) {
     )
 
     const tokens: string[] = []
+
     usersSnap.docs.forEach((d) => {
       const data = d.data()
       // Skip pengirim notifikasi
@@ -65,30 +70,17 @@ async function sendPushToTargets(params: CreateNotifParams) {
 
     if (tokens.length === 0) return
 
-    // Kirim via FCM REST API
-    await Promise.allSettled(
-      tokens.map((token) =>
-        fetch('https://fcm.googleapis.com/fcm/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `key=${process.env.NEXT_PUBLIC_FCM_SERVER_KEY}`,
-          },
-          body: JSON.stringify({
-            to: token,
-            notification: {
-              title: params.title,
-              body: params.message,
-              icon: '/icons/icon-192x192.png',
-              click_action: `https://logis-rho.vercel.app${params.href}`,
-            },
-            data: {
-              href: params.href,
-            },
-          }),
-        })
-      )
-    )
+    // Kirim via server API route (FCM V1)
+    await fetch('/api/send-notification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tokens,
+        title: params.title,
+        body: params.message,
+        href: params.href,
+      }),
+    })
   } catch (err) {
     console.error('Push send failed:', err)
   }

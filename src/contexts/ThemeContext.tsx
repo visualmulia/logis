@@ -37,23 +37,24 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement
 
     if (t === 'light') {
-      // ── OPSI A: Light Professional ──
-      root.style.setProperty('--bg-primary', '#F5F5F5')
+      // ── Light Mode: Clean & Readable ──
+      root.style.setProperty('--bg-primary', '#F3F4F6')
       root.style.setProperty('--bg-secondary', '#FFFFFF')
       root.style.setProperty('--bg-card', '#FFFFFF')
-      root.style.setProperty('--bg-input', '#F9F9F9')
-      root.style.setProperty('--text-primary', '#1A1A1A')
-      root.style.setProperty('--text-secondary', '#555555')
-      root.style.setProperty('--text-muted', '#999999')
+      root.style.setProperty('--bg-input', '#F9FAFB')
+      root.style.setProperty('--text-primary', '#111827')
+      root.style.setProperty('--text-secondary', '#4B5563')
+      root.style.setProperty('--text-muted', '#9CA3AF')
       root.style.setProperty('--border-color', '#E5E7EB')
       root.style.setProperty('--border-strong', '#D1D5DB')
-      root.style.setProperty('--sidebar-bg', '#1A1A1A')
-      root.style.setProperty('--sidebar-text', '#F5F0EB')
-      root.style.setProperty('--sidebar-muted', 'rgba(245,240,235,0.5)')
-      root.style.setProperty('--sidebar-border', 'rgba(245,240,235,0.08)')
+      // Sidebar slate grey — kontras tapi tidak hitam pekat
+      root.style.setProperty('--sidebar-bg', '#1E293B')
+      root.style.setProperty('--sidebar-text', '#F8FAFC')
+      root.style.setProperty('--sidebar-muted', '#94A3B8')
+      root.style.setProperty('--sidebar-border', '#334155')
       root.style.setProperty('--orange', '#F97316')
-      document.body.style.background = '#F5F5F5'
-      document.body.style.color = '#1A1A1A'
+      document.body.style.background = '#F3F4F6'
+      document.body.style.color = '#111827'
     } else {
       // ── Dark Mode ──
       root.style.setProperty('--bg-primary', '#0a0a0a')

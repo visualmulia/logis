@@ -159,7 +159,7 @@ export default function RequestDetailPage() {
         message: `PM ${logisUser?.name} telah acknowledge request #${requestId.slice(-6).toUpperCase()}. Menunggu persetujuan Admin Pusat.`,
         href: `/requests/${requestId}`,
         createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-        targetRoles: ['owner', 'admin'],
+                targetRoles: ['owner', 'admin', 'admin_site'],
       })
     }
   }
@@ -178,7 +178,7 @@ export default function RequestDetailPage() {
         message: `PM ${logisUser?.name} meminta revisi: ${revisionNote}`,
         href: `/requests/${requestId}`,
         createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-        targetRoles: ['admin_site', 'supervisor'],
+                targetRoles: ['admin_site', 'supervisor', 'pm'],
       })
       setShowRevisionForm(false)
       setRevisionNote('')
@@ -201,7 +201,7 @@ export default function RequestDetailPage() {
           message: `Request #${requestId.slice(-6).toUpperCase()} disetujui oleh ${logisUser?.name}`,
           href: `/requests/${requestId}`,
           createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-          targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site'],
+                  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'po'],
         })
       }
     }
@@ -259,7 +259,7 @@ export default function RequestDetailPage() {
         message: `PO #${poNumber} diterbitkan untuk request #${requestId.slice(-6).toUpperCase()}. Silakan follow up ke supplier.`,
         href: `/requests/${requestId}`,
         createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-        targetRoles: ['owner', 'admin', 'pm', 'logistik'],
+                targetRoles: ['owner', 'admin', 'pm', 'logistik', 'admin_site', 'po'],
       })
       toast.success('PO diterbitkan! Status → Dalam Pengiriman. Logistik sudah dinotifikasi.')
       setShowPOUpload(false)
@@ -282,7 +282,7 @@ export default function RequestDetailPage() {
         message: `Logistik ${logisUser?.name} konfirmasi barang untuk request #${requestId.slice(-6).toUpperCase()} sudah diterima sesuai PO.`,
         href: `/requests/${requestId}`,
         createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-        targetRoles: ['owner', 'admin', 'pm'],
+                targetRoles: ['owner', 'admin', 'pm', 'admin_site'],
       })
     }
   }
@@ -304,7 +304,7 @@ export default function RequestDetailPage() {
         message: `Logistik ${logisUser?.name} melaporkan ketidaksesuaian: ${discrepancyNote}`,
         href: `/requests/${requestId}`,
         createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-        targetRoles: ['owner', 'admin', 'pm'],
+                targetRoles: ['owner', 'admin', 'pm', 'admin_site'],
       })
       setShowDiscrepancyForm(false)
     }

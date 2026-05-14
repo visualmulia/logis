@@ -76,12 +76,10 @@ export default function Sidebar() {
     router.push('/login')
   }
 
-  const sidebarBg = '#0d0d0d'
-  const sidebarText = '#f5f0eb'
-  const sidebarMuted = 'rgba(245,240,235,0.4)'
-  const sidebarBorder = isDark
-    ? 'rgba(245,240,235,0.06)'
-    : 'rgba(245,240,235,0.08)'
+  const sidebarBg = 'var(--sidebar-bg)'
+  const sidebarText = 'var(--sidebar-text)'
+  const sidebarMuted = 'var(--sidebar-muted)'
+  const sidebarBorder = 'var(--sidebar-border)'
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full" style={{ background: sidebarBg }}>

@@ -339,7 +339,7 @@ export default function OverviewPage() {
     <div className="p-4 lg:p-8">
       {/* Header */}
       <div className="mb-6 lg:mb-8">
-        <p className="text-xs font-semibold uppercase tracking-widest mb-1"
+        <p className="text-sm font-semibold tracking-wide mb-1"
           style={{ color: '#F97316' }}>
           {headerLabel}
         </p>
@@ -363,10 +363,11 @@ export default function OverviewPage() {
             <Link key={stat.label} href={stat.href}
               className="p-4 lg:p-6 block transition-all"
               style={{
-                background: stat.alert ? `${stat.color}08` : 'var(--bg-card)',
+                background: stat.alert ? `${stat.color}10` : 'var(--bg-card)',
                 border: stat.alert
-                  ? `1px solid ${stat.color}30`
+                  ? `1px solid ${stat.color}35`
                   : '1px solid var(--border-color)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = `${stat.color}40`
@@ -391,7 +392,7 @@ export default function OverviewPage() {
               </div>
               {loadingStats ? (
                 <div className="h-8 w-12 rounded animate-pulse mb-1"
-                  style={{ background: 'rgba(245,240,235,0.06)' }} />
+                  style={{ background: '#E5E7EB' }} />
               ) : (
                 <div className="text-2xl lg:text-3xl font-black mb-1"
                   style={{
@@ -403,8 +404,8 @@ export default function OverviewPage() {
                   {stat.value}
                 </div>
               )}
-              <div className="text-xs uppercase tracking-wide leading-tight"
-                style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+              <div className="text-xs font-medium leading-tight"
+                style={{ color: 'var(--text-secondary)' }}>
                 {stat.label}
               </div>
             </Link>
@@ -417,10 +418,14 @@ export default function OverviewPage() {
 
         {/* Request list */}
         <div className="p-4 lg:p-6"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
+          }}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'var(--text-muted)' }}>
+            <p className="text-sm font-semibold tracking-wide"
+              style={{ color: 'var(--text-primary)' }}>
               {requestSectionLabel}
             </p>
             <Link href="/requests" className="text-xs flex items-center gap-1"
@@ -433,17 +438,17 @@ export default function OverviewPage() {
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-12 rounded animate-pulse"
-                  style={{ background: 'rgba(245,240,235,0.04)' }} />
+                  style={{ background: '#E5E7EB' }} />
               ))}
             </div>
           ) : recentRequests.length === 0 ? (
             <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>
-              <Package size={28} className="mx-auto mb-2 opacity-30"
+              <Package size={28} className="mx-auto mb-2 opacity-40"
                 style={{ color: 'var(--text-primary)' }} />
-              <p className="text-xs">Belum ada request</p>
+              <p className="text-sm">Belum ada request</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y divide-[var(--border-color)]">
               {recentRequests.map((req) => {
                 const sc = statusConfig[req.status] || statusConfig.submitted
                 const StatusIcon = sc.icon
@@ -455,31 +460,31 @@ export default function OverviewPage() {
                     style={{
                       background: needsAction
                         ? 'rgba(249,115,22,0.04)'
-                        : 'rgba(245,240,235,0.03)',
-                      border: needsAction
-                        ? '1px solid rgba(249,115,22,0.15)'
-                        : '1px solid rgba(245,240,235,0.04)',
+                        : 'transparent',
+                      borderLeft: needsAction
+                        ? '3px solid #F97316'
+                        : '3px solid transparent',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--bg-secondary)'
+                      e.currentTarget.style.background = '#F9FAFB'
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = needsAction
                         ? 'rgba(249,115,22,0.04)'
-                        : 'rgba(245,240,235,0.03)'
+                        : 'transparent'
                     }}>
-                    <StatusIcon size={14} style={{ color: sc.color, flexShrink: 0 }} />
+                    <StatusIcon size={16} style={{ color: sc.color, flexShrink: 0 }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate"
+                      <p className="text-sm font-medium truncate"
                         style={{ color: 'var(--text-primary)' }}>
                         {req.title}
                       </p>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                      <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                         {req.subtitle}
                       </p>
                     </div>
-                    <span className="text-xs px-2 py-0.5 font-semibold flex-shrink-0"
-                      style={{ background: `${sc.color}15`, color: sc.color }}>
+                    <span className="text-xs px-2 py-0.5 font-semibold flex-shrink-0 rounded-sm"
+                      style={{ background: `${sc.color}18`, color: sc.color }}>
                       {sc.label}
                     </span>
                   </Link>
@@ -492,9 +497,13 @@ export default function OverviewPage() {
         {/* Quick actions — TIDAK tampil untuk PM */}
         {showQuickActions && (
           <div className="p-4 lg:p-6"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-4"
-              style={{ color: 'var(--text-muted)' }}>
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
+            }}>
+            <p className="text-sm font-semibold tracking-wide mb-4"
+              style={{ color: 'var(--text-primary)' }}>
               Aksi Cepat
             </p>
             <div className="space-y-2">
@@ -502,16 +511,16 @@ export default function OverviewPage() {
                 <Link key={action.href + action.label} href={action.href}
                   className="flex items-center gap-3 p-3 transition-all"
                   style={{
-                    background: 'rgba(245,240,235,0.03)',
-                    border: '1px solid rgba(245,240,235,0.04)',
+                    background: 'transparent',
+                    border: '1px solid var(--border-color)',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = `${action.color}08`
-                    e.currentTarget.style.borderColor = `${action.color}20`
+                    e.currentTarget.style.background = `${action.color}10`
+                    e.currentTarget.style.borderColor = `${action.color}30`
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(245,240,235,0.03)'
-                    e.currentTarget.style.borderColor = 'rgba(245,240,235,0.04)'
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.borderColor = 'var(--border-color)'
                   }}>
                   <div className="w-7 h-7 flex items-center justify-center flex-shrink-0"
                     style={{
@@ -521,10 +530,10 @@ export default function OverviewPage() {
                     <ChevronRight size={12} style={{ color: action.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                       {action.label}
                     </p>
-                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {action.desc}
                     </p>
                   </div>
