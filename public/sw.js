@@ -1,14 +1,17 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js')
 
-// Firebase config — harus hardcode di SW karena tidak bisa akses env
+// Tangkap parameter dari URL pendaftaran PWA
+const urlParams = new URL(location).searchParams;
+
+// Firebase config — ambil dari URL parameter
 const firebaseConfig = {
-  apiKey: self.FIREBASE_API_KEY || '',
-  authDomain: self.FIREBASE_AUTH_DOMAIN || '',
-  projectId: self.FIREBASE_PROJECT_ID || '',
-  storageBucket: self.FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: self.FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: self.FIREBASE_APP_ID || '',
+  apiKey: urlParams.get('apiKey') || '',
+  authDomain: urlParams.get('authDomain') || '',
+  projectId: urlParams.get('projectId') || '',
+  storageBucket: urlParams.get('storageBucket') || '',
+  messagingSenderId: urlParams.get('messagingSenderId') || '',
+  appId: urlParams.get('appId') || '',
 }
 
 firebase.initializeApp(firebaseConfig)
