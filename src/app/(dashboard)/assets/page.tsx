@@ -130,7 +130,7 @@ export default function AssetsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-1"
+          <p className="text-sm font-semibold tracking-wide mb-1"
             style={{ color: '#F97316' }}>
             Modul 03
           </p>
@@ -146,8 +146,8 @@ export default function AssetsPage() {
         {canAddAsset && (
           <Link
             href="/assets/new"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest w-full sm:w-auto"
-            style={{ background: '#F97316', color: '#fff' }}>
+            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold w-full sm:w-auto"
+            style={{ background: '#F97316', color: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             <Plus size={15} />
             Daftarkan Aset
           </Link>
@@ -159,13 +159,13 @@ export default function AssetsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           {lostAssets.length > 0 && (
             <div className="flex items-center gap-3 p-4"
-              style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-              <XCircle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
+              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+              <XCircle size={18} style={{ color: '#ef4444', flexShrink: 0 }} />
               <div>
                 <p className="text-sm font-bold" style={{ color: '#ef4444' }}>
                   {lostAssets.length} Aset Hilang
                 </p>
-                <p className="text-xs" style={{ color: 'rgba(239,68,68,0.6)' }}>
+                <p className="text-sm" style={{ color: '#dc2626' }}>
                   Perlu investigasi segera
                 </p>
               </div>
@@ -173,13 +173,13 @@ export default function AssetsPage() {
           )}
           {maintenanceDue.length > 0 && (
             <div className="flex items-center gap-3 p-4"
-              style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.2)' }}>
-              <Wrench size={16} style={{ color: '#eab308', flexShrink: 0 }} />
+              style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+              <Wrench size={18} style={{ color: '#eab308', flexShrink: 0 }} />
               <div>
                 <p className="text-sm font-bold" style={{ color: '#eab308' }}>
                   {maintenanceDue.length} Perlu Servis
                 </p>
-                <p className="text-xs" style={{ color: 'rgba(234,179,8,0.6)' }}>
+                <p className="text-sm" style={{ color: '#ca8a04' }}>
                   Jadwal servis terlewat
                 </p>
               </div>
@@ -187,13 +187,13 @@ export default function AssetsPage() {
           )}
           {idleAssets.length > 0 && (
             <div className="flex items-center gap-3 p-4"
-              style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)' }}>
-              <Clock size={16} style={{ color: '#38bdf8', flexShrink: 0 }} />
+              style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.25)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+              <Clock size={18} style={{ color: '#38bdf8', flexShrink: 0 }} />
               <div>
                 <p className="text-sm font-bold" style={{ color: '#38bdf8' }}>
                   {idleAssets.length} Aset Idle
                 </p>
-                <p className="text-xs" style={{ color: 'rgba(56,189,248,0.6)' }}>
+                <p className="text-sm" style={{ color: '#0284c7' }}>
                   Bisa dipindah ke proyek lain
                 </p>
               </div>
@@ -225,7 +225,7 @@ export default function AssetsPage() {
         <select
           value={filterProject}
           onChange={(e) => setFilterProject(e.target.value)}
-          className="py-2.5 px-3 text-xs font-semibold outline-none"
+          className="py-2.5 px-3 text-sm font-semibold outline-none"
           style={{
             background: filterProject !== 'all' ? 'rgba(249,115,22,0.08)' : 'var(--bg-card)',
             border: filterProject !== 'all' ? '1px solid rgba(249,115,22,0.3)' : '1px solid var(--border-color)',
@@ -254,14 +254,14 @@ export default function AssetsPage() {
         style={{ borderBottom: '1px solid var(--border-color)' }}>
         {['all', 'active', 'idle', 'maintenance', 'lost'].map((s) => (
           <button key={s} onClick={() => setFilterStatus(s)}
-            className="px-4 py-3 text-xs font-semibold uppercase tracking-widest whitespace-nowrap transition-all"
+            className={`px-4 py-3 text-sm whitespace-nowrap transition-all ${filterStatus === s ? 'font-semibold' : 'font-medium'}`}
             style={{
-              color: filterStatus === s ? '#F97316' : 'var(--text-muted)',
+              color: filterStatus === s ? '#F97316' : 'var(--text-secondary)',
               borderBottom: filterStatus === s ? '2px solid #F97316' : '2px solid transparent',
               background: 'transparent',
             }}>
             {s === 'all' ? 'Semua' : statusConfig[s]?.label}
-            <span className="ml-2 opacity-50">
+            <span className="ml-1.5 opacity-60 text-xs">
               {s === 'all'
                 ? assets.length
                 : assets.filter((a) => a.status === s).length}
@@ -312,19 +312,22 @@ export default function AssetsPage() {
                 style={{
                   background: 'var(--bg-card)',
                   border: asset.status === 'lost'
-                    ? '1px solid rgba(239,68,68,0.25)'
+                    ? '1px solid rgba(239,68,68,0.3)'
                     : '1px solid var(--border-color)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'var(--bg-secondary)'
                   if (asset.status !== 'lost')
-                    e.currentTarget.style.borderColor = 'rgba(249,115,22,0.2)'
+                    e.currentTarget.style.borderColor = 'rgba(249,115,22,0.3)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'var(--bg-card)'
                   e.currentTarget.style.borderColor = asset.status === 'lost'
-                    ? 'rgba(239,68,68,0.25)'
+                    ? 'rgba(239,68,68,0.3)'
                     : 'var(--border-color)'
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'
                 }}>
 
                 {/* Type icon */}
@@ -336,21 +339,21 @@ export default function AssetsPage() {
                 <div className="flex-1 min-w-0">
                   {/* Row 1: ID + badges */}
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                    <span className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
                       #{asset.id.slice(-6).toUpperCase()}
                     </span>
-                    <span className="text-xs px-2 py-0.5 font-semibold"
+                    <span className="text-xs px-2 py-0.5 font-semibold rounded-sm"
                       style={{ background: status.bg, color: status.color }}>
                       {status.label}
                     </span>
                     {isServiceDue && (
-                      <span className="text-xs px-2 py-0.5 font-semibold"
+                      <span className="text-xs px-2 py-0.5 font-semibold rounded-sm"
                         style={{ background: 'rgba(234,179,8,0.1)', color: '#eab308' }}>
                         SERVICE DUE
                       </span>
                     )}
                     {asset.isRented && (
-                      <span className="text-xs px-2 py-0.5 font-semibold"
+                      <span className="text-xs px-2 py-0.5 font-semibold rounded-sm"
                         style={{ background: 'rgba(56,189,248,0.1)', color: '#38bdf8' }}>
                         SEWA
                       </span>
@@ -364,23 +367,23 @@ export default function AssetsPage() {
 
                   {/* Row 3: Type + Kondisi + Lokasi Proyek */}
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {typeInfo.label}
                     </span>
-                    <span className="text-xs" style={{ color: condition.color }}>
+                    <span className="text-xs font-medium" style={{ color: condition.color }}>
                       ● {condition.label}
                     </span>
                     {/* Lokasi proyek — info penting untuk PM */}
-                    <span className="flex items-center gap-1 text-xs"
+                    <span className="flex items-center gap-1 text-xs font-medium"
                       style={{
-                        color: asset.currentProjectId ? '#F97316' : 'var(--text-muted)',
+                        color: asset.currentProjectId ? '#F97316' : 'var(--text-secondary)',
                       }}>
                       <FolderOpen size={10} />
                       {projectName}
                     </span>
                     {projectLocation && (
                       <span className="flex items-center gap-1 text-xs"
-                        style={{ color: 'var(--text-muted)' }}>
+                        style={{ color: 'var(--text-secondary)' }}>
                         <MapPin size={10} />
                         {projectLocation}
                       </span>

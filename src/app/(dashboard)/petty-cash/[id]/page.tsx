@@ -145,15 +145,17 @@ export default function PettyCashDetailPage() {
       {/* Header */}
       <div className="mb-8">
         <Link href="/petty-cash"
-          className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft size={12} />
+          className="inline-flex items-center gap-2 text-sm mb-4 transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#F97316' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
+          <ArrowLeft size={14} />
           Kembali
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-mono mb-1"
-              style={{ color: 'var(--text-muted)' }}>
+            <p className="text-sm font-mono mb-1"
+              style={{ color: 'var(--text-secondary)' }}>
               #{tx.id.slice(-6).toUpperCase()}
             </p>
             <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -170,15 +172,16 @@ export default function PettyCashDetailPage() {
       {tx.anomalyFlag && (
         <div className="flex items-start gap-3 p-4 mb-5"
           style={{
-            background: 'rgba(239,68,68,0.06)',
+            background: 'rgba(239,68,68,0.08)',
             border: '1px solid rgba(239,68,68,0.25)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}>
-          <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
+          <AlertTriangle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
           <div>
             <p className="text-sm font-bold mb-1" style={{ color: '#ef4444' }}>
               ⚠️ Anomali Terdeteksi
             </p>
-            <p className="text-xs" style={{ color: 'rgba(239,68,68,0.7)' }}>
+            <p className="text-sm" style={{ color: '#dc2626' }}>
               {tx.anomalyReason}
             </p>
           </div>
@@ -189,15 +192,16 @@ export default function PettyCashDetailPage() {
       {tx.isEmergency && (
         <div className="flex items-center gap-3 p-4 mb-5"
           style={{
-            background: 'rgba(249,115,22,0.06)',
+            background: 'rgba(249,115,22,0.08)',
             border: '1px solid rgba(249,115,22,0.25)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}>
-          <Zap size={16} style={{ color: '#F97316' }} />
+          <Zap size={18} style={{ color: '#F97316' }} />
           <div>
             <p className="text-sm font-bold" style={{ color: '#F97316' }}>
               Pembelian Darurat
             </p>
-            <p className="text-xs mt-0.5" style={{ color: 'rgba(249,115,22,0.6)' }}>
+            <p className="text-sm mt-0.5" style={{ color: '#c2410c' }}>
               Diizinkan oleh: {tx.emergencyApprovedBy}
             </p>
           </div>
@@ -206,36 +210,36 @@ export default function PettyCashDetailPage() {
 
       {/* Main info */}
       <div className="p-5 mb-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs mb-1"
-              style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              DIMINTA OLEH
+            <p className="text-xs font-medium mb-1"
+              style={{ color: 'var(--text-secondary)' }}>
+              Diminta Oleh
             </p>
             <p className="text-sm font-semibold flex items-center gap-1.5"
               style={{ color: 'var(--text-primary)' }}>
-              <User size={12} style={{ color: 'var(--text-muted)' }} />
+              <User size={13} style={{ color: 'var(--text-secondary)' }} />
               {tx.requestedBy}
             </p>
           </div>
           <div>
-            <p className="text-xs mb-1"
-              style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              TANGGAL REQUEST
+            <p className="text-xs font-medium mb-1"
+              style={{ color: 'var(--text-secondary)' }}>
+              Tanggal Request
             </p>
             <p className="text-sm font-semibold flex items-center gap-1.5"
               style={{ color: 'var(--text-primary)' }}>
-              <Clock size={12} style={{ color: 'var(--text-muted)' }} />
+              <Clock size={13} style={{ color: 'var(--text-secondary)' }} />
               {tx.createdAt
                 ? format(tx.createdAt, 'd MMM yyyy, HH:mm', { locale: id })
                 : '—'}
             </p>
           </div>
           <div>
-            <p className="text-xs mb-1"
-              style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              KATEGORI
+            <p className="text-xs font-medium mb-1"
+              style={{ color: 'var(--text-secondary)' }}>
+              Kategori
             </p>
             <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {tx.category}
@@ -243,9 +247,9 @@ export default function PettyCashDetailPage() {
             </p>
           </div>
           <div>
-            <p className="text-xs mb-1"
-              style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              JENIS PEMBELIAN
+            <p className="text-xs font-medium mb-1"
+              style={{ color: 'var(--text-secondary)' }}>
+              Jenis Pembelian
             </p>
             <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {tx.purchaseType === 'cash' && '💵 Kas Langsung'}
@@ -258,19 +262,19 @@ export default function PettyCashDetailPage() {
 
       {/* Description */}
       <div className="p-5 mb-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3"
-          style={{ color: 'var(--text-muted)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+        <p className="text-sm font-semibold tracking-wide mb-3"
+          style={{ color: 'var(--text-primary)' }}>
           Deskripsi Pengeluaran
         </p>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           {tx.description}
         </p>
         {tx.notes && (
-          <p className="text-xs mt-3 pt-3 leading-relaxed"
+          <p className="text-sm mt-3 pt-3 leading-relaxed"
             style={{
               color: 'var(--text-secondary)',
-              borderTop: '1px solid rgba(245,240,235,0.06)'
+              borderTop: '1px solid var(--border-color)'
             }}>
             Catatan: {tx.notes}
           </p>
@@ -280,9 +284,9 @@ export default function PettyCashDetailPage() {
       {/* Foto bukti */}
       {tx.photos && tx.photos.length > 0 && (
         <div className="p-5 mb-4"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3"
-            style={{ color: 'var(--text-muted)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3"
+            style={{ color: 'var(--text-primary)' }}>
             📷 Foto Bukti ({tx.photos.length})
           </p>
           <div className="flex flex-wrap gap-2">
@@ -300,7 +304,7 @@ export default function PettyCashDetailPage() {
                   alt={`Bukti ${index + 1}`}
                   fill
                   className="object-cover"
-                  style={{ border: '1px solid rgba(245,240,235,0.1)' }}
+                  style={{ border: '1px solid var(--border-color)' }}
                 />
               </a>
             ))}
@@ -311,10 +315,10 @@ export default function PettyCashDetailPage() {
       {/* Online URL */}
       {tx.purchaseType === 'online' && tx.onlineUrl && (
         <div className="p-5 mb-4"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2"
-            style={{ color: 'var(--text-muted)' }}>
-            <ShoppingCart size={12} className="inline mr-1" />
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-2"
+            style={{ color: 'var(--text-primary)' }}>
+            <ShoppingCart size={14} className="inline mr-1" />
             Link Produk
           </p>
           <a href={tx.onlineUrl} target="_blank" rel="noopener noreferrer"
@@ -322,7 +326,7 @@ export default function PettyCashDetailPage() {
             style={{ color: '#F97316' }}>
             {tx.onlineUrl}
           </a>
-          <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
             Klik untuk verifikasi harga di {tx.onlinePlatform}
           </p>
         </div>
@@ -333,9 +337,10 @@ export default function PettyCashDetailPage() {
         <div className="p-5 mb-4"
           style={{
             background: 'rgba(239,68,68,0.05)',
-            border: '1px solid rgba(239,68,68,0.2)'
+            border: '1px solid rgba(239,68,68,0.2)',
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)'
           }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2"
+          <p className="text-sm font-semibold tracking-wide mb-2"
             style={{ color: '#ef4444' }}>
             Alasan Penolakan
           </p>
@@ -348,16 +353,16 @@ export default function PettyCashDetailPage() {
       {/* Actions */}
       {canApprove && isPending && (
         <div className="p-5 mb-4"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-4"
-            style={{ color: 'var(--text-muted)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-4"
+            style={{ color: 'var(--text-primary)' }}>
             Tindakan Approval
           </p>
 
           {!showRejectForm ? (
             <div className="flex gap-3">
               <button onClick={handleApprove} disabled={actionLoading}
-                className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                className="flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2"
                 style={{
                   background: 'rgba(34,197,94,0.1)',
                   color: '#22c55e',
@@ -369,7 +374,7 @@ export default function PettyCashDetailPage() {
                 Setujui
               </button>
               <button onClick={() => setShowRejectForm(true)} disabled={actionLoading}
-                className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                className="flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2"
                 style={{
                   background: 'rgba(239,68,68,0.1)',
                   color: '#ef4444',
@@ -387,13 +392,13 @@ export default function PettyCashDetailPage() {
                 rows={3}
                 className="w-full p-3 text-sm outline-none resize-none"
                 style={{
-                  background: 'var(--bg-primary)',
+                  background: 'var(--bg-input)',
                   border: '1px solid rgba(239,68,68,0.3)',
                   color: 'var(--text-primary)',
                 }} />
               <div className="flex gap-3">
                 <button onClick={handleReject} disabled={actionLoading}
-                  className="flex-1 py-2.5 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 text-sm font-bold flex items-center justify-center gap-2"
                   style={{ background: '#ef4444', color: '#fff' }}>
                   {actionLoading
                     ? <Loader2 size={14} className="animate-spin" />
@@ -402,8 +407,9 @@ export default function PettyCashDetailPage() {
                 <button onClick={() => setShowRejectForm(false)}
                   className="px-4 py-2.5 text-sm"
                   style={{
-                    border: '1px solid rgba(245,240,235,0.1)',
-                    color: 'var(--text-secondary)'
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-secondary)',
+                    background: 'var(--bg-secondary)'
                   }}>
                   Batal
                 </button>
@@ -416,13 +422,13 @@ export default function PettyCashDetailPage() {
       {/* Mark complete */}
       {tx.status === 'approved' && (
         <div className="p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3"
-            style={{ color: 'var(--text-muted)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3"
+            style={{ color: 'var(--text-primary)' }}>
             Update Status
           </p>
           <button onClick={handleMarkComplete} disabled={actionLoading}
-            className="w-full py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+            className="w-full py-3 text-sm font-bold flex items-center justify-center gap-2"
             style={{
               background: 'rgba(34,197,94,0.1)',
               color: '#22c55e',

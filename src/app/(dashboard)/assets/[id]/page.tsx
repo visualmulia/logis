@@ -167,15 +167,17 @@ export default function AssetDetailPage() {
       {/* Header */}
       <div className="mb-8">
         <Link href="/assets"
-          className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft size={12} />
+          className="inline-flex items-center gap-2 text-sm mb-4 transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#F97316' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
+          <ArrowLeft size={14} />
           Semua Aset
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-mono mb-1"
-              style={{ color: 'var(--text-muted)' }}>
+            <p className="text-sm font-mono mb-1"
+              style={{ color: 'var(--text-secondary)' }}>
               #{asset.id.slice(-6).toUpperCase()}
               {asset.serialNumber && ` · SN: ${asset.serialNumber}`}
             </p>
@@ -186,22 +188,22 @@ export default function AssetDetailPage() {
           <div className="flex gap-2">
             {!editing ? (
               <button onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-widest"
-                style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
+                className="flex items-center gap-2 px-4 py-2 text-xs font-semibold"
+                style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)', background: 'var(--bg-card)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
                 <Edit3 size={12} />
                 Edit
               </button>
             ) : (
               <>
                 <button onClick={handleSave} disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-widest"
-                  style={{ background: '#F97316', color: '#0a0a0a' }}>
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-semibold"
+                  style={{ background: '#F97316', color: '#fff' }}>
                   {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
                   Simpan
                 </button>
                 <button onClick={() => setEditing(false)}
                   className="px-3 py-2"
-                  style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
+                  style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)', background: 'var(--bg-secondary)' }}>
                   <X size={14} />
                 </button>
               </>
@@ -213,9 +215,9 @@ export default function AssetDetailPage() {
       {/* Service due alert */}
       {isServiceDue && (
         <div className="flex items-center gap-3 p-4 mb-6"
-          style={{ background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.2)' }}>
-          <AlertTriangle size={16} style={{ color: '#eab308' }} />
-          <p className="text-sm" style={{ color: '#eab308' }}>
+          style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+          <AlertTriangle size={18} style={{ color: '#eab308' }} />
+          <p className="text-sm font-semibold" style={{ color: '#ca8a04' }}>
             Jadwal servis sudah terlewat — segera lakukan perawatan
           </p>
         </div>
@@ -224,9 +226,9 @@ export default function AssetDetailPage() {
       {/* Status & condition */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs uppercase tracking-widest mb-3"
-            style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-xs font-medium tracking-wide mb-3"
+            style={{ color: 'var(--text-secondary)' }}>
             Status
           </p>
           {editing ? (
@@ -251,9 +253,9 @@ export default function AssetDetailPage() {
         </div>
 
         <div className="p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs uppercase tracking-widest mb-3"
-            style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-xs font-medium tracking-wide mb-3"
+            style={{ color: 'var(--text-secondary)' }}>
             Kondisi
           </p>
           {editing ? (
@@ -277,11 +279,11 @@ export default function AssetDetailPage() {
 
       {/* Location */}
       <div className="p-5 mb-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
         <div className="flex items-center gap-2 mb-3">
-          <MapPin size={13} style={{ color: '#F97316' }} />
-          <p className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--text-muted)' }}>
+          <MapPin size={14} style={{ color: '#F97316' }} />
+          <p className="text-xs font-medium tracking-wide"
+            style={{ color: 'var(--text-secondary)' }}>
             Lokasi Sekarang
           </p>
         </div>
@@ -307,18 +309,18 @@ export default function AssetDetailPage() {
 
       {/* Service info */}
       <div className="p-5 mb-4"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Wrench size={13} style={{ color: '#F97316' }} />
-          <p className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--text-muted)' }}>
+          <Wrench size={14} style={{ color: '#F97316' }} />
+          <p className="text-xs font-medium tracking-wide"
+            style={{ color: 'var(--text-secondary)' }}>
             Info Servis
           </p>
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              JAM OPERASI
+            <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+              Jam Operasi
             </p>
             {editing ? (
               <input type="number" value={editForm.operatingHours}
@@ -327,26 +329,26 @@ export default function AssetDetailPage() {
             ) : (
               <p className="text-xl font-black font-mono" style={{ color: '#F97316' }}>
                 {asset.operatingHours}
-                <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-muted)' }}>
+                <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-secondary)' }}>
                   jam
                 </span>
               </p>
             )}
           </div>
           <div>
-            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              INTERVAL SERVIS
+            <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+              Interval Servis
             </p>
             <p className="text-xl font-black font-mono" style={{ color: 'var(--text-primary)' }}>
               {asset.serviceIntervalHours}
-              <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-muted)' }}>
+              <span className="text-xs font-normal ml-1" style={{ color: 'var(--text-secondary)' }}>
                 jam
               </span>
             </p>
           </div>
           <div>
-            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>
-              SERVIS TERAKHIR
+            <p className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+              Servis Terakhir
             </p>
             <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {asset.lastServiceDate
@@ -359,15 +361,15 @@ export default function AssetDetailPage() {
         {/* Service progress bar */}
         <div className="mt-4">
           <div className="flex justify-between text-xs mb-1"
-            style={{ color: 'var(--text-muted)' }}>
+            style={{ color: 'var(--text-secondary)' }}>
             <span>Progress ke servis berikutnya</span>
-            <span style={{ color: isServiceDue ? '#ef4444' : '#F97316' }}>
+            <span style={{ color: isServiceDue ? '#ef4444' : '#F97316', fontWeight: 600 }}>
               {Math.min(Math.round((asset.operatingHours / asset.serviceIntervalHours) * 100), 100)}%
             </span>
           </div>
-          <div className="h-2 w-full" style={{ background: 'rgba(245,240,235,0.08)' }}>
+          <div className="h-2 w-full rounded-full" style={{ background: 'var(--border-color)' }}>
             <div
-              className="h-full transition-all"
+              className="h-full transition-all rounded-full"
               style={{
                 width: `${Math.min((asset.operatingHours / asset.serviceIntervalHours) * 100, 100)}%`,
                 background: isServiceDue ? '#ef4444' : '#F97316',
@@ -380,9 +382,9 @@ export default function AssetDetailPage() {
       {/* Danger zone */}
       {asset.status !== 'lost' && (
         <div className="p-5"
-          style={{ background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.15)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3"
-            style={{ color: 'rgba(239,68,68,0.6)' }}>
+          style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-xs font-semibold tracking-wide mb-3"
+            style={{ color: '#ef4444' }}>
             Zona Bahaya
           </p>
           <div className="flex items-center justify-between">
@@ -390,12 +392,12 @@ export default function AssetDetailPage() {
               <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
                 Tandai Sebagai Hilang
               </p>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                 Tindakan ini akan dicatat dan tidak bisa di-undo secara otomatis
               </p>
             </div>
             <button onClick={markAsLost}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-widest flex-shrink-0"
+              className="px-4 py-2 text-xs font-bold flex-shrink-0"
               style={{
                 background: 'rgba(239,68,68,0.1)',
                 color: '#ef4444',
@@ -409,14 +411,14 @@ export default function AssetDetailPage() {
 
       {asset.status === 'lost' && (
         <div className="p-5"
-          style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
           <div className="flex items-center gap-3">
             <X size={20} style={{ color: '#ef4444' }} />
             <div>
               <p className="text-sm font-bold" style={{ color: '#ef4444' }}>
                 Aset ini ditandai HILANG
               </p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(239,68,68,0.6)' }}>
+              <p className="text-sm mt-0.5" style={{ color: '#dc2626' }}>
                 Hubungi tim lapangan untuk investigasi lebih lanjut
               </p>
             </div>

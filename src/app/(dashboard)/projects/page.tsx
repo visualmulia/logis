@@ -63,7 +63,7 @@ export default function ProjectsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6 lg:mb-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-1"
+          <p className="text-sm font-semibold tracking-wide mb-1"
             style={{ color: '#F97316' }}>
             Modul 02 — Gudang Digital
           </p>
@@ -81,8 +81,8 @@ export default function ProjectsPage() {
         {canAddProject && (
           <Link
             href="/projects/new"
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest"
-            style={{ background: '#F97316', color: '#fff' }}
+            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold"
+            style={{ background: '#F97316', color: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
           >
             <Plus size={15} />
             Proyek Baru
@@ -129,14 +129,17 @@ export default function ProjectsPage() {
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'rgba(249,115,22,0.3)'
                 e.currentTarget.style.background = 'var(--bg-secondary)'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'var(--border-color)'
                 e.currentTarget.style.background = 'var(--bg-card)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)'
               }}
             >
               {/* Status + nama */}
@@ -151,12 +154,12 @@ export default function ProjectsPage() {
                         : 'none',
                     }}
                   />
-                  <h3 className="text-sm font-semibold leading-tight"
+                  <h3 className="text-base font-semibold leading-tight"
                     style={{ color: 'var(--text-primary)' }}>
                     {project.name}
                   </h3>
                 </div>
-                <ChevronRight size={14}
+                <ChevronRight size={16}
                   className="flex-shrink-0 mt-0.5 transition-colors group-hover:text-orange-500"
                   style={{ color: 'var(--text-muted)' }} />
               </div>
@@ -164,19 +167,19 @@ export default function ProjectsPage() {
               {/* Lokasi */}
               {project.location && (
                 <div className="flex items-center gap-1.5 mb-3"
-                  style={{ color: 'var(--text-muted)' }}>
-                  <Building2 size={11} className="shrink-0" />
-                  <span className="text-xs truncate">{project.location}</span>
+                  style={{ color: 'var(--text-secondary)' }}>
+                  <Building2 size={13} className="shrink-0" />
+                  <span className="text-sm truncate">{project.location}</span>
                 </div>
               )}
 
               {/* Progress bar */}
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
                     Progress
                   </span>
-                  <span className="text-xs font-mono font-bold"
+                  <span className="text-sm font-mono font-bold"
                     style={{ color: '#F97316' }}>
                     {project.progressPercent || 0}%
                   </span>
@@ -197,8 +200,8 @@ export default function ProjectsPage() {
               <div className="flex items-center justify-between">
                 {project.startDate ? (
                   <span className="text-xs flex items-center gap-1"
-                    style={{ color: 'var(--text-muted)' }}>
-                    <Calendar size={10} />
+                    style={{ color: 'var(--text-secondary)' }}>
+                    <Calendar size={11} />
                     {format(project.startDate, 'd MMM yyyy', { locale: id })}
                   </span>
                 ) : <span />}
