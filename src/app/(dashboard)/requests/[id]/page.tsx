@@ -388,9 +388,11 @@ export default function RequestDetailPage() {
 
       {/* Header */}
       <div className="mb-6">
-        <Link href="/requests" className="inline-flex items-center gap-2 text-xs mb-4"
-          style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft size={12} />Kembali
+        <Link href="/requests" className="inline-flex items-center gap-2 text-sm mb-4 transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#F97316' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
+          <ArrowLeft size={14} />Kembali
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -403,11 +405,11 @@ export default function RequestDetailPage() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button onClick={handlePrint}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold uppercase tracking-widest"
-              style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)', background: 'var(--bg-card)' }}>
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold"
+              style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)', background: 'var(--bg-card)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
               <Printer size={13} />Print
             </button>
-            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-widest"
+            <div className="px-3 py-1.5 text-xs font-semibold"
               style={{ background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}` }}>
               {statusCfg.label}
             </div>
@@ -417,7 +419,7 @@ export default function RequestDetailPage() {
 
       {/* Progress tracker */}
       <div className="mb-6 p-4 overflow-x-auto"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
         <div className="flex items-center gap-0 min-w-max">
           {STATUS_STEPS.map((step, i) => {
             const done = currentStep > i
@@ -463,18 +465,18 @@ export default function RequestDetailPage() {
 
       {/* Meta info */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 p-5"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <User size={11} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ color: 'var(--text-muted)', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Diminta oleh</span>
+            <User size={13} style={{ color: 'var(--text-secondary)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Diminta oleh</span>
           </div>
           <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{request.requestedByName}</p>
         </div>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <Clock size={11} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ color: 'var(--text-muted)', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Tanggal</span>
+            <Clock size={13} style={{ color: 'var(--text-secondary)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Tanggal</span>
           </div>
           <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
             {request.createdAt ? format(request.createdAt, 'd MMM yyyy, HH:mm', { locale: id }) : '—'}
@@ -482,8 +484,8 @@ export default function RequestDetailPage() {
         </div>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <AlertTriangle size={11} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ color: 'var(--text-muted)', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Urgensi</span>
+            <AlertTriangle size={13} style={{ color: 'var(--text-secondary)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Urgensi</span>
           </div>
           <p className="text-sm font-semibold uppercase"
             style={{ color: request.urgency === 'urgent' ? '#ef4444' : request.urgency === 'normal' ? '#F97316' : 'var(--text-muted)' }}>
@@ -493,8 +495,8 @@ export default function RequestDetailPage() {
         {request.projectId && (
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <FolderOpen size={11} style={{ color: 'var(--text-muted)' }} />
-              <span style={{ color: 'var(--text-muted)', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Proyek</span>
+              <FolderOpen size={13} style={{ color: 'var(--text-secondary)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Proyek</span>
             </div>
             <p className="text-sm font-semibold" style={{ color: '#F97316' }}>{projectName || request.projectId}</p>
           </div>
@@ -504,20 +506,22 @@ export default function RequestDetailPage() {
       {/* PM Acknowledge info */}
       {request.pmAcknowledgedByName && (
         <div className="mb-4 px-4 py-3 flex items-center gap-3"
-          style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)' }}>
-          <ThumbsUp size={14} style={{ color: '#38bdf8' }} />
-          <p className="text-xs" style={{ color: '#38bdf8' }}>
+          style={{ background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.25)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+          <ThumbsUp size={16} style={{ color: '#38bdf8' }} />
+          <p className="text-sm" style={{ color: '#0ea5e9' }}>
             Acknowledge oleh PM <strong>{request.pmAcknowledgedByName}</strong>
-            {request.pmAcknowledgedAt && ` · ${format(request.pmAcknowledgedAt, 'd MMM yyyy, HH:mm', { locale: id })}`}
+            {request.pmAcknowledgedAt && (
+              <span style={{ color: '#38bdf8' }}> · {format(request.pmAcknowledgedAt, 'd MMM yyyy, HH:mm', { locale: id })}</span>
+            )}
           </p>
         </div>
       )}
 
       {/* Catatan revisi PM */}
       {isRevisionRequested && request.pmRevisionNote && (
-        <div className="mb-4 p-4"
-          style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.2)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#F97316' }}>
+        <div className="mb-4 p-5"
+          style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.2)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-2" style={{ color: '#F97316' }}>
             Catatan Revisi dari PM
           </p>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{request.pmRevisionNote}</p>
@@ -525,11 +529,11 @@ export default function RequestDetailPage() {
       )}
 
       {/* Items */}
-      <div className="mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+      <div className="mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
         <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
           <div className="flex items-center gap-2">
-            <Package size={14} style={{ color: '#F97316' }} />
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
+            <Package size={16} style={{ color: '#F97316' }} />
+            <span className="text-sm font-semibold tracking-wide" style={{ color: 'var(--text-primary)' }}>
               Daftar Barang ({request.items?.length} item)
             </span>
           </div>
@@ -537,12 +541,12 @@ export default function RequestDetailPage() {
         {request.items?.map((item, index) => (
           <div key={index} className="px-5 py-4 flex items-center gap-4"
             style={{ borderBottom: index < (request.items?.length || 0) - 1 ? '1px solid var(--border-color)' : 'none' }}>
-            <span className="font-mono text-xs w-5 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
+            <span className="font-mono text-sm w-5 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
               {String(index + 1).padStart(2, '0')}
             </span>
             <div className="flex-1">
               <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.name}</p>
-              {item.notes && <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{item.notes}</p>}
+              {item.notes && <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>{item.notes}</p>}
             </div>
             <div className="text-right">
               <span className="text-sm font-bold font-mono" style={{ color: '#F97316' }}>{item.quantity}</span>
@@ -554,8 +558,8 @@ export default function RequestDetailPage() {
 
       {/* Foto */}
       {request.photos && request.photos.length > 0 && (
-        <div className="mb-4 p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+        <div className="mb-4 p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3" style={{ color: 'var(--text-primary)' }}>
             Foto Referensi ({request.photos.length})
           </p>
           <div className="flex flex-wrap gap-2">
@@ -572,26 +576,26 @@ export default function RequestDetailPage() {
 
       {/* Alasan */}
       {request.reason && (
-        <div className="mb-4 p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>Alasan Permintaan</p>
+        <div className="mb-4 p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3" style={{ color: 'var(--text-primary)' }}>Alasan Permintaan</p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{request.reason}</p>
         </div>
       )}
 
       {/* Alasan penolakan */}
       {request.status === 'rejected' && request.rejectedReason && (
-        <div className="mb-4 p-5" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#ef4444' }}>Alasan Penolakan</p>
+        <div className="mb-4 p-5" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-2" style={{ color: '#ef4444' }}>Alasan Penolakan</p>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{request.rejectedReason}</p>
         </div>
       )}
 
       {/* Info PO */}
       {(request.status === 'po_issued' || request.status === 'on_delivery' || request.status === 'completed' || request.status === 'discrepancy') && request.poNumber && (
-        <div className="mb-4 p-5" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)' }}>
+        <div className="mb-4 p-5" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <FileText size={14} style={{ color: '#a78bfa' }} />
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#a78bfa' }}>Purchase Order</p>
+            <FileText size={16} style={{ color: '#a78bfa' }} />
+            <p className="text-sm font-semibold tracking-wide" style={{ color: '#a78bfa' }}>Purchase Order</p>
           </div>
           <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Nomor PO: {request.poNumber}</p>
           {request.poNotes && <p className="text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>{request.poNotes}</p>}
@@ -610,8 +614,8 @@ export default function RequestDetailPage() {
 
       {/* Laporan ketidaksesuaian */}
       {request.discrepancyNote && (
-        <div className="mb-4 p-5" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#ef4444' }}>Laporan Ketidaksesuaian</p>
+        <div className="mb-4 p-5" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-2" style={{ color: '#ef4444' }}>Laporan Ketidaksesuaian</p>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{request.discrepancyNote}</p>
           {request.discrepancyReportedByName && (
             <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Dilaporkan oleh {request.discrepancyReportedByName}</p>
@@ -623,8 +627,8 @@ export default function RequestDetailPage() {
 
       {/* 1. PM: Acknowledge atau Minta Revisi */}
       {canPMAction && isPendingPM && (
-        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3" style={{ color: 'var(--text-primary)' }}>
             Tindakan PM
           </p>
           {!showRevisionForm ? (
@@ -668,8 +672,8 @@ export default function RequestDetailPage() {
 
       {/* 2. Admin Pusat: Approve atau Reject */}
       {canAdminAction && isPendingAdmin && (
-        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
+        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-4" style={{ color: 'var(--text-primary)' }}>
             Tindakan Admin Pusat
           </p>
           {!showRejectForm ? (
@@ -711,10 +715,10 @@ export default function RequestDetailPage() {
       {/* 3. Admin Pusat: Upload PO (setelah approve) */}
       {canAdminAction && (isApproved || showPOUpload) && !['po_issued','on_delivery','completed','discrepancy'].includes(request.status) && (
         <div className="mt-4 mb-4 p-5"
-          style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.25)' }}>
+          style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.25)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
           <div className="flex items-center gap-2 mb-4">
-            <FileText size={14} style={{ color: '#a78bfa' }} />
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#a78bfa' }}>
+            <FileText size={16} style={{ color: '#a78bfa' }} />
+            <p className="text-sm font-semibold tracking-wide" style={{ color: '#a78bfa' }}>
               Terbitkan Purchase Order (PO)
             </p>
           </div>
@@ -770,8 +774,8 @@ export default function RequestDetailPage() {
 
       {/* 4. Logistik: Konfirmasi terima atau laporkan ketidaksesuaian */}
       {canLogistik && isOnDelivery && (
-        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3" style={{ color: 'var(--text-primary)' }}>
             Konfirmasi Penerimaan Barang
           </p>
           <p className="text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>

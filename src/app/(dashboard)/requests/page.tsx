@@ -173,7 +173,7 @@ export default function RequestsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-1"
+          <p className="text-sm font-semibold tracking-wide mb-1"
             style={{ color: '#F97316' }}>
             Modul 01
           </p>
@@ -189,13 +189,14 @@ export default function RequestsPage() {
           {/* Date filter toggle */}
           <button
             onClick={() => setShowDateFilter(!showDateFilter)}
-            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-bold uppercase tracking-widest"
+            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold"
             style={{
               border: showDateFilter || dateFrom || dateTo
                 ? '1px solid rgba(249,115,22,0.4)'
                 : '1px solid var(--border-strong)',
               color: dateFrom || dateTo ? '#F97316' : 'var(--text-secondary)',
               background: 'var(--bg-card)',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
             }}
           >
             <Calendar size={14} />
@@ -206,7 +207,7 @@ export default function RequestsPage() {
           <button
             onClick={handleExport}
             disabled={exporting || displayList.length === 0}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold uppercase tracking-widest"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold"
             style={{
               border: '1px solid var(--border-strong)',
               color: exporting || displayList.length === 0
@@ -214,6 +215,7 @@ export default function RequestsPage() {
                 : 'var(--text-secondary)',
               cursor: displayList.length === 0 ? 'not-allowed' : 'pointer',
               background: 'var(--bg-card)',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
             }}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
@@ -224,8 +226,8 @@ export default function RequestsPage() {
           {canCreateRequest && (
             <Link
               href="/requests/new"
-              className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold uppercase tracking-widest flex-1 sm:flex-none"
-              style={{ background: '#F97316', color: '#fff' }}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold flex-1 sm:flex-none"
+              style={{ background: '#F97316', color: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
             >
               <Plus size={15} />
               Request Baru
@@ -237,10 +239,10 @@ export default function RequestsPage() {
       {/* Date range filter panel */}
       {showDateFilter && (
         <div className="flex flex-wrap items-end gap-3 p-4 mb-4"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03)' }}>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5"
-              style={{ color: 'var(--text-muted)' }}>
+            <label className="block text-xs font-semibold tracking-wide mb-1.5"
+              style={{ color: 'var(--text-secondary)' }}>
               Dari Tanggal
             </label>
             <input
@@ -251,8 +253,8 @@ export default function RequestsPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5"
-              style={{ color: 'var(--text-muted)' }}>
+            <label className="block text-xs font-semibold tracking-wide mb-1.5"
+              style={{ color: 'var(--text-secondary)' }}>
               Sampai Tanggal
             </label>
             <input
@@ -265,7 +267,7 @@ export default function RequestsPage() {
           {(dateFrom || dateTo) && (
             <button
               onClick={clearDateFilter}
-              className="px-4 py-2 text-xs font-semibold uppercase tracking-widest"
+              className="px-4 py-2 text-xs font-semibold"
               style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
             >
               Reset
@@ -284,21 +286,22 @@ export default function RequestsPage() {
       {/* Project toggle — hanya untuk owner/admin/pm */}
       {canSeeAllProjects && projects.length > 0 && (
         <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <span className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--text-muted)' }}>
+          <span className="text-sm font-semibold"
+            style={{ color: 'var(--text-secondary)' }}>
             Proyek:
           </span>
 
           {/* Semua proyek button */}
           <button
             onClick={() => setSelectedProjectId('all')}
-            className="px-3 py-1.5 text-xs font-semibold uppercase tracking-widest"
+            className="px-3 py-1.5 text-xs font-semibold"
             style={{
               background: selectedProjectId === 'all' ? '#F97316' : 'var(--bg-card)',
               color: selectedProjectId === 'all' ? '#fff' : 'var(--text-secondary)',
               border: selectedProjectId === 'all'
                 ? '1px solid #F97316'
                 : '1px solid var(--border-strong)',
+              boxShadow: selectedProjectId === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
             }}
           >
             Semua Proyek
@@ -309,7 +312,7 @@ export default function RequestsPage() {
             <button
               key={p.id}
               onClick={() => setSelectedProjectId(p.id)}
-              className="px-3 py-1.5 text-xs font-semibold uppercase tracking-widest flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5"
               style={{
                 background: selectedProjectId === p.id ? 'rgba(249,115,22,0.1)' : 'var(--bg-card)',
                 color: selectedProjectId === p.id ? '#F97316' : 'var(--text-secondary)',
@@ -328,7 +331,7 @@ export default function RequestsPage() {
       {/* Summary bar */}
       {pendingCount > 0 && (
         <div className="flex items-center gap-3 p-4 mb-6"
-          style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)' }}>
+          style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
           <AlertCircle size={16} style={{ color: '#eab308' }} />
           <p className="text-sm" style={{ color: '#eab308' }}>
             <span className="font-bold">{pendingCount} request</span> menunggu review dari kantor
@@ -358,16 +361,16 @@ export default function RequestsPage() {
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
-            className="px-4 py-3 text-xs font-semibold uppercase tracking-widest whitespace-nowrap transition-all"
+            className={`px-4 py-3 text-sm whitespace-nowrap transition-all ${filter === tab.key ? 'font-semibold' : 'font-medium'}`}
             style={{
-              color: filter === tab.key ? '#F97316' : 'var(--text-muted)',
+              color: filter === tab.key ? '#F97316' : 'var(--text-secondary)',
               borderBottom: filter === tab.key ? '2px solid #F97316' : '2px solid transparent',
               background: 'transparent',
             }}
           >
             {tab.label}
             {tab.key !== 'all' && (
-              <span className="ml-2 opacity-50">
+              <span className="ml-1.5 opacity-60 text-xs">
                 {requests.filter((r) => r.status === tab.key).length}
               </span>
             )}
@@ -377,7 +380,7 @@ export default function RequestsPage() {
 
       {/* Info bar — untuk all projects view */}
       {canSeeAllProjects && selectedProjectId === 'all' && filtered.length > MAX_ALL_LIST && (
-        <div className="flex items-center gap-2 px-4 py-2.5 mb-4 text-xs"
+        <div className="flex items-center gap-2 px-4 py-2.5 mb-4 text-sm"
           style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.15)', color: '#F97316' }}>
           <AlertCircle size={13} />
           Menampilkan {MAX_ALL_LIST} dari {filtered.length} request. Pilih proyek tertentu untuk lihat semua.
@@ -391,7 +394,7 @@ export default function RequestsPage() {
         </div>
       ) : displayList.length === 0 ? (
         <div className="text-center py-24" style={{ color: 'var(--text-muted)' }}>
-          <Package size={40} className="mx-auto mb-4 opacity-30"
+          <Package size={40} className="mx-auto mb-4 opacity-40"
             style={{ color: 'var(--text-primary)' }} />
           <p className="text-sm">
             {dateFrom || dateTo
@@ -402,7 +405,7 @@ export default function RequestsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {displayList.map((req) => {
             const status = statusConfig[req.status] || statusConfig.submitted
             const StatusIcon = status.icon
@@ -413,19 +416,25 @@ export default function RequestsPage() {
                 key={req.id}
                 href={`/requests/${req.id}`}
                 className="flex items-center gap-3 p-4 lg:p-5 transition-all group w-full overflow-hidden"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
+                style={{
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)',
+                }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(249,115,22,0.3)'
                   e.currentTarget.style.background = 'var(--bg-secondary)'
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'var(--border-color)'
                   e.currentTarget.style.background = 'var(--bg-card)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)'
                 }}
               >
                 {/* Status indicator */}
-                <div className="p-2 shrink-0" style={{ background: status.bg }}>
-                  <StatusIcon size={14} style={{ color: status.color }} />
+                <div className="p-2 shrink-0 rounded-sm" style={{ background: status.bg }}>
+                  <StatusIcon size={16} style={{ color: status.color }} />
                 </div>
 
                 {/* Main info */}
@@ -434,19 +443,19 @@ export default function RequestsPage() {
                     <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
                       #{req.id.slice(-6).toUpperCase()}
                     </span>
-                    <span className="text-xs px-2 py-0.5 font-semibold"
+                    <span className="text-xs px-2 py-0.5 font-semibold rounded-sm"
                       style={{ background: status.bg, color: status.color }}>
                       {status.label}
                     </span>
                     {req.urgency === 'urgent' && (
-                      <span className="text-xs px-2 py-0.5 font-semibold"
+                      <span className="text-xs px-2 py-0.5 font-semibold rounded-sm"
                         style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
                         URGENT
                       </span>
                     )}
                     {/* Bug 1 Fix: Nama proyek */}
                     {projectName && (
-                      <span className="text-xs px-2 py-0.5 flex items-center gap-1"
+                      <span className="text-xs px-2 py-0.5 flex items-center gap-1 rounded-sm"
                         style={{
                           background: 'rgba(249,115,22,0.08)',
                           color: '#F97316',
@@ -461,13 +470,13 @@ export default function RequestsPage() {
                     {req.items?.length} item{req.items?.length > 1 ? 's' : ''} —{' '}
                     {req.items?.map((i) => i.name).join(', ')}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                     Oleh {req.requestedByName} ·{' '}
                     {req.createdAt
                       ? formatDistanceToNow(req.createdAt, { addSuffix: true, locale: id })
                       : '—'}
                     {req.createdAt && (
-                      <span className="ml-2">
+                      <span className="ml-2" style={{ color: 'var(--text-muted)' }}>
                         · {format(req.createdAt, 'd MMM yyyy', { locale: id })}
                       </span>
                     )}

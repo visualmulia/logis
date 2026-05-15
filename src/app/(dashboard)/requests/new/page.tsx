@@ -128,11 +128,10 @@ await createNotification({
 
   const labelStyle = {
   display: 'block' as const,
-  fontSize: '11px',
+  fontSize: '13px',
   fontWeight: 600,
-  letterSpacing: '2px',
-  textTransform: 'uppercase' as const,
-  color: 'var(--text-muted)',
+  letterSpacing: '0.025em',
+  color: 'var(--text-secondary)',
   marginBottom: '8px',
 }
 
@@ -159,7 +158,7 @@ await createNotification({
           Kembali ke daftar request
         </Link>
         <p
-          className="text-xs font-semibold uppercase tracking-widest mb-1"
+          className="text-sm font-semibold tracking-wide mb-1"
           style={{ color: '#F97316' }}
         >
           Modul 01 — Request Baru
@@ -176,11 +175,12 @@ await createNotification({
           style={{
             background: 'var(--bg-card)',
             border: '1px solid var(--border-color)',
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)',
           }}
         >
           {/* Proyek */}
 <div className="p-6"
-  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
   <label style={labelStyle}>Proyek *</label>
   <select
     value={selectedProjectId}
@@ -257,6 +257,7 @@ await createNotification({
           style={{
             background: 'var(--bg-card)',
             border: '1px solid var(--border-color)',
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)',
           }}
         >
           <div className="flex items-center justify-between mb-4">
@@ -374,6 +375,7 @@ await createNotification({
   style={{
     background: 'var(--bg-card)',
     border: '1px solid var(--border-color)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)',
   }}
 >
   <PhotoUpload
@@ -391,6 +393,7 @@ await createNotification({
           style={{
             background: 'var(--bg-card)',
             border: '1px solid var(--border-color)',
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)',
           }}
         >
           <label style={labelStyle}>Alasan Permintaan</label>
@@ -435,8 +438,9 @@ await createNotification({
             href="/requests"
             className="px-6 py-3 text-sm font-semibold transition-all flex items-center"
             style={{
-              border: '1px solid rgba(245,240,235,0.1)',
+              border: '1px solid var(--border-strong)',
               color: 'var(--text-secondary)',
+              background: 'var(--bg-card)',
             }}
           >
             Batal
