@@ -206,6 +206,7 @@ async function handleSaveItemsRevision() {
     
     await createNotification({
       companyId: companyId!,
+      projectId: request?.projectId,
       type: 'request_revision',
       title: `Revisi Dikirim: #${requestId.slice(-6).toUpperCase()}`,
       message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan #${requestId.slice(-6).toUpperCase()}. ${revisionNote.trim()}`,
@@ -237,6 +238,7 @@ async function handleSaveItemsRevision() {
     if (ok && companyId) {
       await createNotification({
         companyId, type: 'request_approved',
+        projectId: request?.projectId,
         title: 'Request Disetujui PM',
         message: `PM ${logisUser?.name} telah acknowledge request #${requestId.slice(-6).toUpperCase()}. Menunggu persetujuan Admin Pusat.`,
         href: `/requests/${requestId}`,
@@ -256,6 +258,7 @@ async function handleSaveItemsRevision() {
     if (ok && companyId) {
       await createNotification({
         companyId, type: 'request_revision',
+        projectId: request?.projectId,
         title: 'Request Perlu Direvisi',
         message: `PM ${logisUser?.name} meminta revisi: ${revisionNote}`,
         href: `/requests/${requestId}`,
@@ -289,6 +292,7 @@ async function handleSubmitRevision() {
     
     await createNotification({
       companyId: companyId!,
+      projectId: request?.projectId,
       type: 'request_revision',
       title: `Revisi Dikirim: ${request?.poNumber}`,
 message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request?.poNumber}. ${revisionNote.trim()}`,
@@ -320,11 +324,12 @@ message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request
       if (companyId) {
         await createNotification({
           companyId, type: 'request_approved',
+          projectId: request?.projectId,
           title: 'Request Disetujui',
           message: `Request #${requestId.slice(-6).toUpperCase()} disetujui oleh ${logisUser?.name}`,
           href: `/requests/${requestId}`,
           createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-                  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site', 'po'],
+                  targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'logistik', 'admin_site'],
         })
       }
     }
@@ -340,6 +345,7 @@ message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request
     if (ok && companyId) {
       await createNotification({
         companyId, type: 'request_rejected',
+        projectId: request?.projectId,
         title: 'Request Ditolak',
         message: `Request #${requestId.slice(-6).toUpperCase()} ditolak. Alasan: ${rejectReason}`,
         href: `/requests/${requestId}`,
@@ -378,11 +384,12 @@ message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request
       setRequest((prev) => prev ? { ...prev, status: 'on_delivery', poNumber: poNumber.trim() } as MaterialRequest : prev)
       await createNotification({
         companyId, type: 'request_on_delivery',
+        projectId: request?.projectId,
         title: 'PO Diterbitkan — Barang Dalam Pengiriman',
         message: `PO #${poNumber} diterbitkan untuk request #${requestId.slice(-6).toUpperCase()}. Silakan follow up ke supplier.`,
         href: `/requests/${requestId}`,
         createdBy: logisUser?.id || '', createdByName: logisUser?.name || '',
-                targetRoles: ['owner', 'admin', 'pm', 'logistik', 'admin_site', 'po'],
+                targetRoles: ['owner', 'admin', 'pm', 'logistik', 'admin_site'],
       })
       toast.success('PO diterbitkan! Status → Dalam Pengiriman. Logistik sudah dinotifikasi.')
       setShowPOUpload(false)
@@ -401,6 +408,7 @@ message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request
     if (ok && companyId) {
       await createNotification({
         companyId, type: 'request_completed',
+        projectId: request?.projectId,
         title: 'Barang Diterima — Request Selesai',
         message: `Logistik ${logisUser?.name} konfirmasi barang untuk request #${requestId.slice(-6).toUpperCase()} sudah diterima sesuai PO.`,
         href: `/requests/${requestId}`,
@@ -423,6 +431,7 @@ message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request
     if (ok && companyId) {
       await createNotification({
         companyId, type: 'request_discrepancy',
+        projectId: request?.projectId,
         title: '⚠️ Ketidaksesuaian Barang',
         message: `Logistik ${logisUser?.name} melaporkan ketidaksesuaian: ${discrepancyNote}`,
         href: `/requests/${requestId}`,

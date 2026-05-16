@@ -107,6 +107,7 @@ useEffect(() => {
       // Trigger notifikasi ke admin/pm/owner
 await createNotification({
   companyId,
+  projectId: selectedProjectId,
   type: 'request_new',
   title: 'Request Material Baru',
   message: `${logisUser.name} mengajukan ${items.length} item — ${items.map(i => i.name).join(', ')}`,

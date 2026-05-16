@@ -18,12 +18,40 @@ interface CreateNotifParams {
   createdBy: string
   createdByName: string
   targetRoles: string[]
+  projectId?: string // ← untuk filter PM berdasarkan project
 }
 
-async function getTokensByRole(companyId: string, targetRoles: string[], senderId: string): Promise<string[]> {
+async function getTokensByRole(
+  companyId: string,
+  targetRoles: string[],
+  senderId: string,
+  projectId?: string
+): Promise<string[]> {
   const tokens: string[] = []
-  
+
   for (const role of targetRoles) {
+    // Kalau role PM dan ada projectId, filter by projectIds user
+    if (role === 'pm' && projectId) {
+      const usersSnap = await getDocs(
+        query(
+          collection(db, 'logis_companies', companyId, 'users'),
+          where('role', '==', 'pm'),
+          where('isActive', '==', true),
+        )
+      )
+      usersSnap.docs.forEach((doc) => {
+        if (doc.id === senderId) return
+        const data = doc.data()
+        const userProjectIds: string[] = data.projectIds || []
+        // Hanya ambil PM yang handle project ini
+        if (userProjectIds.includes(projectId) && data.fcmToken) {
+          tokens.push(data.fcmToken)
+        }
+      })
+      continue
+    }
+
+    // Role lain (atau PM tanpa projectId) — ambil semua user aktif dengan role tersebut
     const usersSnap = await getDocs(
       query(
         collection(db, 'logis_companies', companyId, 'users'),
@@ -31,14 +59,14 @@ async function getTokensByRole(companyId: string, targetRoles: string[], senderI
         where('isActive', '==', true),
       )
     )
-    
+
     usersSnap.docs.forEach((doc) => {
       if (doc.id === senderId) return // Skip sender
       const data = doc.data()
       if (data.fcmToken) tokens.push(data.fcmToken)
     })
   }
-  
+
   return [...new Set(tokens)] // Remove duplicates
 }
 
@@ -61,9 +89,14 @@ export async function createNotification(params: CreateNotifParams) {
       }
     )
 
-    // 2. Ambil FCM tokens by role
-    const tokens = await getTokensByRole(params.companyId, params.targetRoles, params.createdBy)
-    
+    // 2. Ambil FCM tokens by role (dengan filter project untuk PM)
+    const tokens = await getTokensByRole(
+      params.companyId,
+      params.targetRoles,
+      params.createdBy,
+      params.projectId
+    )
+
     if (tokens.length === 0) return
 
     // 3. Kirim push via API

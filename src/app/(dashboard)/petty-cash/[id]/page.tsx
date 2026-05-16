@@ -76,6 +76,7 @@ export default function PettyCashDetailPage() {
       if (tx) {
         await createNotification({
           companyId,
+          projectId: tx.projectId,
           type: 'petty_cash_approved',
           title: 'Petty Cash Disetujui',
           message: `Request ${formatRupiah(tx.amount)} untuk ${tx.description} telah disetujui oleh ${logisUser?.name}.`,
@@ -116,6 +117,7 @@ export default function PettyCashDetailPage() {
       if (tx) {
         await createNotification({
           companyId,
+          projectId: tx.projectId,
           type: 'petty_cash_rejected',
           title: 'Petty Cash Ditolak',
           message: `Request ${formatRupiah(tx.amount)} untuk ${tx.description} ditolak. Alasan: ${rejectReason.trim()}`,

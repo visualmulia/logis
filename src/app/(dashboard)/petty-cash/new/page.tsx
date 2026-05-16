@@ -129,6 +129,7 @@ export default function NewPettyCashPage() {
 
       await createNotification({
         companyId,
+        projectId: form.projectId,
         type: 'petty_cash_new',
         title: 'Request Petty Cash Baru',
         message: `${logisUser.name} mengajukan ${new Intl.NumberFormat('id-ID', {
