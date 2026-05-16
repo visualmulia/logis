@@ -324,6 +324,7 @@ export type NotificationType =
   | 'request_on_delivery'     // NEW: notif ke logistik saat PO diterbitkan
   | 'request_discrepancy'     // NEW: notif ke admin pusat saat barang tidak sesuai
   | 'request_completed'       // NEW: notif selesai
+  | 'project_progress'        // Progress proyek diupdate
   | 'petty_cash_new'
   | 'petty_cash_approved'
   | 'petty_cash_rejected'

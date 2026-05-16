@@ -24,6 +24,7 @@ const notifIcons: Record<string, string> = {
   request_discrepancy:  '⚠️',
   request_pm_review:    '👀',
   request_revision:     '🔄',
+  project_progress:     '📈',
   petty_cash_new:       '💰',
   petty_cash_approved:  '✅',
   petty_cash_rejected:  '❌',

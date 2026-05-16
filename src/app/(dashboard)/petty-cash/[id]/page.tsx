@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { PettyCashTransaction } from '@/types'
+import { createNotification } from '@/lib/firebase/notifications'
 import { toast } from 'sonner'
 import {
   ArrowLeft, CheckCircle, XCircle,
@@ -70,6 +71,21 @@ export default function PettyCashDetailPage() {
         }
       )
       toast.success('Request petty cash disetujui!')
+
+      // Notifikasi ke pemohon & team
+      if (tx) {
+        await createNotification({
+          companyId,
+          type: 'petty_cash_approved',
+          title: 'Petty Cash Disetujui',
+          message: `Request ${formatRupiah(tx.amount)} untuk ${tx.description} telah disetujui oleh ${logisUser?.name}.`,
+          href: '/petty-cash',
+          createdBy: logisUser?.id || '',
+          createdByName: logisUser?.name || '',
+          targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'admin_site', 'logistik'],
+        })
+      }
+
       router.push('/petty-cash')
     } catch {
       toast.error('Gagal menyetujui')
@@ -95,6 +111,21 @@ export default function PettyCashDetailPage() {
         }
       )
       toast.success('Request ditolak')
+
+      // Notifikasi ke pemohon & team
+      if (tx) {
+        await createNotification({
+          companyId,
+          type: 'petty_cash_rejected',
+          title: 'Petty Cash Ditolak',
+          message: `Request ${formatRupiah(tx.amount)} untuk ${tx.description} ditolak. Alasan: ${rejectReason.trim()}`,
+          href: '/petty-cash',
+          createdBy: logisUser?.id || '',
+          createdByName: logisUser?.name || '',
+          targetRoles: ['owner', 'admin', 'pm', 'supervisor', 'admin_site', 'logistik'],
+        })
+      }
+
       router.push('/petty-cash')
     } catch {
       toast.error('Gagal menolak request')

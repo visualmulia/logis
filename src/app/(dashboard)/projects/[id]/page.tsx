@@ -102,7 +102,7 @@ export default function ProjectDetailPage() {
       // Notifikasi ke owner/admin
       await createNotification({
         companyId,
-        type: 'request_new',
+        type: 'project_progress',
         title: `Progress ${project.name} — ${newPercent}%`,
         message: `${logisUser.name} mengupdate progress ke ${newPercent}%. ${note.trim() ? `"${note.trim()}"` : ''}`,
         href: `/projects/${projectId}`,
