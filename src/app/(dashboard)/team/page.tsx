@@ -124,28 +124,75 @@ export default function TeamPage() {
   }
 
   async function handleInvite(e: React.FormEvent) {
-    e.preventDefault()
-    if (!inviteForm.email.trim() || !companyId || !logisUser) return
-    setInviting(true)
+  e.preventDefault()
+  if (!inviteForm.email.trim() || !companyId || !logisUser) return
+  setInviting(true)
+  try {
+    const inviteId = await createInvite({
+      companyId,
+      companyName: 'Perusahaan Anda',
+      email: inviteForm.email.toLowerCase().trim(),
+      role: inviteForm.role,
+      invitedByName: logisUser.name,
+      projectId: inviteForm.projectId || null,
+    })
+    const link = `${window.location.origin}/join?invite=${inviteId}&company=${companyId}`
+    setGeneratedLink(link)
+    
+    // ─── Kirim Email Invitation via Resend ──────────────────
     try {
-      const inviteId = await createInvite({
-        companyId,
-        companyName: 'Perusahaan Anda',
-        email: inviteForm.email.toLowerCase().trim(),
-        role: inviteForm.role,
-        invitedByName: logisUser.name,
-        projectId: inviteForm.projectId || null,
+      const emailRes = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: inviteForm.email.toLowerCase().trim(),
+          subject: `Undangan Bergabung di Perusahaan Anda — ${roleConfig[inviteForm.role].label}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+              <h2 style="color: #1a1a1a; margin-bottom: 8px;">Anda Diundang! 🎉</h2>
+              <p style="color: #555; line-height: 1.6;">
+                <strong>${logisUser.name}</strong> mengundang Anda bergabung di 
+                <strong>Perusahaan Anda</strong> sebagai <strong>${roleConfig[inviteForm.role].label}</strong> 
+                di aplikasi <strong>Logis</strong>.
+              </p>
+              <div style="background: #f5f5f0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0 0 8px 0; color: #555;"><strong>Role:</strong> ${roleConfig[inviteForm.role].label}</p>
+                <p style="margin: 0 0 8px 0; color: #555;"><strong>Deskripsi:</strong> ${roleConfig[inviteForm.role].desc}</p>
+                <p style="margin: 0; color: #999; font-size: 12px;">Link berlaku selama 7 hari.</p>
+              </div>
+              <a href="${link}" 
+                style="display: inline-block; background: #F97316; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 10px 0;">
+                Bergabung Sekarang
+              </a>
+              <p style="color: #999; font-size: 12px; margin-top: 16px;">
+                Jika tombol tidak berfungsi, salin link ini:<br/>
+                <span style="color: #F97316;">${link}</span>
+              </p>
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+              <p style="color: #999; font-size: 11px;">
+                Email ini dikirim otomatis oleh Logis. Jangan membalas email ini.
+              </p>
+            </div>
+          `,
+        }),
       })
-      const link = `${window.location.origin}/join?invite=${inviteId}&company=${companyId}`
-      setGeneratedLink(link)
-      toast.success('Link undangan berhasil dibuat!')
-    } catch (error) {
-      console.error('Invite error:', error)
-      toast.error('Koneksi bermasalah. Cek tab Undangan Pending — undangan mungkin sudah tersimpan.')
-    } finally {
-      setInviting(false)
+      if (emailRes.ok) {
+        toast.success('Email undangan terkirim!')
+      } else {
+        toast.error('Email gagal terkirim, tapi link sudah dibuat.')
+      }
+    } catch {
+      toast.error('Email gagal terkirim, tapi link sudah dibuat.')
     }
+    
+    toast.success('Link undangan berhasil dibuat!')
+  } catch (error) {
+    console.error('Invite error:', error)
+    toast.error('Koneksi bermasalah. Cek tab Undangan Pending — undangan mungkin sudah tersimpan.')
+  } finally {
+    setInviting(false)
   }
+}
 
   function copyLink() {
     navigator.clipboard.writeText(generatedLink)
