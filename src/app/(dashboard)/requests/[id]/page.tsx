@@ -7,12 +7,7 @@ import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { MaterialRequest, Project } from '@/types'
 import { toast } from 'sonner'
-import {
-  ArrowLeft, CheckCircle, XCircle, Loader2, Clock,
-  User, AlertTriangle, Package, FileText, Upload,
-  FolderOpen, ExternalLink, Printer, RotateCcw,
-  Truck, AlertCircle, ThumbsUp,
-} from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, Loader2, Clock, User, AlertTriangle, Package, FileText, Upload, FolderOpen, ExternalLink, Printer, RotateCcw, Truck, AlertCircle, ThumbsUp, Trash2, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
@@ -90,6 +85,10 @@ export default function RequestDetailPage() {
   const [showDiscrepancyForm, setShowDiscrepancyForm] = useState(false)
   const [discrepancyNote, setDiscrepancyNote] = useState('')
 
+    // Admin site: edit items for revision
+  const [editableItems, setEditableItems] = useState<{name: string; quantity: number; unit: string; notes: string}[]>([])
+  const [showEditItems, setShowEditItems] = useState(false)
+
   const requestId = params.id as string
   const role = logisUser?.role || ''
 
@@ -126,6 +125,19 @@ export default function RequestDetailPage() {
     fetchRequest()
   }, [companyId, requestId])
 
+
+// Initialize editable items when request loads
+useEffect(() => {
+  if (request?.items) {
+    setEditableItems(request.items.map((item: any) => ({
+      name: item.name || '',
+      quantity: item.quantity || 1,
+      unit: item.unit || 'pcs',
+      notes: item.notes || '',
+    })))
+  }
+}, [request])
+
   // ── HELPERS ──────────────────────────────────────────────
   async function updateRequest(fields: Record<string, unknown>, successMsg: string) {
     if (!companyId || !requestId) return false
@@ -145,6 +157,74 @@ export default function RequestDetailPage() {
       setActionLoading(false)
     }
   }
+
+// ── Admin Site: Edit Items Functions ─────────────────────
+const UNITS = ['pcs', 'kg', 'ton', 'sak', 'liter', 'm', 'm²', 'm³', 'batang', 'lembar', 'roll', 'set', 'unit', 'dus', 'lusin']
+
+function updateEditableItem(index: number, field: string, value: string | number) {
+  setEditableItems(items => items.map((item, i) => 
+    i === index ? { ...item, [field]: value } : item
+  ))
+}
+
+function addEditableItem() {
+  setEditableItems(items => [...items, { name: '', quantity: 1, unit: 'pcs', notes: '' }])
+}
+
+function removeEditableItem(index: number) {
+  if (editableItems.length === 1) {
+    toast.error('Minimal 1 item harus ada')
+    return
+  }
+  setEditableItems(items => items.filter((_, i) => i !== index))
+}
+
+async function handleSaveItemsRevision() {
+  if (editableItems.some(item => !item.name.trim())) {
+    toast.error('Semua item harus punya nama barang')
+    return
+  }
+  if (!revisionNote.trim()) {
+    toast.error('Tulis catatan perubahan yang dilakukan')
+    return
+  }
+  setActionLoading(true)
+  try {
+    await updateDoc(doc(db, 'logis_companies', companyId!, 'requests', requestId), {
+      items: editableItems,
+      status: 'pending_pm_review',
+      revisionNote: revisionNote.trim(),
+      revisionSubmittedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    setRequest((prev) => prev ? { 
+      ...prev, 
+      items: editableItems,
+      status: 'pending_pm_review',
+      revisionNote: revisionNote.trim(),
+    } as MaterialRequest : prev)
+    
+    await createNotification({
+      companyId: companyId!,
+      type: 'request_revision',
+      title: `Revisi Dikirim: #${requestId.slice(-6).toUpperCase()}`,
+      message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan #${requestId.slice(-6).toUpperCase()}. ${revisionNote.trim()}`,
+      href: `/requests/${requestId}`,
+      createdBy: logisUser!.id,
+      createdByName: logisUser!.name,
+      targetRoles: ['pm', 'admin'],
+    })
+    
+    setShowEditItems(false)
+    setShowRevisionForm(false)
+    setRevisionNote('')
+    toast.success('Revisi berhasil dikirim! Menunggu review PM.')
+  } catch {
+    toast.error('Gagal mengirim revisi.')
+  } finally {
+    setActionLoading(false)
+  }
+}
 
   // ── PM: ACKNOWLEDGE ──────────────────────────────────────
   async function handlePMAcknowledge() {
@@ -755,49 +835,104 @@ message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request
         </div>
       )}
 
-            {/* 2.5 Admin Site: Kirim Revisi */}
+                  {/* 2.5 Admin Site: Edit Items & Kirim Revisi */}
       {canAdminSiteAction && isRevisionRequested && (
         <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
           <p className="text-sm font-semibold tracking-wide mb-3" style={{ color: '#F97316' }}>
             <AlertTriangle size={14} className="inline mr-1" />
-            Tindakan Diperlukan
-          </p>
-          <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
-            PM meminta revisi. Silakan perbarui request dan kirimkan revisi.
+            Perbaiki Request Material
           </p>
           {request.pmRevisionNote && (
-            <div className="mb-3 p-3 rounded-lg" style={{ background: 'rgba(249,115,22,0.05)', border: '1px solid rgba(249,115,22,0.15)' }}>
+            <div className="mb-4 p-3 rounded-lg" style={{ background: 'rgba(249,115,22,0.05)', border: '1px solid rgba(249,115,22,0.15)' }}>
               <p className="text-xs font-semibold mb-1" style={{ color: '#F97316' }}>Catatan PM:</p>
               <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{request.pmRevisionNote}</p>
             </div>
           )}
-          {!showRevisionForm ? (
+          {!showEditItems ? (
             <button
-              onClick={() => setShowRevisionForm(true)}
+              onClick={() => setShowEditItems(true)}
               disabled={actionLoading}
               className="shrink-0 px-5 py-2 rounded-lg font-semibold text-sm text-white transition-all"
               style={{ background: '#F97316' }}>
-              Kirim Revisi
+              Perbaiki Item
             </button>
           ) : (
-            <div className="space-y-3">
-              <textarea
-                value={revisionNote}
-                onChange={(e) => setRevisionNote(e.target.value)}
-                placeholder="Jelaskan perubahan yang dilakukan..."
-                rows={3}
-                className="w-full rounded-lg border p-3 text-sm"
-                style={{ background: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
+            <div className="space-y-4">
+              {/* Form Edit Items */}
+              <div className="space-y-3">
+                {editableItems.map((item, index) => (
+                  <div key={index} className="p-3 rounded-lg" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Item #{index + 1}</span>
+                      <button onClick={() => removeEditableItem(index)} className="text-xs flex items-center gap-1" style={{ color: '#ef4444' }}>
+                        <Trash2 size={12} /> Hapus
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={item.name}
+                        onChange={(e) => updateEditableItem(index, 'name', e.target.value)}
+                        placeholder="Nama barang"
+                        className="w-full px-3 py-2 rounded-md text-sm"
+                        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateEditableItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                          min={1}
+                          className="w-20 px-3 py-2 rounded-md text-sm"
+                          style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
+                        <select
+                          value={item.unit}
+                          onChange={(e) => updateEditableItem(index, 'unit', e.target.value)}
+                          className="flex-1 px-3 py-2 rounded-md text-sm"
+                          style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                          {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                        </select>
+                      </div>
+                      <input
+                        type="text"
+                        value={item.notes}
+                        onChange={(e) => updateEditableItem(index, 'notes', e.target.value)}
+                        placeholder="Catatan (opsional)"
+                        className="w-full px-3 py-2 rounded-md text-sm"
+                        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }} />
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={addEditableItem}
+                  className="w-full py-2 text-sm font-semibold flex items-center justify-center gap-2 rounded-lg"
+                  style={{ border: '1px dashed var(--border-color)', color: 'var(--text-secondary)' }}>
+                  <Plus size={14} /> Tambah Item
+                </button>
+              </div>
+
+              {/* Catatan Revisi */}
+              <div>
+                <label style={labelStyle}>Catatan Perubahan *</label>
+                <textarea
+                  value={revisionNote}
+                  onChange={(e) => setRevisionNote(e.target.value)}
+                  placeholder="Jelaskan perubahan yang dilakukan..."
+                  rows={3}
+                  className="w-full rounded-lg border p-3 text-sm"
+                  style={{ background: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
+              </div>
+
+              {/* Tombol */}
               <div className="flex gap-2">
                 <button
-                  onClick={handleSubmitRevision}
-                  disabled={actionLoading || !revisionNote.trim()}
+                  onClick={handleSaveItemsRevision}
+                  disabled={actionLoading}
                   className="shrink-0 px-5 py-2 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-50"
                   style={{ background: '#22c55e' }}>
-                  {actionLoading ? 'Mengirim...' : 'Kirim Revisi'}
+                  {actionLoading ? 'Mengirim...' : 'Simpan & Kirim Revisi'}
                 </button>
                 <button
-                  onClick={() => { setShowRevisionForm(false); setRevisionNote('') }}
+                  onClick={() => { setShowEditItems(false); setRevisionNote('') }}
                   className="shrink-0 px-4 py-2 rounded-lg font-medium text-sm border transition-all"
                   style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
                   Batal
