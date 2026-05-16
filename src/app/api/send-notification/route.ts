@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { GoogleAuth } from 'google-auth-library'
 import { z } from 'zod'
 
@@ -44,7 +44,7 @@ async function getAccessToken(): Promise<string> {
 // ─── POST Handler ──────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip') ?? 'unknown'
-  
+
   if (!checkRateLimit(ip)) {
     return NextResponse.json({ error: 'Too many requests', retryAfter: 60 }, { status: 429 })
   }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
   try {
     const accessToken = await getAccessToken()
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.logis-app.web.id'
-    
+
     const results = await Promise.all(
       tokens.map(async (token) => {
         try {
@@ -80,26 +80,43 @@ export async function POST(request: NextRequest) {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${accessToken}`,
               },
+              // ── Data-only message ──
+              // Kita kirim SEMUA data di `data` payload (bukan `notification`).
+              // Ini memaksa FCM untuk selalu memanggil service worker kita
+              // (firebase-messaging-sw.js) via onBackgroundMessage,
+              // sehingga kita punya full control atas click behavior & display.
               body: JSON.stringify({
                 message: {
                   token,
-                  notification: { title, body: messageBody },
-                  webpush: {
-                    notification: {
-                      title,
-                      body: messageBody,
-                      icon: `${appUrl}/icons/icon-192x192.png`,
-                      badge: `${appUrl}/icons/icon-72x72.png`,
-                      click_action: `${appUrl}${href}`,
-                      requireInteraction: true,
-                    },
-                    fcm_options: { link: `${appUrl}${href}` },
+                  data: {
+                    title,
+                    body: messageBody,
+                    href,
+                    url: `${appUrl}${href}`,
+                    icon: `${appUrl}/icons/icon-192x192.png`,
+                    badge: `${appUrl}/icons/icon-72x72.png`,
+                    tag: 'logis-push',
+                    requireInteraction: 'true',
                   },
-                  data: { href, url: `${appUrl}${href}` },
+                  webpush: {
+                    fcm_options: { link: `${appUrl}${href}` },
+                    headers: {
+                      Urgency: 'high',
+                    },
+                  },
                 },
               }),
             }
           )
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}))
+            console.warn('FCM send failed for token:', token.slice(0, 20) + '...', errData)
+            // TODO: Jika error UNREGISTERED / INVALID_ARGUMENT,
+            // hapus token dari Firestore agar tidak terus dikirim.
+            // Butuh Firebase Admin SDK untuk akses Firestore dari server.
+          }
+
           return res.ok
         } catch { return false }
       })

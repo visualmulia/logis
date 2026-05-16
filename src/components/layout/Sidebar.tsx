@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { logoutUser } from '@/lib/firebase/auth'
+import { removeFCMToken } from '@/lib/firebase/fcm'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import {
@@ -63,7 +64,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { logisUser } = useAuth()
+  const { logisUser, companyId } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -71,6 +72,10 @@ export default function Sidebar() {
   const isDark = theme === 'dark'
 
   async function handleLogout() {
+    // Bersihkan FCM token agar device ini tidak terus menerima push
+    if (logisUser?.id && companyId) {
+      await removeFCMToken(logisUser.id, companyId)
+    }
     await logoutUser()
     toast.success('Berhasil logout')
     router.push('/login')
