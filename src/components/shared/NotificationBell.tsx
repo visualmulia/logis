@@ -34,19 +34,19 @@ const notifIcons: Record<string, string> = {
 
 // Warna tetap — panel selalu dark (#111) jadi warna teks harus terang
 const C = {
-  title:      '#f0ece8',           // putih hangat — judul notif
-  message:    'rgba(240,236,232,0.75)', // sedikit transparan — isi pesan
-  time:       'rgba(240,236,232,0.5)', // lebih redup — timestamp
-  header:     '#f0ece8',           // header "NOTIFIKASI"
-  badge:      '#ef4444',           // badge merah unread count
-  divider:    'rgba(245,240,235,0.08)',
-  deleteBtn:  'rgba(239,68,68,0.7)',  // tombol hapus — cukup terlihat
-  deleteAll:  'rgba(239,68,68,0.6)',
-  markRead:   'rgba(240,236,232,0.6)',
-  counter:    'rgba(240,236,232,0.45)',
+  title:      '#ffffff',              // ← putih solid, tidak transparan
+  message:    'rgba(255,255,255,0.88)', // ← lebih terang
+  time:       'rgba(255,255,255,0.60)', // ← sedikit lebih terang
+  header:     '#ffffff',
+  badge:      '#ef4444',
+  divider:    'rgba(255,255,255,0.12)',
+  deleteBtn:  '#ff6b6b',
+  deleteAll:  '#ff6b6b',
+  markRead:   'rgba(255,255,255,0.75)',
+  counter:    'rgba(255,255,255,0.55)',
   unreadDot:  '#F97316',
-  unreadBg:   'rgba(249,115,22,0.06)',
-  hoverBg:    'rgba(245,240,235,0.06)',
+  unreadBg:   'rgba(249,115,22,0.12)',
+  hoverBg:    'rgba(255,255,255,0.10)',
 }
 
 export default function NotificationBell() {
@@ -254,10 +254,10 @@ export default function NotificationBell() {
 
                   {/* Content */}
                   <Link
-                    href={notif.href}
-                    onClick={() => { markAsRead(notif.id); setOpen(false) }}
-                    className="flex-1 min-w-0"
-                  >
+  href={notif.href}
+  onClick={() => { markAsRead(notif.id); setOpen(false) }}
+  className="flex-1 min-w-0 cursor-pointer block"
+>
                     <div className="flex items-start justify-between gap-2 mb-0.5">
                       <p className="text-xs font-semibold leading-snug"
                         style={{ color: notif.isRead ? C.message : C.title }}>

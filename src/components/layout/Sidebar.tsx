@@ -239,15 +239,17 @@ export default function Sidebar() {
           LOG<span style={{ color: '#F97316' }}>I</span>S
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={toggleTheme} className="p-2 rounded-full transition-all"
-            style={{ color: sidebarMuted }}>
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          <NotificationBell />
-          <button onClick={() => setMobileOpen(true)} className="p-2" style={{ color: sidebarMuted }}>
-            <Menu size={22} />
-          </button>
-        </div>
+  <button onClick={toggleTheme} className="p-2 rounded-full transition-all"
+    style={{ color: sidebarMuted }}>
+    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+  </button>
+  <div className="relative cursor-pointer p-2" style={{ zIndex: 60, color: sidebarMuted }}>
+    <NotificationBell />
+  </div>
+  <button onClick={() => setMobileOpen(true)} className="p-2" style={{ color: sidebarMuted }}>
+    <Menu size={22} />
+  </button>
+</div>
       </div>
 
       {/* Mobile drawer */}
