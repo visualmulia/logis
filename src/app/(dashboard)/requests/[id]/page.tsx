@@ -403,7 +403,7 @@ export default function RequestDetailPage() {
               Detail Request
             </h1>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button onClick={handlePrint}
               className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold"
               style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)', background: 'var(--bg-card)', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
@@ -541,7 +541,7 @@ export default function RequestDetailPage() {
         {request.items?.map((item, index) => (
           <div key={index} className="px-5 py-4 flex items-center gap-4"
             style={{ borderBottom: index < (request.items?.length || 0) - 1 ? '1px solid var(--border-color)' : 'none' }}>
-            <span className="font-mono text-sm w-5 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
+            <span className="font-mono text-sm w-5 shrink-0" style={{ color: 'var(--text-muted)' }}>
               {String(index + 1).padStart(2, '0')}
             </span>
             <div className="flex-1">

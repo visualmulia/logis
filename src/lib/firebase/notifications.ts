@@ -20,6 +20,28 @@ interface CreateNotifParams {
   targetRoles: string[]
 }
 
+async function getTokensByRole(companyId: string, targetRoles: string[], senderId: string): Promise<string[]> {
+  const tokens: string[] = []
+  
+  for (const role of targetRoles) {
+    const usersSnap = await getDocs(
+      query(
+        collection(db, 'logis_companies', companyId, 'users'),
+        where('role', '==', role),
+        where('isActive', '==', true),
+      )
+    )
+    
+    usersSnap.docs.forEach((doc) => {
+      if (doc.id === senderId) return // Skip sender
+      const data = doc.data()
+      if (data.fcmToken) tokens.push(data.fcmToken)
+    })
+  }
+  
+  return [...new Set(tokens)] // Remove duplicates
+}
+
 export async function createNotification(params: CreateNotifParams) {
   try {
     // 1. Simpan ke Firestore (in-app notification)
@@ -39,38 +61,12 @@ export async function createNotification(params: CreateNotifParams) {
       }
     )
 
-    // 2. Kirim push via server API (FCM V1)
-    await sendPushToTargets(params)
-  } catch (err) {
-    console.error('Failed to create notification:', err)
-  }
-}
-
-async function sendPushToTargets(params: CreateNotifParams) {
-  try {
-    // Ambil semua user yang punya FCM token dan role sesuai
-    const usersSnap = await getDocs(
-      query(
-        collection(db, 'logis_companies', params.companyId, 'users'),
-        where('isActive', '==', true)
-      )
-    )
-
-    const tokens: string[] = []
-
-    usersSnap.docs.forEach((d) => {
-      const data = d.data()
-      // Skip pengirim notifikasi
-      if (d.id === params.createdBy) return
-      // Cek role
-      if (!params.targetRoles.includes(data.role)) return
-      // Ambil FCM token kalau ada
-      if (data.fcmToken) tokens.push(data.fcmToken)
-    })
-
+    // 2. Ambil FCM tokens by role
+    const tokens = await getTokensByRole(params.companyId, params.targetRoles, params.createdBy)
+    
     if (tokens.length === 0) return
 
-    // Kirim via server API route (FCM V1)
+    // 3. Kirim push via API
     await fetch('/api/send-notification', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -82,6 +78,6 @@ async function sendPushToTargets(params: CreateNotifParams) {
       }),
     })
   } catch (err) {
-    console.error('Push send failed:', err)
+    console.error('Notification error:', err)
   }
 }

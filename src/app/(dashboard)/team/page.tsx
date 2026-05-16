@@ -274,7 +274,7 @@ export default function TeamPage() {
                     style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
 
                     {/* Avatar */}
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-bold"
                       style={{
                         background: `${role.color}20`,
                         border: `1px solid ${role.color}40`,
@@ -322,11 +322,11 @@ export default function TeamPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       {canManage && user.role !== 'owner' && (
                         <button
                           onClick={() => openEditModal(user)}
-                          className="text-xs px-2 py-1 flex-shrink-0 transition-colors"
+                          className="text-xs px-2 py-1 shrink-0 transition-colors"
                           style={{
                             border: '1px solid rgba(249,115,22,0.3)',
                             color: '#F97316',
@@ -393,7 +393,7 @@ export default function TeamPage() {
                         </div>
                       </div>
                       <button onClick={() => deleteInvite(invite.id)}
-                        className="p-1.5 flex-shrink-0"
+                        className="p-1.5 shrink-0"
                         style={{ color: '#ef4444' }}
                         title="Hapus undangan">
                         <Trash2 size={14} />
@@ -517,7 +517,7 @@ export default function TeamPage() {
                     <p className="text-xs flex-1 truncate font-mono" style={{ color: 'var(--text-secondary)' }}>
                       {generatedLink}
                     </p>
-                    <button onClick={copyLink} className="flex-shrink-0"
+                    <button onClick={copyLink} className="shrink-0"
                       style={{ color: copied ? '#22c55e' : '#F97316' }}>
                       {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
                     </button>
@@ -597,7 +597,7 @@ export default function TeamPage() {
                       >
                         {/* Checkbox */}
                         <div
-                          className="w-5 h-5 flex items-center justify-center flex-shrink-0"
+                          className="w-5 h-5 flex items-center justify-center shrink-0"
                           style={{
                             background: isSelected ? '#F97316' : 'transparent',
                             border: isSelected
@@ -623,7 +623,7 @@ export default function TeamPage() {
 
                         {/* Status proyek */}
                         <div
-                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          className="w-2 h-2 rounded-full shrink-0"
                           style={{
                             background: p.status === 'active' ? '#22c55e' : '#eab308',
                           }}
