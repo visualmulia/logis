@@ -39,6 +39,7 @@ const STATUS_CONFIG: Record<string, {
 const STATUS_STEPS = [
   { key: 'submitted',          label: 'Dibuat' },
   { key: 'pending_pm_review',  label: 'Review PM' },
+  { key: 'revision_requested', label: 'Perlu Revisi' },
   { key: 'in_review',          label: 'Review Pusat' },
   { key: 'approved',           label: 'Disetujui' },
   { key: 'po_issued',          label: 'PO Issued' },
@@ -53,9 +54,9 @@ const STATUS_ORDER = [
 
 function getStepIndex(status: string): number {
   const map: Record<string, number> = {
-    submitted: 0, pending_pm_review: 1, revision_requested: 1,
-    in_review: 2, approved: 3, po_issued: 4, on_delivery: 5,
-    completed: 6, discrepancy: 5,
+    submitted: 0, pending_pm_review: 1, revision_requested: 2,
+    in_review: 3, approved: 4, po_issued: 5, on_delivery: 6,
+    completed: 7, discrepancy: 6,
   }
   return map[status] ?? 0
 }
@@ -95,6 +96,7 @@ export default function RequestDetailPage() {
   const canPMAction   = ['owner', 'pm'].includes(role)
   const canAdminAction = ['owner', 'admin'].includes(role)
   const canLogistik   = ['owner', 'logistik', 'admin'].includes(role)
+    const canAdminSiteAction = role === 'admin_site'
 
   useEffect(() => {
     if (!companyId || !requestId) return
@@ -184,6 +186,47 @@ export default function RequestDetailPage() {
       setRevisionNote('')
     }
   }
+
+  // Admin site kirim revisi
+async function handleSubmitRevision() {
+  if (!revisionNote.trim()) {
+    toast.error('Tulis catatan perubahan yang dilakukan.')
+    return
+  }
+  setActionLoading(true)
+  try {
+    await updateDoc(doc(db, 'logis_companies', companyId!, 'requests', requestId), {
+      status: 'pending_pm_review',
+      revisionNote: revisionNote.trim(),
+      revisionSubmittedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    setRequest((prev) => prev ? {
+      ...prev,
+      status: 'pending_pm_review',
+      revisionNote: revisionNote.trim(),
+    } : prev)
+    
+    await createNotification({
+      companyId: companyId!,
+      type: 'request_revision',
+      title: `Revisi Dikirim: ${request?.poNumber}`,
+message: `${logisUser?.name} telah mengirimkan revisi untuk permintaan ${request?.poNumber}. ${revisionNote.trim()}`,
+      href: `/requests/${requestId}`,
+      createdBy: logisUser!.id,
+      createdByName: logisUser!.name,
+      targetRoles: ['pm', 'admin'],
+    })
+    
+    setShowRevisionForm(false)
+    setRevisionNote('')
+    toast.success('Revisi berhasil dikirim! Menunggu review PM.')
+  } catch {
+    toast.error('Gagal mengirim revisi.')
+  } finally {
+    setActionLoading(false)
+  }
+}
 
   // ── ADMIN PUSAT: APPROVE ─────────────────────────────────
   async function handleApprove() {
@@ -704,6 +747,59 @@ export default function RequestDetailPage() {
                 <button onClick={() => setShowRejectForm(false)}
                   className="px-4 py-2.5 text-sm"
                   style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                  Batal
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+            {/* 2.5 Admin Site: Kirim Revisi */}
+      {canAdminSiteAction && isRevisionRequested && (
+        <div className="p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.02)' }}>
+          <p className="text-sm font-semibold tracking-wide mb-3" style={{ color: '#F97316' }}>
+            <AlertTriangle size={14} className="inline mr-1" />
+            Tindakan Diperlukan
+          </p>
+          <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+            PM meminta revisi. Silakan perbarui request dan kirimkan revisi.
+          </p>
+          {request.pmRevisionNote && (
+            <div className="mb-3 p-3 rounded-lg" style={{ background: 'rgba(249,115,22,0.05)', border: '1px solid rgba(249,115,22,0.15)' }}>
+              <p className="text-xs font-semibold mb-1" style={{ color: '#F97316' }}>Catatan PM:</p>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{request.pmRevisionNote}</p>
+            </div>
+          )}
+          {!showRevisionForm ? (
+            <button
+              onClick={() => setShowRevisionForm(true)}
+              disabled={actionLoading}
+              className="shrink-0 px-5 py-2 rounded-lg font-semibold text-sm text-white transition-all"
+              style={{ background: '#F97316' }}>
+              Kirim Revisi
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <textarea
+                value={revisionNote}
+                onChange={(e) => setRevisionNote(e.target.value)}
+                placeholder="Jelaskan perubahan yang dilakukan..."
+                rows={3}
+                className="w-full rounded-lg border p-3 text-sm"
+                style={{ background: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSubmitRevision}
+                  disabled={actionLoading || !revisionNote.trim()}
+                  className="shrink-0 px-5 py-2 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-50"
+                  style={{ background: '#22c55e' }}>
+                  {actionLoading ? 'Mengirim...' : 'Kirim Revisi'}
+                </button>
+                <button
+                  onClick={() => { setShowRevisionForm(false); setRevisionNote('') }}
+                  className="shrink-0 px-4 py-2 rounded-lg font-medium text-sm border transition-all"
+                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}>
                   Batal
                 </button>
               </div>
