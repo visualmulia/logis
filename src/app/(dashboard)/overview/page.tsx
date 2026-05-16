@@ -49,7 +49,7 @@ const QUICK_ACTIONS = [
     desc: 'Catat stok masuk ke gudang',
     href: '/projects',
     color: '#22c55e',
-    roles: ['owner', 'logistik', 'admin_site'],
+    roles: ['owner', 'logistik'],
   },
   {
     label: 'Daftarkan Aset Baru',
@@ -81,6 +81,7 @@ export default function OverviewPage() {
   const role = logisUser?.role || ''
   const isAdmin = role === 'admin'
   const isPM    = role === 'pm'
+  const isAdminSite = role === 'admin_site'  // ← TAMBAH INI
 
   useEffect(() => {
     if (!companyId) return
@@ -226,7 +227,7 @@ export default function OverviewPage() {
     )
   }
 
-  // Stat cards per role
+  // Stat cards per role — FIX: admin_site hanya lihat Request
   const statCards = isAdmin
     ? [
         {
@@ -248,7 +249,6 @@ export default function OverviewPage() {
       ]
     : isPM
     ? [
-        // PM: Proyek aktif yang dia kelola
         {
           label: 'Proyek Saya',
           value: stats.activeProjects,
@@ -257,7 +257,6 @@ export default function OverviewPage() {
           href: '/projects',
           alert: false,
         },
-        // PM: Request yang menunggu acknowledge dari dia
         {
           label: 'Perlu Acknowledge',
           value: recentRequests.filter(
@@ -270,7 +269,6 @@ export default function OverviewPage() {
             (r) => r.status === 'pending_pm_review' || r.status === 'submitted'
           ).length > 0,
         },
-        // PM: Aset di proyeknya
         {
           label: 'Aset Terdaftar',
           value: stats.totalAssets,
@@ -279,7 +277,6 @@ export default function OverviewPage() {
           href: '/assets',
           alert: false,
         },
-        // PM: Aset perlu perhatian
         {
           label: 'Perlu Perhatian',
           value: stats.needsAttention,
@@ -289,7 +286,28 @@ export default function OverviewPage() {
           alert: stats.needsAttention > 0,
         },
       ]
-    : [
+    : isAdminSite  // ← FIX: admin_site hanya lihat Request
+    ? [
+        {
+          label: 'Request Saya',
+          value: recentRequests.filter(
+            (r) => r.subtitle?.includes(logisUser?.name || '')
+          ).length,
+          icon: Package,
+          color: '#F97316',
+          href: '/requests',
+          alert: false,
+        },
+        {
+          label: 'Request Pending',
+          value: stats.pendingRequests,
+          icon: Package,
+          color: '#eab308',
+          href: '/requests',
+          alert: stats.pendingRequests > 0,
+        },
+      ]
+    : [  // owner, supervisor, logistik
         {
           label: 'Proyek Aktif',
           value: stats.activeProjects,
@@ -353,9 +371,9 @@ export default function OverviewPage() {
         </p>
       </div>
 
-      {/* Stats grid */}
+      {/* Stats grid — FIX: 2 kolom untuk admin dan admin_site */}
       <div className={`grid gap-3 lg:gap-4 mb-6 lg:mb-8 ${
-        isAdmin ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'
+        isAdmin || isAdminSite ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'
       }`}>
         {statCards.map((stat) => {
           const Icon = stat.icon
@@ -413,7 +431,7 @@ export default function OverviewPage() {
         })}
       </div>
 
-      {/* Bottom grid — PM: full width request list, lainnya: 2 kolom */}
+      {/* Bottom grid */}
       <div className={`grid grid-cols-1 gap-4 ${showQuickActions ? 'lg:grid-cols-2' : ''}`}>
 
         {/* Request list */}
@@ -483,7 +501,7 @@ export default function OverviewPage() {
                         {req.subtitle}
                       </p>
                     </div>
-                    <span className="text-xs px-2 py-0.5 font-semibold flex-shrink-0 rounded-sm"
+                    <span className="text-xs px-2 py-0.5 font-semibold shrink-0 rounded-sm"
                       style={{ background: `${sc.color}18`, color: sc.color }}>
                       {sc.label}
                     </span>
@@ -494,7 +512,7 @@ export default function OverviewPage() {
           )}
         </div>
 
-        {/* Quick actions — TIDAK tampil untuk PM */}
+        {/* Quick actions */}
         {showQuickActions && (
           <div className="p-4 lg:p-6"
             style={{
@@ -522,7 +540,7 @@ export default function OverviewPage() {
                     e.currentTarget.style.background = 'transparent'
                     e.currentTarget.style.borderColor = 'var(--border-color)'
                   }}>
-                  <div className="w-7 h-7 flex items-center justify-center flex-shrink-0"
+                  <div className="w-7 h-7 flex items-center justify-center shrink-0"
                     style={{
                       background: `${action.color}15`,
                       border: `1px solid ${action.color}30`,
