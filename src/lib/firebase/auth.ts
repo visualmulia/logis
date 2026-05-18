@@ -155,7 +155,11 @@ export async function logoutUser(): Promise<void> {
 // RESET PASSWORD
 // ============================================
 export async function resetPassword(email: string): Promise<void> {
-  return sendPasswordResetEmail(auth, email)
+  const actionCodeSettings = {
+    url: 'https://logis-app.web.id/auth/action',
+    handleCodeInApp: false,
+  }
+  return sendPasswordResetEmail(auth, email, actionCodeSettings)
 }
 
 // ============================================
