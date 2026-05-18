@@ -12,7 +12,8 @@ import { toast } from 'sonner'
 import {
   LayoutDashboard, PackageSearch, Warehouse,
   Wrench, Wallet, LogOut, ChevronRight,
-  Building2, Menu, X, Sun, Moon, Users
+  Building2, Menu, X, Sun, Moon, Users,
+  ShieldAlert,
 } from 'lucide-react'
 import NotificationBell from '@/components/shared/NotificationBell'
 
@@ -64,7 +65,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { logisUser, companyId } = useAuth()
+  const { logisUser, companyId, isSuperAdmin } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -169,6 +170,37 @@ export default function Sidebar() {
                 </li>
               )
             })}
+
+          {/* Superadmin menu */}
+          {isSuperAdmin && (
+            <>
+              <li className="px-3 pt-4 pb-1">
+                <div className="uppercase tracking-widest"
+                  style={{ color: 'rgba(245,240,235,0.2)', fontSize: '9px', fontWeight: 600 }}>
+                  Developer
+                </div>
+              </li>
+              <li>
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-3 py-3 text-sm transition-all"
+                  style={{
+                    background: pathname === '/admin' ? 'rgba(249,115,22,0.12)' : 'transparent',
+                    color: pathname === '/admin' ? '#F97316' : sidebarMuted,
+                    borderLeft: pathname === '/admin' ? '2px solid #F97316' : '2px solid transparent',
+                    fontWeight: pathname === '/admin' ? 600 : 400,
+                  }}
+                >
+                  <ShieldAlert size={15} className="flex-shrink-0" />
+                  <span className="flex-1 text-sm">System Analytics</span>
+                  {pathname === '/admin' && (
+                    <ChevronRight size={11} style={{ color: '#F97316' }} className="flex-shrink-0" />
+                  )}
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
 

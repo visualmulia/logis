@@ -6,6 +6,7 @@ import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import PWARegister from '@/components/shared/PWARegister'
 import NotificationPrompt from '@/components/shared/NotificationPrompt'
+import GoogleAnalytics from '@/components/shared/GoogleAnalytics'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -60,6 +61,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Logis" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link rel="manifest" href="/manifest.json" />
+        <GoogleAnalytics />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

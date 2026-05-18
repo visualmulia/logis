@@ -10,6 +10,7 @@ export type UserRole =
   | 'logistik'
   | 'admin_site'
   | 'readonly'
+  | 'superadmin'
 
 export type ProjectStatus = 'active' | 'completed' | 'on_hold' | 'cancelled'
 

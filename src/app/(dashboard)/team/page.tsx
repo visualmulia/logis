@@ -24,6 +24,7 @@ const roleConfig: Record<UserRole, { label: string; color: string; desc: string 
   logistik:   { label: 'Logistik',       color: '#eab308', desc: 'Kelola gudang & penerimaan' },
   admin_site: { label: 'Admin Proyek',   color: '#f472b6', desc: 'Pegang petty cash lapangan' },
   readonly:   { label: 'Read Only',      color: '#94a3b8', desc: 'Hanya bisa lihat data' },
+  superadmin: { label: 'Super Admin',    color: '#ef4444', desc: 'Developer system access' },
 }
 
 interface Invite {

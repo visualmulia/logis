@@ -20,6 +20,7 @@ interface AuthContextType {
   firebaseUser: User | null
   logisUser: LogisUser | null
   companyId: string | null
+  isSuperAdmin: boolean
   loading: boolean
   refreshUser: () => Promise<void>
 }
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   firebaseUser: null,
   logisUser: null,
   companyId: null,
+  isSuperAdmin: false,
   loading: true,
   refreshUser: async () => {},
 })
@@ -105,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null)
   const [logisUser, setLogisUser] = useState<LogisUser | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
   async function loadUserData(user: User) {
@@ -141,6 +144,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLogisUser(userDoc.data() as LogisUser)
         }
       }
+
+      // Cek superadmin status
+      try {
+        const adminDoc = await getDoc(doc(db, 'system_admins', user.uid))
+        setIsSuperAdmin(adminDoc.exists())
+      } catch {
+        setIsSuperAdmin(false)
+      }
     } catch (error) {
       console.error('Error loading user data:', error)
     } finally {
@@ -164,6 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setLogisUser(null)
         setCompanyId(null)
+        setIsSuperAdmin(false)
         setLoading(false)
       }
     })
@@ -173,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ firebaseUser, logisUser, companyId, loading, refreshUser }}
+      value={{ firebaseUser, logisUser, companyId, isSuperAdmin, loading, refreshUser }}
     >
       {children}
     </AuthContext.Provider>
