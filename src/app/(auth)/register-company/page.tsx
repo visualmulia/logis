@@ -327,16 +327,22 @@ export default function RegisterCompanyPage() {
                     ← Kembali
                   </button>
                   <button type="submit" disabled={isLoading}
-                    className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                    className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center"
                     style={{
                       background: isLoading ? '#c45a0e' : '#F97316',
                       color: '#0a0a0a',
                       cursor: isLoading ? 'not-allowed' : 'pointer',
                     }}>
                     {isLoading ? (
-                      <><Loader2 size={15} className="animate-spin" />Mendaftarkan...</>
+                      <span className="flex items-center gap-1.5">
+                        <Loader2 size={15} className="animate-spin" />
+                        Mendaftarkan...
+                      </span>
                     ) : (
-                      <><Building2 size={15} />Daftarkan Perusahaan</>
+                      <span className="flex items-center gap-1.5">
+                        <Building2 size={15} className="flex-shrink-0" />
+                        Daftarkan Perusahaan
+                      </span>
                     )}
                   </button>
                 </div>
@@ -344,7 +350,7 @@ export default function RegisterCompanyPage() {
             )}
           </form>
 
-          <p className="text-xs text-center mt-6" style={{ color: 'rgba(245,240,235,0.3)' }}>
+          <p className="text-xs text-center mt-6" style={{ color: 'rgba(245,240,235,0.55)' }}>
             Sudah punya akun?{' '}
             <Link href="/login" style={{ color: '#F97316' }}>
               Masuk di sini
