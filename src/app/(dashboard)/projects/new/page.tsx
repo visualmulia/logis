@@ -1,18 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, Timestamp, query, where, getCountFromServer } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { toast } from 'sonner'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Lock } from 'lucide-react'
 import Link from 'next/link'
+import { canCreateProject } from '@/lib/subscription'
 
 export default function NewProjectPage() {
   const router = useRouter()
-  const { companyId, logisUser } = useAuth()
+  const { companyId, logisUser, companyProfile } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [projectCount, setProjectCount] = useState(0)
+  const [checkingLimit, setCheckingLimit] = useState(true)
   const [form, setForm] = useState({
     name: '',
     location: '',
@@ -21,6 +24,26 @@ export default function NewProjectPage() {
     endDate: '',
     description: '',
   })
+
+  useEffect(() => {
+    async function checkLimit() {
+      if (!companyId) return
+      try {
+        const snap = await getCountFromServer(
+          query(
+            collection(db, 'logis_companies', companyId, 'projects'),
+            where('status', '==', 'active')
+          )
+        )
+        setProjectCount(snap.data().count)
+      } catch {
+        setProjectCount(0)
+      } finally {
+        setCheckingLimit(false)
+      }
+    }
+    checkLimit()
+  }, [companyId])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -31,6 +54,13 @@ export default function NewProjectPage() {
     if (!companyId || !logisUser) return
     if (!form.name.trim() || !form.startDate) {
       toast.error('Nama proyek dan tanggal mulai wajib diisi')
+      return
+    }
+
+    const check = canCreateProject(companyProfile, projectCount)
+    if (!check.allowed) {
+      toast.error(check.reason || 'Tidak dapat membuat proyek')
+      router.push('/upgrade')
       return
     }
 
@@ -161,24 +191,31 @@ export default function NewProjectPage() {
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <button type="submit" disabled={isLoading}
-            className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-            style={{
-              background: isLoading ? '#c45a0e' : '#F97316',
-              color: '#0a0a0a',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-            }}>
-            {isLoading ? (
-              <><Loader2 size={15} className="animate-spin" />Menyimpan...</>
-            ) : 'Buat Proyek'}
-          </button>
-          <Link href="/projects"
-            className="px-6 py-3 text-sm font-semibold flex items-center"
-            style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
-            Batal
-          </Link>
-        </div>
+        {checkingLimit ? (
+          <div className="flex items-center gap-2 py-3" style={{ color: 'var(--text-muted)' }}>
+            <Loader2 size={15} className="animate-spin" />
+            <span className="text-sm">Mengecek limit plan...</span>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <button type="submit" disabled={isLoading}
+              className="flex-1 py-3 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+              style={{
+                background: isLoading ? '#c45a0e' : '#F97316',
+                color: '#0a0a0a',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+              }}>
+              {isLoading ? (
+                <><Loader2 size={15} className="animate-spin" />Menyimpan...</>
+              ) : 'Buat Proyek'}
+            </button>
+            <Link href="/projects"
+              className="px-6 py-3 text-sm font-semibold flex items-center"
+              style={{ border: '1px solid rgba(245,240,235,0.1)', color: 'var(--text-secondary)' }}>
+              Batal
+            </Link>
+          </div>
+        )}
       </form>
     </div>
   )

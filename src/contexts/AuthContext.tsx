@@ -14,12 +14,13 @@ import {
   getDoc,
 } from 'firebase/firestore'
 import { getUserData } from '@/lib/firebase/auth'
-import { LogisUser } from '@/types'
+import { LogisUser, CompanyProfile } from '@/types'
 
 interface AuthContextType {
   firebaseUser: User | null
   logisUser: LogisUser | null
   companyId: string | null
+  companyProfile: CompanyProfile | null
   isSuperAdmin: boolean
   loading: boolean
   refreshUser: () => Promise<void>
@@ -29,6 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   firebaseUser: null,
   logisUser: null,
   companyId: null,
+  companyProfile: null,
   isSuperAdmin: false,
   loading: true,
   refreshUser: async () => {},
@@ -107,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null)
   const [logisUser, setLogisUser] = useState<LogisUser | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null)
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -129,6 +132,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setCompanyId(cId)
+
+      // Fetch company profile
+      try {
+        const companyDoc = await getDoc(doc(db, 'logis_companies', cId))
+        if (companyDoc.exists()) {
+          const cData = companyDoc.data()
+          setCompanyProfile({
+            id: companyDoc.id,
+            name: cData.name || '',
+            address: cData.address || '',
+            phone: cData.phone || '',
+            ownerName: cData.ownerName || '',
+            ownerEmail: cData.ownerEmail || '',
+            plan: cData.plan || 'trial',
+            trialStartDate: cData.trialStartDate?.toDate?.() || cData.trialStartDate,
+            trialEndDate: cData.trialEndDate?.toDate?.() || cData.trialEndDate,
+            isTrialActive: cData.isTrialActive ?? true,
+            maxProjects: cData.maxProjects ?? 999,
+            maxUsers: cData.maxUsers ?? 999,
+            createdAt: cData.createdAt?.toDate?.() || cData.createdAt,
+          } as CompanyProfile)
+        }
+      } catch (err) {
+        console.error('Failed to load company profile:', err)
+      }
 
       // Cek apakah owner atau member
       if (cId === user.uid) {
@@ -176,6 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setLogisUser(null)
         setCompanyId(null)
+        setCompanyProfile(null)
         setIsSuperAdmin(false)
         setLoading(false)
       }
@@ -186,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ firebaseUser, logisUser, companyId, isSuperAdmin, loading, refreshUser }}
+      value={{ firebaseUser, logisUser, companyId, companyProfile, isSuperAdmin, loading, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

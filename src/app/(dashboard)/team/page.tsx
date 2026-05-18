@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import {
   collection, onSnapshot, query, orderBy,
   deleteDoc, doc, getDocs, updateDoc
@@ -9,6 +10,7 @@ import {
 import { db } from '@/lib/firebase/config'
 import { LogisUser, UserRole, Project } from '@/types'
 import { createInvite } from '@/lib/firebase/auth'
+import { canInviteUser } from '@/lib/subscription'
 import { toast } from 'sonner'
 import {
   Plus, Users, Mail, Trash2,
@@ -37,7 +39,8 @@ interface Invite {
 }
 
 export default function TeamPage() {
-  const { companyId, logisUser } = useAuth()
+  const { companyId, logisUser, companyProfile } = useAuth()
+  const router = useRouter()
   const [users, setUsers] = useState<LogisUser[]>([])
   const [invites, setInvites] = useState<Invite[]>([])
   const [projects, setProjects] = useState<Project[]>([])
@@ -58,6 +61,10 @@ export default function TeamPage() {
   const [savingProject, setSavingProject] = useState(false)
 
   const canManage = ['owner', 'admin'].includes(logisUser?.role || '')
+
+  // Cek limit invite
+  const inviteCheck = canInviteUser(companyProfile, users.length)
+  const canInvite = canManage && inviteCheck.allowed
 
   useEffect(() => {
     if (!companyId) return
@@ -127,6 +134,14 @@ export default function TeamPage() {
   async function handleInvite(e: React.FormEvent) {
   e.preventDefault()
   if (!inviteForm.email.trim() || !companyId || !logisUser) return
+
+  const check = canInviteUser(companyProfile, users.length)
+  if (!check.allowed) {
+    toast.error(check.reason || 'Tidak dapat mengundang user')
+    router.push('/upgrade')
+    return
+  }
+
   setInviting(true)
   try {
     const inviteId = await createInvite({
@@ -235,13 +250,31 @@ export default function TeamPage() {
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {users.length} anggota aktif
+            {companyProfile && (
+              <span className="ml-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                (Limit: {companyProfile.maxUsers})
+              </span>
+            )}
           </p>
         </div>
         {canManage && (
           <button
-            onClick={() => { setShowInviteModal(true); setGeneratedLink('') }}
+            onClick={() => {
+              if (!inviteCheck.allowed) {
+                toast.error(inviteCheck.reason || 'Tidak dapat mengundang user')
+                router.push('/upgrade')
+                return
+              }
+              setShowInviteModal(true)
+              setGeneratedLink('')
+            }}
             className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold w-full sm:w-auto"
-            style={{ background: '#F97316', color: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            style={{
+              background: inviteCheck.allowed ? '#F97316' : '#555',
+              color: '#fff',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+              cursor: inviteCheck.allowed ? 'pointer' : 'not-allowed',
+            }}>
             <Plus size={15} />
             Undang Anggota
           </button>
