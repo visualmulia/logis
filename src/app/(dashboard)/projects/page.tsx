@@ -5,10 +5,13 @@ import { useAuth } from '@/contexts/AuthContext'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase/config'
 import { Project } from '@/types'
+import { canCreateProject } from '@/lib/subscription'
 import Link from 'next/link'
-import { Plus, Building2, Calendar, Warehouse, Loader2, ChevronRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Plus, Building2, Calendar, Warehouse, Loader2, ChevronRight, Lock } from 'lucide-react'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { toast } from 'sonner'
 
 // Role yang bisa tambah proyek baru
 const CAN_ADD_PROJECT = ['owner', 'admin']
@@ -17,13 +20,17 @@ const CAN_ADD_PROJECT = ['owner', 'admin']
 const ASSIGNED_ONLY_ROLES = ['pm', 'supervisor', 'logistik', 'admin_site', 'readonly']
 
 export default function ProjectsPage() {
-  const { companyId, logisUser } = useAuth()
+  const router = useRouter()
+  const { companyId, logisUser, companyProfile } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
   const role = logisUser?.role || ''
   const canAddProject = CAN_ADD_PROJECT.includes(role)
   const isAssignedOnly = ASSIGNED_ONLY_ROLES.includes(role)
+
+  const projectCheck = canCreateProject(companyProfile, projects.length)
+  const atProjectLimit = !projectCheck.allowed
 
   useEffect(() => {
     if (!companyId) return
@@ -79,14 +86,26 @@ export default function ProjectsPage() {
 
         {/* Tombol Proyek Baru — hanya owner/admin */}
         {canAddProject && (
-          <Link
-            href="/projects/new"
+          <button
+            onClick={() => {
+              if (!projectCheck.allowed) {
+                toast.error(projectCheck.reason || 'Limit proyek tercapai')
+                router.push('/upgrade')
+                return
+              }
+              router.push('/projects/new')
+            }}
             className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold"
-            style={{ background: '#F97316', color: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+            style={{
+              background: atProjectLimit ? '#555' : '#F97316',
+              color: '#fff',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+              cursor: atProjectLimit ? 'not-allowed' : 'pointer',
+            }}
           >
-            <Plus size={15} />
+            {atProjectLimit ? <Lock size={14} /> : <Plus size={15} />}
             Proyek Baru
-          </Link>
+          </button>
         )}
       </div>
 
@@ -109,14 +128,24 @@ export default function ProjectsPage() {
             </p>
           )}
           {canAddProject && (
-            <Link
-              href="/projects/new"
+            <button
+              onClick={() => {
+                if (!projectCheck.allowed) {
+                  toast.error(projectCheck.reason || 'Limit proyek tercapai')
+                  router.push('/upgrade')
+                  return
+                }
+                router.push('/projects/new')
+              }}
               className="inline-flex items-center gap-2 text-sm font-semibold mt-4"
-              style={{ color: '#F97316' }}
+              style={{
+                color: atProjectLimit ? 'var(--text-muted)' : '#F97316',
+                cursor: atProjectLimit ? 'not-allowed' : 'pointer',
+              }}
             >
-              <Plus size={14} />
+              {atProjectLimit ? <Lock size={14} /> : <Plus size={14} />}
               Buat proyek pertama
-            </Link>
+            </button>
           )}
         </div>
       ) : (

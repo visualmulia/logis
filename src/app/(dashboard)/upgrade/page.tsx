@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { PLAN_LIMITS, PlanType } from '@/types'
 import { isTrialActive, isSubscriptionExpired, formatPrice, getPlanLabel } from '@/lib/subscription'
 import { toast } from 'sonner'
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '@/lib/firebase/config'
 import {
   Loader2, Check, Zap, Building2, Crown,
   AlertTriangle, ArrowLeft,
@@ -79,6 +81,21 @@ export default function UpgradePage() {
 
     setProcessing(true)
     try {
+      // Plan gratis (Starter) — langsung aktifkan tanpa Midtrans
+      if (limits.price === 0) {
+        await updateDoc(doc(db, 'logis_companies', companyId), {
+          plan,
+          isTrialActive: false,
+          subscriptionStartDate: serverTimestamp(),
+          subscriptionEndDate: null,
+          maxProjects: limits.maxProjects,
+          maxUsers: limits.maxUsers,
+        })
+        toast.success(`Plan ${limits.label} aktif!`)
+        router.push('/overview')
+        return
+      }
+
       const orderId = `LOGIS-${companyId.slice(0, 8)}-${plan.toUpperCase()}-${Date.now()}`
 
       const res = await fetch('/api/payment/create', {

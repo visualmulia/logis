@@ -35,7 +35,16 @@ export default function NewProjectPage() {
             where('status', '==', 'active')
           )
         )
-        setProjectCount(snap.data().count)
+        const count = snap.data().count
+        setProjectCount(count)
+
+        // Pre-check: redirect ke upgrade kalau limit sudah tercapai
+        const check = canCreateProject(companyProfile, count)
+        if (!check.allowed) {
+          toast.error(check.reason || 'Tidak dapat membuat proyek')
+          router.push('/upgrade')
+          return
+        }
       } catch {
         setProjectCount(0)
       } finally {
@@ -43,7 +52,7 @@ export default function NewProjectPage() {
       }
     }
     checkLimit()
-  }, [companyId])
+  }, [companyId, companyProfile, router])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value })
