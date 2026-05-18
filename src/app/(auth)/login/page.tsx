@@ -161,7 +161,7 @@ export default function LoginPage() {
             </div>
             <div
               className="text-xs mt-1 uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.3)' }}
+              style={{ color: 'rgba(245,240,235,0.55)' }}
             >
               Modul Terintegrasi
             </div>
@@ -175,7 +175,7 @@ export default function LoginPage() {
             </div>
             <div
               className="text-xs mt-1 uppercase tracking-widest"
-              style={{ color: 'rgba(245,240,235,0.3)' }}
+              style={{ color: 'rgba(245,240,235,0.55)' }}
             >
               Masalah Bisa Dicegah
             </div>
@@ -287,13 +287,13 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2"
-                  style={{ color: 'rgba(245,240,235,0.3)' }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5"
+                  style={{ color: 'rgba(245,240,235,0.7)' }}
                 >
                   {showPassword ? (
-                    <EyeOff size={16} />
+                    <EyeOff size={18} />
                   ) : (
-                    <Eye size={16} />
+                    <Eye size={18} />
                   )}
                 </button>
               </div>

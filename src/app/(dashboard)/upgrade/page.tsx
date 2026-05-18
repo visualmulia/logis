@@ -284,6 +284,13 @@ export default function UpgradePage() {
                   style={{
                     background: '#F97316',
                     color: '#0a0a0a',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#e0650f'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#F97316'
                   }}
                 >
                   More Info
