@@ -234,7 +234,11 @@ export default function UpgradePage() {
                     {limits.label}
                   </h3>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    {isFree ? 'Gratis' : formatPrice(limits.price) + '/bulan'}
+                    {plan === 'enterprise'
+                      ? 'Hubungi Kami'
+                      : isFree
+                        ? 'Gratis'
+                        : formatPrice(limits.price) + '/bulan'}
                   </p>
                 </div>
               </div>
@@ -252,6 +256,12 @@ export default function UpgradePage() {
                   <Check size={13} style={{ color: '#22c55e' }} />
                   Semua fitur aktif
                 </li>
+                {plan === 'enterprise' && (
+                  <li className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <Check size={13} style={{ color: '#22c55e' }} />
+                    Kustomisasi Fitur
+                  </li>
+                )}
               </ul>
 
               {isCurrent ? (
@@ -267,6 +277,17 @@ export default function UpgradePage() {
                 >
                   Plan Saat Ini
                 </button>
+              ) : plan === 'enterprise' ? (
+                <a
+                  href="mailto:visualmulia@gmail.com?subject=Info%20Enterprise%20Plan%20-%20Logis"
+                  className="block w-full py-2.5 text-sm font-bold text-center transition-all"
+                  style={{
+                    background: '#F97316',
+                    color: '#0a0a0a',
+                  }}
+                >
+                  More Info
+                </a>
               ) : (
                 <button
                   onClick={() => handleSelectPlan(plan)}
