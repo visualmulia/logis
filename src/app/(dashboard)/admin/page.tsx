@@ -3,16 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { db } from '@/lib/firebase/config'
-import {
-  collection,
-  collectionGroup,
-  getCountFromServer,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-} from 'firebase/firestore'
 import {
   Loader2, Building2, Users, TrendingUp,
   PackageSearch, ExternalLink, ShieldAlert,
@@ -29,7 +19,7 @@ interface RecentCompany {
   id: string
   name: string
   ownerEmail: string
-  createdAt: Date | null
+  createdAt: string | null
 }
 
 export default function AdminPage() {
@@ -38,6 +28,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<SystemStats | null>(null)
   const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Proteksi: hanya superadmin yang boleh akses
   useEffect(() => {
@@ -51,52 +42,24 @@ export default function AdminPage() {
 
     async function loadStats() {
       try {
-        // Total companies
-        const companiesSnap = await getCountFromServer(
-          collection(db, 'logis_companies')
-        )
+        const res = await fetch('/api/admin/stats')
+        const data = await res.json()
 
-        // Total users
-        const usersSnap = await getCountFromServer(
-          collectionGroup(db, 'users')
-        )
-
-        // Total projects
-        const projectsSnap = await getCountFromServer(
-          collectionGroup(db, 'projects')
-        )
-
-        // Total requests
-        const requestsSnap = await getCountFromServer(
-          collectionGroup(db, 'requests')
-        )
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to load stats')
+        }
 
         setStats({
-          totalCompanies: companiesSnap.data().count,
-          totalUsers: usersSnap.data().count,
-          totalProjects: projectsSnap.data().count,
-          totalRequests: requestsSnap.data().count,
+          totalCompanies: data.totalCompanies,
+          totalUsers: data.totalUsers,
+          totalProjects: data.totalProjects,
+          totalRequests: data.totalRequests,
         })
-
-        // Recent companies
-        const recentSnap = await getDocs(
-          query(
-            collection(db, 'logis_companies'),
-            orderBy('createdAt', 'desc'),
-            limit(10)
-          )
-        )
-
-        setRecentCompanies(
-          recentSnap.docs.map((d) => ({
-            id: d.id,
-            name: d.data().name || '—',
-            ownerEmail: d.data().ownerEmail || '—',
-            createdAt: d.data().createdAt?.toDate() || null,
-          }))
-        )
-      } catch (err) {
-        console.error('Failed to load admin stats:', err)
+        setRecentCompanies(data.recentCompanies || [])
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Gagal memuat statistik'
+        setError(message)
+        console.error('Admin stats error:', err)
       } finally {
         setLoading(false)
       }
@@ -159,6 +122,18 @@ export default function AdminPage() {
           Statistik penggunaan platform Logis secara real-time
         </p>
       </div>
+
+      {/* Error state */}
+      {error && (
+        <div className="mb-6 p-4" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}>
+          <p className="text-sm font-semibold" style={{ color: '#ef4444' }}>
+            Error: {error}
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Cek console browser untuk detail. Kemungkinan FCM_SERVICE_ACCOUNT belum di-set di Vercel.
+          </p>
+        </div>
+      )}
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
@@ -318,7 +293,7 @@ export default function AdminPage() {
                 </div>
                 <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>
                   {company.createdAt
-                    ? company.createdAt.toLocaleDateString('id-ID')
+                    ? new Date(company.createdAt).toLocaleDateString('id-ID')
                     : '—'}
                 </span>
               </div>
