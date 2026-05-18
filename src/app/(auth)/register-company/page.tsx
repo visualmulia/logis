@@ -15,6 +15,7 @@ import Link from 'next/link'
 
 const schema = z.object({
   companyName: z.string().min(3, 'Nama perusahaan minimal 3 karakter'),
+  projectName: z.string().min(2, 'Nama proyek minimal 2 karakter'),
   companyAddress: z.string().min(10, 'Alamat minimal 10 karakter'),
   companyPhone: z.string().min(10, 'Nomor telepon tidak valid'),
   ownerName: z.string().min(2, 'Nama minimal 2 karakter'),
@@ -44,7 +45,7 @@ export default function RegisterCompanyPage() {
   })
 
   async function nextStep() {
-    const valid = await trigger(['companyName', 'companyAddress', 'companyPhone'])
+    const valid = await trigger(['companyName', 'projectName', 'companyAddress', 'companyPhone'])
     if (valid) setStep(2)
   }
 
@@ -58,6 +59,7 @@ export default function RegisterCompanyPage() {
         ownerName: data.ownerName,
         ownerEmail: data.ownerEmail,
         password: data.password,
+        firstProjectName: data.projectName,
       })
       toast.success('Perusahaan berhasil didaftarkan! Selamat datang di Logis.')
       await new Promise((r) => setTimeout(r, 500))
@@ -173,6 +175,21 @@ export default function RegisterCompanyPage() {
                     }} />
                   {errors.companyName && (
                     <p style={errorStyle}>{errors.companyName.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Nama Proyek Pertama</label>
+                  <input {...register('projectName')}
+                    placeholder="Proyek Rumah Tinggal Jl. Mawar"
+                    style={{
+                      ...inputStyle,
+                      border: errors.projectName
+                        ? '1px solid #ef4444'
+                        : inputStyle.border,
+                    }} />
+                  {errors.projectName && (
+                    <p style={errorStyle}>{errors.projectName.message}</p>
                   )}
                 </div>
 

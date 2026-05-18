@@ -10,7 +10,10 @@ import {
   doc,
   setDoc,
   getDoc,
+  addDoc,
+  collection,
   serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore'
 import { auth, db } from './config'
 import { LogisUser, UserRole } from '@/types'
@@ -35,6 +38,7 @@ export async function registerCompany(data: {
   ownerName: string
   ownerEmail: string
   password: string
+  firstProjectName?: string
 }): Promise<void> {
   // 1. Buat user di Firebase Auth
   const credential = await createUserWithEmailAndPassword(
@@ -86,7 +90,26 @@ export async function registerCompany(data: {
     }
   )
 
-  // 6. Simpan ke localStorage
+  // 6. Buat proyek pertama jika nama diberikan
+  if (data.firstProjectName?.trim()) {
+    await addDoc(collection(db, 'logis_companies', companyId, 'projects'), {
+      companyId,
+      name: data.firstProjectName.trim(),
+      location: '-',
+      description: 'Proyek pertama',
+      budgetTotal: 0,
+      budgetUsed: 0,
+      progressPercent: 0,
+      status: 'active',
+      healthScore: 'healthy',
+      pmId: uid,
+      startDate: Timestamp.fromDate(new Date()),
+      endDate: null,
+      createdAt: serverTimestamp(),
+    })
+  }
+
+  // 7. Simpan ke localStorage
   if (typeof window !== 'undefined') {
     localStorage.setItem('logis_company_id', companyId)
   }

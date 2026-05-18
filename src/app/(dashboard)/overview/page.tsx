@@ -8,6 +8,7 @@ import {
   Loader2, TrendingUp, Package,
   Wrench, AlertTriangle, ChevronRight,
   Clock, CheckCircle, XCircle, FileText,
+  Plus, Building2,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -77,6 +78,7 @@ export default function OverviewPage() {
   })
   const [recentRequests, setRecentRequests] = useState<RecentActivity[]>([])
   const [loadingStats, setLoadingStats] = useState(true)
+  const [projectsLoaded, setProjectsLoaded] = useState(false)
 
   const role = logisUser?.role || ''
   const isAdmin = role === 'admin'
@@ -104,6 +106,7 @@ export default function OverviewPage() {
           } else {
             setStats((prev) => ({ ...prev, activeProjects: snap.size }))
           }
+          setProjectsLoaded(true)
         }
       )
       unsubs.push(projUnsub)
@@ -430,6 +433,35 @@ export default function OverviewPage() {
           )
         })}
       </div>
+
+      {/* Empty state — user baru tanpa proyek */}
+      {projectsLoaded && stats.activeProjects === 0 && (role === 'owner' || role === 'admin') && (
+        <div className="mb-6 lg:mb-8 p-6 lg:p-10 text-center"
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px dashed var(--border-color)',
+          }}>
+          <div className="w-14 h-14 mx-auto mb-4 flex items-center justify-center"
+            style={{
+              background: 'rgba(249,115,22,0.08)',
+              border: '1px solid rgba(249,115,22,0.2)',
+            }}>
+            <Building2 size={24} style={{ color: '#F97316' }} />
+          </div>
+          <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+            Belum ada proyek aktif
+          </h3>
+          <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>
+            Buat proyek pertama untuk mulai mengelola gudang digital, request material, dan aset.
+          </p>
+          <Link href="/projects/new"
+            className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-bold"
+            style={{ background: '#F97316', color: '#fff' }}>
+            <Plus size={15} />
+            Buat Proyek Pertama
+          </Link>
+        </div>
+      )}
 
       {/* Bottom grid */}
       <div className={`grid grid-cols-1 gap-4 ${showQuickActions ? 'lg:grid-cols-2' : ''}`}>

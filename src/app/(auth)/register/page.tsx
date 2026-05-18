@@ -12,6 +12,7 @@ import { registerCompany } from '@/lib/firebase/auth'
 
 const registerSchema = z.object({
   companyName: z.string().min(3, 'Nama perusahaan minimal 3 karakter'),
+  projectName: z.string().min(2, 'Nama proyek minimal 2 karakter'),
   ownerName: z.string().min(2, 'Nama minimal 2 karakter'),
   phone: z.string().min(10, 'Nomor HP tidak valid'),
   email: z.string().email('Email tidak valid'),
@@ -144,6 +145,32 @@ export default function RegisterPage() {
             {errors.companyName && (
               <p className="text-xs mt-1" style={{ color: '#ef4444' }}>
                 {errors.companyName.message}
+              </p>
+            )}
+          </div>
+
+          {/* Project name */}
+          <div>
+            <label
+              className="block text-xs font-semibold uppercase tracking-widest mb-2"
+              style={{ color: 'rgba(245,240,235,0.5)' }}
+            >
+              Nama Proyek Pertama
+            </label>
+            <input
+              {...register('projectName')}
+              placeholder="Proyek Rumah Tinggal Jl. Mawar"
+              className="w-full px-4 py-3 text-sm outline-none"
+              style={{
+                ...inputStyle,
+                border: errors.projectName
+                  ? '1px solid #ef4444'
+                  : inputStyle.border,
+              }}
+            />
+            {errors.projectName && (
+              <p className="text-xs mt-1" style={{ color: '#ef4444' }}>
+                {errors.projectName.message}
               </p>
             )}
           </div>
