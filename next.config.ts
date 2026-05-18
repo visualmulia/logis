@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next'
 import withPWA from '@ducanh2912/next-pwa'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   images: {
@@ -18,4 +19,13 @@ const withPWAConfig = withPWA({
   disable: process.env.NODE_ENV === 'development',
 })(nextConfig)
 
-export default withPWAConfig
+export default withSentryConfig(withPWAConfig, {
+  org: 'masbroo-studio',
+  project: 'logis',
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+})
