@@ -10,8 +10,11 @@ function getSnap() {
       'Midtrans credentials missing. Please set MIDTRANS_SERVER_KEY and NEXT_PUBLIC_MIDTRANS_CLIENT_KEY environment variables.'
     )
   }
+  // Gunakan env variable terpisah, bukan NODE_ENV
+  // Karena Vercel production bisa pakai Sandbox key untuk testing
+  const isProduction = process.env.MIDTRANS_IS_PRODUCTION === 'true'
   return new midtransClient.Snap({
-    isProduction: process.env.NODE_ENV === 'production',
+    isProduction,
     serverKey,
     clientKey,
   })
