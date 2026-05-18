@@ -145,12 +145,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Cek superadmin status
+      // Cek superadmin status — via Firestore atau hardcoded email fallback
       try {
         const adminDoc = await getDoc(doc(db, 'system_admins', user.uid))
-        setIsSuperAdmin(adminDoc.exists())
+        const isHardcodedAdmin = user.email === 'ardyan.permana@gmail.com'
+        setIsSuperAdmin(adminDoc.exists() || isHardcodedAdmin)
       } catch {
-        setIsSuperAdmin(false)
+        setIsSuperAdmin(user.email === 'ardyan.permana@gmail.com')
       }
     } catch (error) {
       console.error('Error loading user data:', error)
