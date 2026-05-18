@@ -14,12 +14,16 @@ export default function PWARegister() {
   // Register Service Worker untuk PWA (caching, offline, dll.)
   // Dihandle oleh @ducanh2912/next-pwa yang menggenerate sw.js di public/
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((reg) => console.log('PWA SW registered:', reg.scope))
-        .catch((err) => console.log('PWA SW failed:', err))
-    }
+    // Skip service worker untuk bot/crawler (Googlebot, dll.)
+    const isBot = /bot|crawler|spider|crawling|googleother/i.test(
+      navigator.userAgent
+    )
+    if (isBot || !('serviceWorker' in navigator)) return
+
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((reg) => console.log('PWA SW registered:', reg.scope))
+      .catch((err) => console.log('PWA SW failed:', err))
   }, [])
 
   // Setup FCM setelah user login
