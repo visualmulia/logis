@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server'
 import midtransClient from 'midtrans-client'
 
-const snap = new midtransClient.Snap({
-  isProduction: process.env.NODE_ENV === 'production',
-  serverKey: process.env.MIDTRANS_SERVER_KEY || '',
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '',
-})
+const serverKey = process.env.MIDTRANS_SERVER_KEY
+const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+
+function getSnap() {
+  if (!serverKey || !clientKey) {
+    throw new Error(
+      'Midtrans credentials missing. Please set MIDTRANS_SERVER_KEY and NEXT_PUBLIC_MIDTRANS_CLIENT_KEY environment variables.'
+    )
+  }
+  return new midtransClient.Snap({
+    isProduction: process.env.NODE_ENV === 'production',
+    serverKey,
+    clientKey,
+  })
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +28,8 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    const snap = getSnap()
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://logis-app.web.id'
 

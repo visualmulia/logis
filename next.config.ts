@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
 const withPWAConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
+  workboxOptions: {
+    // Jangan cache API routes
+    navigateFallbackDenylist: [/^\/(api|monitoring)/],
+    runtimeCaching: [
+      {
+        urlPattern: /\/(api|monitoring)/,
+        handler: 'NetworkOnly',
+      },
+    ],
+  },
 })(nextConfig)
 
 export default withSentryConfig(withPWAConfig, {
