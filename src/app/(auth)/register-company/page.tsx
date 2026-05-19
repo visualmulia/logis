@@ -114,7 +114,7 @@ export default function RegisterCompanyPage() {
             </div>
           </Link>
 
-          {/* Starter badge */}
+          {/* Trial badge */}
           <div className="flex items-center gap-2 px-4 py-2 mb-6 w-fit"
             style={{
               background: 'rgba(249,115,22,0.08)',
@@ -122,7 +122,7 @@ export default function RegisterCompanyPage() {
             }}>
             <CheckCircle size={13} style={{ color: '#F97316' }} />
             <span className="text-xs font-semibold" style={{ color: '#F97316' }}>
-              Tier Starter — 1 Proyek — 3 User — Gratis
+              Trial 30 hari — Full fitur — Gratis
             </span>
           </div>
 
@@ -371,7 +371,7 @@ export default function RegisterCompanyPage() {
             Yang kamu dapatkan
           </p>
           <h2 className="text-xl font-bold mb-6" style={{ color: '#f5f0eb' }}>
-            Tier Starter Gratis<br />Langsung pakai
+            Trial 30 hari,<br />semua fitur aktif
           </h2>
           <div className="space-y-4">
             {[
@@ -381,7 +381,7 @@ export default function RegisterCompanyPage() {
               'Petty cash dengan approval',
               'Export laporan PDF',
               'Push notification ke HP',
-              'Invite tim (max 3 user)',
+              'Invite tim unlimited',
               'Dashboard command center',
             ].map((item) => (
               <div key={item} className="flex items-center gap-3">

@@ -12,6 +12,8 @@ import { auth, db } from '@/lib/firebase/config'
 import {
   doc,
   getDoc,
+  updateDoc,
+  serverTimestamp,
 } from 'firebase/firestore'
 import { getUserData } from '@/lib/firebase/auth'
 import { LogisUser, CompanyProfile } from '@/types'
@@ -134,11 +136,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setCompanyId(cId)
 
       // Fetch company profile
+      let profileData: CompanyProfile | null = null
       try {
         const companyDoc = await getDoc(doc(db, 'logis_companies', cId))
         if (companyDoc.exists()) {
           const cData = companyDoc.data()
-          setCompanyProfile({
+          profileData = {
             id: companyDoc.id,
             name: cData.name || '',
             address: cData.address || '',
@@ -152,7 +155,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             maxProjects: cData.maxProjects ?? 999,
             maxUsers: cData.maxUsers ?? 999,
             createdAt: cData.createdAt?.toDate?.() || cData.createdAt,
-          } as CompanyProfile)
+          } as CompanyProfile
+
+          // Auto-downgrade: trial habis → fallback ke starter
+          if (
+            profileData.plan === 'trial' &&
+            profileData.isTrialActive &&
+            profileData.trialEndDate
+          ) {
+            const now = new Date()
+            const end = profileData.trialEndDate instanceof Date
+              ? profileData.trialEndDate
+              : new Date(profileData.trialEndDate)
+            if (now > end) {
+              try {
+                await updateDoc(doc(db, 'logis_companies', cId), {
+                  plan: 'starter',
+                  isTrialActive: false,
+                  maxProjects: 1,
+                  maxUsers: 3,
+                  subscriptionStartDate: serverTimestamp(),
+                  subscriptionEndDate: null,
+                })
+                // Update local profile
+                profileData.plan = 'starter'
+                profileData.isTrialActive = false
+                profileData.maxProjects = 1
+                profileData.maxUsers = 3
+              } catch (e) {
+                console.error('Auto-downgrade failed:', e)
+              }
+            }
+          }
+
+          setCompanyProfile(profileData)
         }
       } catch (err) {
         console.error('Failed to load company profile:', err)

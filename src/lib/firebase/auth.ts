@@ -51,8 +51,10 @@ export async function registerCompany(data: {
   // 2. Update display name
   await updateProfile(credential.user, { displayName: data.ownerName })
 
-  // 3. Starter plan (free tier) — 1 proyek, 3 user
-  const now = new Date()
+  // 3. Trial 30 hari dengan limit Builder (5 proyek, unlimited user)
+  const trialStart = new Date()
+  const trialEnd = new Date()
+  trialEnd.setDate(trialEnd.getDate() + 30)
 
   // 4. Buat company document
   const companyId = uid
@@ -63,12 +65,12 @@ export async function registerCompany(data: {
     phone: data.companyPhone,
     ownerName: data.ownerName,
     ownerEmail: data.ownerEmail,
-    plan: 'starter',
-    trialStartDate: now,
-    trialEndDate: now,
-    isTrialActive: false,
-    maxProjects: 1,
-    maxUsers: 3,
+    plan: 'trial',
+    trialStartDate: trialStart,
+    trialEndDate: trialEnd,
+    isTrialActive: true,
+    maxProjects: 5,
+    maxUsers: 999,
     createdAt: serverTimestamp(),
   })
 

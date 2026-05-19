@@ -370,7 +370,7 @@ export interface CompanyProfile {
 }
 
 export const PLAN_LIMITS: Record<PlanType, { maxProjects: number; maxUsers: number; label: string; price: number }> = {
-  trial:      { maxProjects: 999, maxUsers: 999,  label: 'Trial 30 Hari',  price: 0 },
+  trial:      { maxProjects: 5,   maxUsers: 999,  label: 'Trial 30 Hari',  price: 0 },
   starter:    { maxProjects: 1,   maxUsers: 3,    label: 'Starter',        price: 0 },
   builder:    { maxProjects: 5,   maxUsers: 999,  label: 'Builder',        price: 799000 },
   prime:      { maxProjects: 15,  maxUsers: 999,  label: 'Prime',          price: 1899000 },
