@@ -1,8 +1,26 @@
 import { NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase/admin'
 import { PLAN_LIMITS } from '@/types'
+import crypto from 'crypto'
 
 const VALID_STATUSES = ['capture', 'settlement', 'deny', 'cancel', 'expire', 'pending']
+
+function verifySignature(body: Record<string, unknown>): boolean {
+  const serverKey = process.env.MIDTRANS_SERVER_KEY
+  if (!serverKey) return false
+
+  const orderId = body.order_id as string
+  const statusCode = body.status_code as string
+  const grossAmount = body.gross_amount as string
+  const signatureKey = body.signature_key as string
+
+  if (!orderId || !statusCode || !grossAmount || !signatureKey) return false
+
+  const payload = orderId + statusCode + grossAmount + serverKey
+  const expectedSignature = crypto.createHash('sha512').update(payload).digest('hex')
+
+  return signatureKey === expectedSignature
+}
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +33,12 @@ export async function POST(request: Request) {
     } = body
 
     console.log('Midtrans callback:', { order_id, transaction_status, metadata })
+
+    // Verify signature
+    if (!verifySignature(body)) {
+      console.error('Invalid Midtrans signature')
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
+    }
 
     if (!VALID_STATUSES.includes(transaction_status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })

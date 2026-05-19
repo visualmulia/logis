@@ -59,8 +59,11 @@ export default function UpgradePage() {
     const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
     if (!clientKey) return
 
+    const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true'
     const script = document.createElement('script')
-    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'
+    script.src = isProduction
+      ? 'https://app.midtrans.com/snap/snap.js'
+      : 'https://app.sandbox.midtrans.com/snap/snap.js'
     script.setAttribute('data-client-key', clientKey)
     script.async = true
     document.body.appendChild(script)
