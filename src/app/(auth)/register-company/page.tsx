@@ -362,15 +362,15 @@ export default function RegisterCompanyPage() {
       {/* Right — Info panel (desktop only) */}
       <div className="hidden lg:flex flex-col justify-center p-12 w-96"
         style={{
-  background: 'var(--bg-card)',
-  border: '1px solid var(--border-color)',
-}}>
+          background: '#FAF7F2',
+          border: '1px solid #E8DDD4',
+        }}>
         <div className="mb-8">
           <p className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: '#F97316' }}>
             Yang kamu dapatkan
           </p>
-          <h2 className="text-xl font-bold mb-6" style={{ color: '#f5f0eb' }}>
+          <h2 className="text-xl font-bold mb-6" style={{ color: '#1a1a1a' }}>
             Trial 30 hari,<br />semua fitur aktif
           </h2>
           <div className="space-y-4">
@@ -386,7 +386,7 @@ export default function RegisterCompanyPage() {
             ].map((item) => (
               <div key={item} className="flex items-center gap-3">
                 <CheckCircle size={14} style={{ color: '#F97316', flexShrink: 0 }} />
-                <span className="text-sm" style={{ color: 'rgba(245,240,235,0.6)' }}>
+                <span className="text-sm" style={{ color: 'rgba(0,0,0,0.6)' }}>
                   {item}
                 </span>
               </div>
@@ -402,7 +402,7 @@ export default function RegisterCompanyPage() {
           <p className="text-xs font-semibold mb-1" style={{ color: '#F97316' }}>
             Tidak perlu kartu kredit
           </p>
-          <p className="text-xs" style={{ color: 'rgba(245,240,235,0.4)' }}>
+          <p className="text-xs" style={{ color: 'rgba(0,0,0,0.55)' }}>
             Daftar gratis, coba 30 hari penuh,
             baru putuskan plan yang cocok.
           </p>
