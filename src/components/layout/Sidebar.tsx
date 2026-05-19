@@ -214,10 +214,20 @@ export default function Sidebar() {
   }}>
 
         {/* Notification bell */}
-        <div className="px-1 py-1 mb-1 flex items-center gap-3"
-  style={{ color: sidebarMuted, position: 'relative', zIndex: 100 }}>
-  <NotificationBell />
-          <span className="text-sm font-medium">Notifikasi</span>
+        <div
+          className="flex items-center gap-3 px-3 py-2.5 text-sm transition-all mb-1 cursor-pointer"
+          style={{ color: sidebarMuted, position: 'relative', zIndex: 100 }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(249,115,22,0.08)'
+            e.currentTarget.style.color = '#F97316'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent'
+            e.currentTarget.style.color = sidebarMuted
+          }}
+        >
+          <NotificationBell bellClassName="p-0" bellSize={15} />
+          <span className="font-medium">Notifikasi</span>
         </div>
 
         {/* Theme toggle */}

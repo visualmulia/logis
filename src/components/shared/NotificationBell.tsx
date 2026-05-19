@@ -50,7 +50,13 @@ const C = {
   hoverBg:    'rgba(255,255,255,0.10)',
 }
 
-export default function NotificationBell() {
+export default function NotificationBell({
+  bellClassName,
+  bellSize = 18,
+}: {
+  bellClassName?: string
+  bellSize?: number
+}) {
   const { companyId, logisUser } = useAuth()
   const [notifications, setNotifications] = useState<LogisNotification[]>([])
   const [open, setOpen] = useState(false)
@@ -133,10 +139,10 @@ export default function NotificationBell() {
       {/* Bell button */}
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 transition-all"
+        className={`relative transition-all ${bellClassName ?? 'p-2'}`}
         style={{ color: open ? '#F97316' : 'rgba(245,240,235,0.4)' }}
       >
-        <Bell size={18} />
+        <Bell size={bellSize} />
         {unreadCount > 0 && (
           <span
             className="absolute top-1 right-1 flex items-center justify-center rounded-full text-white font-bold"
