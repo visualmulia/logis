@@ -12,7 +12,7 @@ export default function PWARegister() {
   const { logisUser, companyId } = useAuth()
 
   // Register Service Worker untuk PWA (caching, offline, dll.)
-  // Dihandle oleh @ducanh2912/next-pwa yang menggenerate sw.js di public/
+  // next-pwa diganti register: false agar kita handle manual dengan bot-check
   useEffect(() => {
     // Skip service worker untuk bot/crawler (Googlebot, dll.)
     const isBot = /bot|crawler|spider|crawling|googleother/i.test(
@@ -20,10 +20,14 @@ export default function PWARegister() {
     )
     if (isBot || !('serviceWorker' in navigator)) return
 
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((reg) => console.log('PWA SW registered:', reg.scope))
-      .catch((err) => console.log('PWA SW failed:', err))
+    try {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((reg) => console.log('PWA SW registered:', reg.scope))
+        .catch((err) => console.log('PWA SW failed:', err))
+    } catch {
+      // Abaikan error sync (seperti sw tidak tersedia di iframe/private mode)
+    }
   }, [])
 
   // Setup FCM setelah user login

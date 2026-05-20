@@ -15,7 +15,9 @@ Sentry.init({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const e = event as any
     const userAgent =
+      (typeof navigator !== 'undefined' && navigator.userAgent) ||
       e?.request?.headers?.['User-Agent'] ||
+      e?.request?.headers?.['user-agent'] ||
       e?.contexts?.browser?.name ||
       ''
     if (/bot|crawler|spider|crawling|googleother/i.test(String(userAgent))) {
